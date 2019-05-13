@@ -1,0 +1,26 @@
+destination: docs
+url: https://github.com/gothic-hedge-society/FinancieR
+
+template:
+  params:
+    bootswatch: cyborg
+
+reference:
+- title: Front Office
+  desc: Analyze financial data 
+  contents:
+  - calculate_daily_returns
+  - gmrr
+  - market_portfolio_from_hist_rtn
+  
+- title: Back Office
+  desc: Manipulate financial data
+  contents:
+  - xts_merge_align_next
+
+- title: Sample Data
+  desc: For examples, vignettes, and experimentation
+  contents:
+  - currency_identifiers
+  - daily_treasury_yield_curve_rates
+  - sample_historical_data

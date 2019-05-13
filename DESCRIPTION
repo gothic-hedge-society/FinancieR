@@ -1,0 +1,31 @@
+Package: FinancieR
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Jake",
+           family = "Vestal",
+           role = c("aut", "cre"),
+           email = "jmvestal@gmail.com",
+           comment = c(ORCID = "0000-0002-2970-4795"))
+Description: What the package does (one paragraph).
+License: GPL-3
+Depends: 
+    R (>= 3.6.0)
+Imports: 
+    magrittr,
+    lattice,
+    xts,
+    dplyr,
+    tibble,
+    tidyr,
+    zoo
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.1.1
