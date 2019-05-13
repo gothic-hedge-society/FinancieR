@@ -8,4 +8,3 @@
 ^cran-comments\.md$
 ^\.travis\.yml$
 ^README\.Rmd$
-^www$

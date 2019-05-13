@@ -1,1 +1,27 @@
-../www/FinancieR.css
+
+table.ref-index {
+  padding-right: 30px;
+  padding-left: 30px;
+}
+.ref-index th {color: #ffdaa0;}
+.ref-index td > p {padding-right: 15px;}
+.ref-index td > p > code > a {color: #375f84;}
+
+.ref-description p {color: #f9f0db;}
+
+pre, code {background-color: #dceef3;}
+
+#FinancieR-main-title {
+  margin-top: -40px;
+  padding-top: 315px;
+  background-image: url(figures/FinancieR-main-title.png);
+  background-size: 880px;
+  background-repeat: no-repeat;
+  color: white;
+  text-indent: 10px;
+}
+
+.contents h1{font-weight: bolder;}
+.contents h2{color: #cbffd2;}
+
+
