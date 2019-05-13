@@ -1,6 +1,6 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-<link rel="stylesheet" type="text/css" media="all" href="www/FinancieR.css"/>
+<link rel="stylesheet" type="text/css" media="all" href="pkgdown/extra.css"/>
 
 <h1 id="FinancieR-main-title">
 FinancieR

@@ -13,10 +13,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-<link rel="stylesheet" type="text/css" media="all" href="www/FinancieR.css"/>
+<link rel="stylesheet" type="text/css" media="all" href="pkgdown/extra.css"/>
 
 <h1 id="FinancieR-main-title">FinancieR</h1>
-
 
 <!-- badges: start -->
 <!-- badges: end -->

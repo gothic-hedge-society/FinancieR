@@ -14,11 +14,11 @@ pre, code {background-color: #dceef3;}
 #FinancieR-main-title {
   margin-top: -40px;
   padding-top: 315px;
-  background-image: url(figures/FinancieR-main-title.png);
-  background-size: 880px;
-  background-repeat: no-repeat;
   color: white;
   text-indent: 10px;
+  background-image: url(figures/FinancieR-main-title.png);  
+  background-size: 880px;  
+  background-repeat: no-repeat;
 }
 
 .contents h1{font-weight: bolder;}

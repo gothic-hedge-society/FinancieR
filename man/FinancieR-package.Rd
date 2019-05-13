@@ -4,7 +4,7 @@
 \name{FinancieR-package}
 \alias{FinancieR}
 \alias{FinancieR-package}
-\title{FinancieR: What the Package Does (One Line, Title Case)}
+\title{FinancieR: Tools for Financial Data Analysis and Manipulation}
 \description{
 What the package does (one paragraph).
 }
