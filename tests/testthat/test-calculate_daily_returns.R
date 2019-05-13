@@ -10,20 +10,25 @@ test_that(
     "Sandy missing dividend for all returns_method options."
   ),
   expect_identical(
-    calculate_daily_returns(
-      sample_historical_data["TXN"],
-      date_range_xts = "2012-10-31"
-    )[[1]] %>%
-      zoo::coredata() %>%
-      round(digits = 5),
-    cbind(
-      "ln_rtn"    = -2.1671592641372,
-      "log2_rtn"  = -3.12654992318732,
-      "log10_rtn" = -0.941185309820299,
-      "pct_diff"  = -2.14384508990318,
-      "multiple"  =  0.978561549100968
-    ) %>%
-      round(digits = 5)
+    round(
+      zoo::coredata(
+        calculate_daily_returns(
+          sample_historical_data["TXN"],
+          date_range_xts = "2012-10-31"
+        )[[1]]
+      ),
+      digits = 5
+    ),
+    round(
+      cbind(
+        "ln_rtn"    = -2.1671592641372,
+        "log2_rtn"  = -3.12654992318732,
+        "log10_rtn" = -0.941185309820299,
+        "pct_diff"  = -2.14384508990318,
+        "multiple"  =  0.978561549100968
+      ),
+      digits = 5
+    )
   )
 )
 
