@@ -18,6 +18,8 @@ knitr::opts_chunk$set(
 <h1 id="FinancieR-main-title">FinancieR</h1>
 
 <!-- badges: start -->
+[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+[![Travis build status](https://travis-ci.org/gothic-hedge-society/FinancieR.svg?branch=master)](https://travis-ci.org/gothic-hedge-society/FinancieR)
 <!-- badges: end -->
 
 This package is under construction.
