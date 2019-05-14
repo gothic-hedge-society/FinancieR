@@ -4,6 +4,9 @@ test_that(
   "xts_merge_align_next() gives correct result for TXN during Hurricane Sandy",
   {
     
+    cat(crayon::bold("\nhead(sample_historical_data$TXN$OHLCV):\n"))
+    print(head(sample_historical_data$TXN$OHLCV))
+    
     xts1 <- xts::rbind.xts(
       sample_historical_data$TXN$OHLCV[max(
         which(
