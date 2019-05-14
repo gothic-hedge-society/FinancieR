@@ -2,8 +2,8 @@ context("Accuracy")
 
 test_that(
   "xts_merge_align_next() gives correct result for TXN during Hurricane Sandy",
-  expect_identical(
-    xts_merge_align_next(
+  {
+    xts_merge_align_next_result <- xts_merge_align_next(
       xts1 = xts::rbind.xts(
         sample_historical_data$TXN$OHLCV[max(
           which(
@@ -17,8 +17,12 @@ test_that(
       xts2 = sample_historical_data$TXN$dividends, 
       agg_function = sum, 
       na.rm = TRUE
-    ),
-    xts::as.xts(
+    )
+  
+    cat(crayon::bold("\nxts_merge_align_next_result:\n"))
+    print(xts_merge_align_next_result)
+    
+    xts_merge_align_next_known_answer <- xts::as.xts(
       matrix(
         c(
           28.92, 28.90, 28.055,   28.060,  28.09, 28.90, 
@@ -31,5 +35,15 @@ test_that(
         )
       )
     )
-  )
+    
+    cat(crayon::bold("\nxts_merge_align_next_known_answer:\n"))
+    print(xts_merge_align_next_known_answer)
+    
+    expect_identical(
+      xts_merge_align_next_result,
+      xts_merge_align_next_known_answer
+    )
+    
+  }
+
 )
