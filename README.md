@@ -6,7 +6,8 @@
 FinancieR
 </h1>
 <!-- badges: start -->
-<!-- badges: end -->
+[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing) [![Travis build status](https://travis-ci.org/gothic-hedge-society/FinancieR.svg?branch=master)](https://travis-ci.org/gothic-hedge-society/FinancieR) <!-- badges: end -->
+
 This package is under construction.
 
 Installation
@@ -22,5 +23,5 @@ For now, you can install the development version from [GitHub](https://github.co
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("sweetClyde/FinancieR")
+devtools::install_github("gothic-hedge-society/FinancieR")
 ```

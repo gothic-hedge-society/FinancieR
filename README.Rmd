@@ -37,5 +37,5 @@ For now, you can install the development version from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("sweetClyde/FinancieR")
+devtools::install_github("gothic-hedge-society/FinancieR")
 ```
