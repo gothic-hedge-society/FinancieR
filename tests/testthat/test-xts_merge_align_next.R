@@ -81,7 +81,7 @@ test_that(
       
     }
     
-    final_merge <- xts::merge.xts(xts1, xts2, all = c(TRUE, FALSE))
+    final_merge <- zoo::merge.zoo(xts1, xts2, all = c(TRUE, FALSE))
     
     cat(crayon::bold("\nfinal_merge:\n"))
     print(final_merge)
@@ -96,7 +96,7 @@ test_that(
       ),],
       sample_historical_data$TXN$OHLCV["2012-10-31"]
     )
-
+    
     xts2 <- sample_historical_data$TXN$dividends
     
     xts_merge_align_next_result <- xts_merge_align_next(
@@ -105,11 +105,11 @@ test_that(
       agg_function = sum, 
       na.rm = TRUE
     )
-  
+    
     cat(crayon::bold("\nxts_merge_align_next_result:\n"))
     print(xts_merge_align_next_result)
     
-    xts_merge_align_next_known_answer <- xts::as.xts(
+    xts_merge_align_next_known_answer <- zoo::as.zoo(
       matrix(
         c(
           28.92, 28.90, 28.055,   28.060,  28.09, 28.90, 
@@ -117,14 +117,12 @@ test_that(
         ),
         ncol = 6,
         dimnames = list(
-          c("2012-10-26", "2012-10-31"), 
+          NULL, 
           c("High", "Low", "Open", "Close", "Volume", "DividendAmount")
         )
-      )
+      ),
+      order.by = as.Date(c("2012-10-26", "2012-10-31"))
     )
-    
-    cat(crayon::bold("\nxts_merge_align_next_known_answer:\n"))
-    print(xts_merge_align_next_known_answer)
     
     expect_identical(
       xts_merge_align_next_result,
@@ -132,5 +130,5 @@ test_that(
     )
     
   }
-
+  
 )

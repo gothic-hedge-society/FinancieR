@@ -68,6 +68,6 @@ xts_merge_align_next <- function(xts1, xts2, agg_function, ...){
     )
   }
   
-  xts::merge.xts(xts1, xts2, all = c(TRUE, FALSE))
+  zoo::merge.zoo(xts1, xts2, all = c(TRUE, FALSE))
   
 }
