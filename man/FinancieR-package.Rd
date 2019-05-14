@@ -8,6 +8,14 @@
 \description{
 What the package does (one paragraph).
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/gothic-hedge-society/FinancieR}
+  \item Report bugs at \url{https://github.com/gothic-hedge-society/FinancieR/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Jake Vestal \email{jmvestal@gmail.com} (0000-0002-2970-4795)
 

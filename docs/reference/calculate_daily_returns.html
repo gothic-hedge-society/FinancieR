@@ -87,7 +87,12 @@ account splits and dividends." />
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/gothic-hedge-society/FinancieR">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -101,7 +106,7 @@ account splits and dividends." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calculate Daily Returns</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/gothic-hedge-society/FinancieR/blob/master/R/calculate_daily_returns.R'><code>R/calculate_daily_returns.R</code></a></small>
     <div class="hidden name"><code>calculate_daily_returns.Rd</code></div>
     </div>
 
@@ -132,7 +137,8 @@ passed as <code>asset_data</code> is <a href='sample_historical_data.html'>sampl
       <th>date_range_xts</th>
       <td><p>A string that specifies the date range for which
 <code>calculate_daily_returns</code> will calculate returns. Gets passed to an
-xts, so simply use xts subsetting notation.</p></td>
+xts, so simply use xts subsetting notation. If missing or NULL, then the
+full date range of OHLCV is used.</p></td>
     </tr>
     <tr>
       <th>buy_at</th>
