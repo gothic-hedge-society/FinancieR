@@ -18,7 +18,8 @@ passed as \code{asset_data} is \link{sample_historical_data}.}
 
 \item{date_range_xts}{A string that specifies the date range for which
 \code{calculate_daily_returns} will calculate returns. Gets passed to an
-xts, so simply use xts subsetting notation.}
+xts, so simply use xts subsetting notation. If missing or NULL, then the
+full date range of OHLCV is used.}
 
 \item{buy_at}{Character: Specifies the 'initial price' to be used for
 calculating returns. Must be One of "open", "high", "low", "close", or

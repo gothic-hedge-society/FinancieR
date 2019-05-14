@@ -9,7 +9,8 @@
 #'  passed as \code{asset_data} is [sample_historical_data].
 #' @param date_range_xts A string that specifies the date range for which 
 #'  \code{calculate_daily_returns} will calculate returns. Gets passed to an
-#'  xts, so simply use xts subsetting notation.
+#'  xts, so simply use xts subsetting notation. If missing or NULL, then the 
+#'  full date range of OHLCV is used.
 #' @param buy_at Character: Specifies the 'initial price' to be used for 
 #'  calculating returns. Must be One of "open", "high", "low", "close", or 
 #'  "price". Case sensitive.
@@ -44,7 +45,7 @@ calculate_daily_returns <- function(
   sell_at = c("close", "open", "high", "low", "price"),
   include_volume   = TRUE,
   include_buy_sell = FALSE,
-  returns_method = c("ln", "log2", "log10", "pct_diff", "multiple")
+  returns_method   = c("ln", "log2", "log10", "pct_diff", "multiple")
 ){
   
   requireNamespace("xts")
