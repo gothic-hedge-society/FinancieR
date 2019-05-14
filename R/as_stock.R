@@ -4,6 +4,8 @@
 #'  options chain, or a commodity's price forward curve into an R object having
 #'  class \strong{asset}.
 
-as_stock <- function(identifier, OHLCV, dividends, splits){
+as_stock <- function(
+  # identifier, OHLCV, dividends, splits
+  ){
   
 }

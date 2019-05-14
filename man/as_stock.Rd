@@ -4,7 +4,7 @@
 \alias{as_stock}
 \title{Convert to Class "\strong{\code{stock}}"}
 \usage{
-as_stock(identifier, OHLCV, dividends, splits)
+as_stock()
 }
 \description{
 Coerce a list containing historical financial data for a stock, a stock's

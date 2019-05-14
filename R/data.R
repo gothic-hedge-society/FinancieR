@@ -74,3 +74,9 @@ shd_description <- function(
 #'     \code{three_letter_code}, \code{currency_name}, \code{symbol}, 
 #'     \code{country}
 "currency_identifiers"
+
+#' Exchange Hours
+#' 
+#' Operating hours and related information for worldwide exchanges. Taken from 
+#'  \url{https://en.wikipedia.org/wiki/List_of_stock_exchange_trading_hours}.
+"exchange_hours"
