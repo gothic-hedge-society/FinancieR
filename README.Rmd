@@ -8,12 +8,9 @@ output: github_document
 knitr::opts_chunk$set(
   collapse  = TRUE,
   comment   = "#>",
-  fig.path  = "www/figures/README-",
   out.width = "100%"
 )
 ```
-
-<link rel="stylesheet" type="text/css" media="all" href="pkgdown/extra.css"/>
 
 <h1 id="FinancieR-main-title">FinancieR</h1>
 
