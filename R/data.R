@@ -15,6 +15,15 @@ currency_identifiers_table <- function(
   )
 ){ do.call("paste0", rox_list) }
 
+exchange_hours_table <- function(
+  rox_list = list(
+    "@description Operating hours and related information for worldwide ",
+    "exchanges. Downloaded from \\url{https://www.xe.com/symbols.php} stored",
+    "in a tibble: ",   
+    tabular(exchange_hours)
+  )
+){ do.call("paste0", rox_list) }
+
 #' @title Sample Historical Data
 #' 
 #' @eval shd_description()
@@ -82,6 +91,6 @@ currency_identifiers_table <- function(
 
 #' Exchange Hours
 #' 
-#' Operating hours and related information for worldwide exchanges. Taken from 
-#'  \url{https://en.wikipedia.org/wiki/List_of_stock_exchange_trading_hours}.
+#' @eval exchange_hours_table()
+#' 
 "exchange_hours"
