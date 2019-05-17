@@ -20,15 +20,18 @@ library(FinancieR)
 
 ## Philosophy
 
-This package provides a tidy and accurate framework for the analysis of historical financial data based on the "pristine wilderness" philosophy: **only raw, unaltered data should be allowed** into the analysis, because this is the only way that the user can be sure of the data's quality and of the underlying assumptions embedded in the results. In other words, FinancieR is build on the belief that data that can be calculated from other data should be calculated; never imported from other sources.
+This package provides a tidy and accurate framework for the analysis of historical financial data based on the "pristine wilderness" philosophy: **only raw, unaltered data should be allowed** into the analysis, because this is the only way that the user can be sure of the data's quality and of the underlying assumptions embedded in the results. In other words, FinancieR is built on the belief that data that can be calculated from other data should be calculated; never imported from other sources.
 
 For example, consider dividend & split *adjusted closing price* for equities or *implied volatility* for options contracts. Many financial data vendors provide these data to their subscribers and users pre-calculated and ready for download, but this small convenience carries a rather heavy price: 
 
-**1. The user must trust that the calculations are performed correctly.** While not a major issue for reputable vendors, it's nevertheless a risk.
+#### **1. The user must trust that the calculations are performed correctly.** 
+While not a major issue for reputable vendors, it's nevertheless a risk that gets worse as the calculations increase in complexity.
 
-**2. Assumptions are not always clearly stated or made available by the vendor.** Even for very simple calculations like a stock's *adjusted closing price*, there is room for interperetation. If you need convincing, download the historical data for any stock from Yahoo! Finance, and see if you can reproduce (not just approximate) the *Adj Close* column yourself. Even if you are able to, you might not agree with Yahoo's methodology.
+#### **2. Assumptions are not always clearly stated or made available by the vendor.** 
+Even for very simple calculations like a stock's *adjusted closing price*, there is room for interperetation. If you need convincing, download the historical data for any stock from Yahoo! Finance, and see if you can reproduce (not just approximate) the *Adj Close* column yourself. Even if you are able to, you might not agree with Yahoo's methodology.
 
-**3. Analysis should be as dynamic as possible, allowing the user to easily import new data, change underlying parameters that affect calculated data, and reduce total data download sizes**. Say, for example, that your analysis requires historical implied volatility data for a set of options contracts. One way to get the data you need would be to simply download the historical implied volatilities you need from a Bloomberg terminal, and onboard it to your R project. But what happens when you realize that the volatilities you downloaded are based on 36-month time windows, and what you *really* need are 6-month? You have to go back to the terminal, re-download, and re-onboard everything into your project.
+#### **3. Analysis should be as dynamic as possible, allowing the user to easily import new data, change underlying parameters that affect calculated data, and reduce total data download sizes**. 
+Say, for example, that your analysis requires historical implied volatility data for a set of options contracts. One way to get the data you need would be to simply download the historical implied volatilities you need from a Bloomberg terminal, and onboard it to your R project. But what happens when you realize that the volatilities you downloaded are based on 36-month time windows, and what you *really* need are 6-month? You have to go back to the terminal, re-download, and re-onboard everything into your project.
 
 ## The `asset` Class
 
