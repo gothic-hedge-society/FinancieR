@@ -82,11 +82,25 @@
 <div id="philosophy" class="section level2">
 <h2 class="hasAnchor">
 <a href="#philosophy" class="anchor"></a>Philosophy</h2>
-<p>This package provides a tidy and accurate framework for the analysis of historical financial data based on the “pristine wilderness” philosophy: <strong>only raw, unaltered data should be allowed</strong> into the analysis, because this is the only way that the user can be sure of the data’s quality and of the underlying assumptions embedded in the results. In other words, FinancieR is build on the belief that data that can be calculated from other data should be calculated; never imported from other sources.</p>
+<p>This package provides a tidy and accurate framework for the analysis of historical financial data based on the “pristine wilderness” philosophy: <strong>only raw, unaltered data should be allowed</strong> into the analysis, because this is the only way that the user can be sure of the data’s quality and of the underlying assumptions embedded in the results. In other words, FinancieR is built on the belief that data that can be calculated from other data should be calculated; never imported from other sources.</p>
 <p>For example, consider dividend &amp; split <em>adjusted closing price</em> for equities or <em>implied volatility</em> for options contracts. Many financial data vendors provide these data to their subscribers and users pre-calculated and ready for download, but this small convenience carries a rather heavy price:</p>
-<p><strong>1. The user must trust that the calculations are performed correctly.</strong> While not a major issue for reputable vendors, it’s nevertheless a risk.</p>
-<p><strong>2. Assumptions are not always clearly stated or made available by the vendor.</strong> Even for very simple calculations like a stock’s <em>adjusted closing price</em>, there is room for interperetation. If you need convincing, download the historical data for any stock from Yahoo! Finance, and see if you can reproduce (not just approximate) the <em>Adj Close</em> column yourself. Even if you are able to, you might not agree with Yahoo’s methodology.</p>
-<p><strong>3. Analysis should be as dynamic as possible, allowing the user to easily import new data, change underlying parameters that affect calculated data, and reduce total data download sizes</strong>. Say, for example, that your analysis requires historical implied volatility data for a set of options contracts. One way to get the data you need would be to simply download the historical implied volatilities you need from a Bloomberg terminal, and onboard it to your R project. But what happens when you realize that the volatilities you downloaded are based on 36-month time windows, and what you <em>really</em> need are 6-month? You have to go back to the terminal, re-download, and re-onboard everything into your project.</p>
+<div id="the-user-must-trust-that-the-calculations-are-performed-correctly-" class="section level4">
+<h4 class="hasAnchor">
+<a href="#the-user-must-trust-that-the-calculations-are-performed-correctly-" class="anchor"></a><strong>1. The user must trust that the calculations are performed correctly.</strong>
+</h4>
+<p>While not a major issue for reputable vendors, it’s nevertheless a risk that gets worse as the calculations increase in complexity.</p>
+</div>
+<div id="assumptions-are-not-always-clearly-stated-or-made-available-by-the-vendor-" class="section level4">
+<h4 class="hasAnchor">
+<a href="#assumptions-are-not-always-clearly-stated-or-made-available-by-the-vendor-" class="anchor"></a><strong>2. Assumptions are not always clearly stated or made available by the vendor.</strong>
+</h4>
+<p>Even for very simple calculations like a stock’s <em>adjusted closing price</em>, there is room for interperetation. If you need convincing, download the historical data for any stock from Yahoo! Finance, and see if you can reproduce (not just approximate) the <em>Adj Close</em> column yourself. Even if you are able to, you might not agree with Yahoo’s methodology.</p>
+</div>
+<div id="analysis-should-be-as-dynamic-as-possible-allowing-the-user-to-easily-import-new-data-change-underlying-parameters-that-affect-calculated-data-and-reduce-total-data-download-sizes-" class="section level4">
+<h4 class="hasAnchor">
+<a href="#analysis-should-be-as-dynamic-as-possible-allowing-the-user-to-easily-import-new-data-change-underlying-parameters-that-affect-calculated-data-and-reduce-total-data-download-sizes-" class="anchor"></a><strong>3. Analysis should be as dynamic as possible, allowing the user to easily import new data, change underlying parameters that affect calculated data, and reduce total data download sizes</strong>.</h4>
+<p>Say, for example, that your analysis requires historical implied volatility data for a set of options contracts. One way to get the data you need would be to simply download the historical implied volatilities you need from a Bloomberg terminal, and onboard it to your R project. But what happens when you realize that the volatilities you downloaded are based on 36-month time windows, and what you <em>really</em> need are 6-month? You have to go back to the terminal, re-download, and re-onboard everything into your project.</p>
+</div>
 </div>
 <div id="the-asset-class" class="section level2">
 <h2 class="hasAnchor">
