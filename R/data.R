@@ -10,8 +10,7 @@ shd_description <- function(
 currency_identifiers_table <- function(
   rox_list = list(
     "@description Names, symbols, and country of origin for currencies ",
-    "downloaded from \\url{https://www.xe.com/symbols.php} stored in a tibble: ",   
-    tabular(FinancieR::currency_identifiers)
+    "downloaded from \\url{https://www.xe.com/symbols.php} stored in a tibble"
   )
 ){ do.call("paste0", rox_list) }
 
