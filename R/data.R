@@ -11,16 +11,16 @@ currency_identifiers_table <- function(
   rox_list = list(
     "@description Names, symbols, and country of origin for currencies ",
     "downloaded from \\url{https://www.xe.com/symbols.php} stored in a tibble: ",   
-    tabular(currency_identifiers)
+    tabular(FinancieR::currency_identifiers)
   )
 ){ do.call("paste0", rox_list) }
 
-exchange_hours_table <- function(
+stock_exchange_hours_table <- function(
   rox_list = list(
     "@description Operating hours and related information for worldwide ",
     "exchanges. Downloaded from \\url{https://www.xe.com/symbols.php} stored",
     "in a tibble: ",   
-    tabular(exchange_hours)
+    tabular(FinancieR::stock_exchange_hours)
   )
 ){ do.call("paste0", rox_list) }
 
@@ -91,6 +91,6 @@ exchange_hours_table <- function(
 
 #' Exchange Hours
 #' 
-#' @eval exchange_hours_table()
+#' @eval stock_exchange_hours_table()
 #' 
-"exchange_hours"
+"stock_exchange_hours"

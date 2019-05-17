@@ -1,5 +1,5 @@
 
-exchange_hours <- xml2::read_html(
+stock_exchange_hours <- xml2::read_html(
   "https://en.wikipedia.org/wiki/List_of_stock_exchange_trading_hours"
 ) %>%
   rvest::html_node("body") %>%
@@ -20,6 +20,13 @@ exchange_hours <- xml2::read_html(
     . <- .[-1,]
     .
   } %>%
-  tibble::as_tibble()
+  tibble::as_tibble() %>% 
+  dplyr::arrange(ID) %>%
+  dplyr::mutate(
+    "Name"        = gsub("\\[(.*)\\]", "", stock_exchange_hours$Name),
+    "local_Open"  = gsub("\\[(.*)\\]", "", stock_exchange_hours$local_Open),
+    "local_Close" = gsub("\\[(.*)\\]", "", stock_exchange_hours$local_Close),
+    "local_Lunch" = gsub("\\[(.*)\\]", "", stock_exchange_hours$local_Lunch)
+  )
 
-usethis::use_data(exchange_hours, overwrite = TRUE)
+usethis::use_data(stock_exchange_hours, overwrite = TRUE)
