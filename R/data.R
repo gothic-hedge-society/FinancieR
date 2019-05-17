@@ -6,6 +6,15 @@ shd_description <- function(
     " (somewhat randomly) selected stocks."
   )
 ){ do.call("paste0", rox_list) }
+
+currency_identifiers_table <- function(
+  rox_list = list(
+    "@description Names, symbols, and country of origin for currencies ",
+    "downloaded from \\url{https://www.xe.com/symbols.php} stored in a tibble: ",   
+    tabular(currency_identifiers)
+  )
+){ do.call("paste0", rox_list) }
+
 #' @title Sample Historical Data
 #' 
 #' @eval shd_description()
@@ -66,13 +75,9 @@ shd_description <- function(
 "daily_treasury_yield_curve_rates"
 
 #' Currency Identifiers
-#' 
-#' Names, symbols, and country of origin for currencies downloaded from
-#' \url{https://www.xe.com/symbols.php}
 #'
-#' @format An tibble containing the following self-explanatory columns:
-#'     \code{three_letter_code}, \code{currency_name}, \code{symbol}, 
-#'     \code{country}
+#' @eval currency_identifiers_table()
+#' 
 "currency_identifiers"
 
 #' Exchange Hours
