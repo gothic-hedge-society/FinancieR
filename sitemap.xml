@@ -19,9 +19,6 @@
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/daily_treasury_yield_curve_rates.html</loc>
   </url>
   <url>
-    <loc>https://github.com/gothic-hedge-society/FinancieR/reference/exchange_hours.html</loc>
-  </url>
-  <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/gmrr.html</loc>
   </url>
   <url>
@@ -32,6 +29,9 @@
   </url>
   <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/sample_historical_data.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/reference/stock_exchange_hours.html</loc>
   </url>
   <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/xts_merge_align_next.html</loc>

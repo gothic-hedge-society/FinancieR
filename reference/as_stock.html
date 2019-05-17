@@ -119,14 +119,64 @@ class <strong>asset</strong>.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>as_stock</span>()</pre>
-        
+    <pre class="usage"><span class='fu'>as_stock</span>(<span class='no'>identifiers</span>, <span class='no'>OHLCV</span>, <span class='no'>dividends</span>, <span class='no'>splits</span>, <span class='no'>exchange</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>identifiers</th>
+      <td><p>a named character vector whose names must be one of:
+<strong>Symbol, Name, ISIN, CIK, CUSIP, Valoren, SEDOL, FIGI</strong>. The value of the first identifier will be used as the name of the
+result returned. You may specify as many identifiers as you want, but you
+must specify at least one.</p></td>
+    </tr>
+    <tr>
+      <th>OHLCV</th>
+      <td><p>an xts object containing 5 columns: <strong>Open</strong>,
+<strong>High</strong>, <strong>Low</strong>, <strong>Close</strong>, and <strong>Volume</strong> data for a
+stock. Not case-sensitive.</p></td>
+    </tr>
+    <tr>
+      <th>dividends</th>
+      <td><p>an xts object containing at least one column named
+<strong>Cash</strong> or <strong>Stock</strong>, plus any number of additional columns
+desired in the result returned (such as "announced_date", "frequency", etc),
+indexed by <strong>Ex Date</strong>. The value of an element appearing in the
+<strong>Cash</strong> column is the cash amount, per share, that went ex-div on the
+date specified for index. Ditto for <strong>Stock</strong>.</p></td>
+    </tr>
+    <tr>
+      <th>splits</th>
+      <td><p>an xts object containing two columns named <strong>Denominator</strong>
+and <strong>Numerator</strong>. See <em>Details</em>.</p></td>
+    </tr>
+    <tr>
+      <th>exchange</th>
+      <td><p>the stock exchange on which the data were observed. Must be
+one of the values appearing in <code>stock_exchange_hours$ID</code>; e.g., "NYSE",
+"NASDAQ", etc. Not case-sensitive.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>additional data to include, such as <code>float</code>,
+<code>earnings_announcement</code>, <code>warrants</code>, etc.</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="rules"><a class="anchor" href="#rules"></a>Rules</h2>
+
+    <p>NA</p>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-                </ul>
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#rules">Rules</a></li>
+          </ul>
 
   </div>
 </div>
