@@ -1,7 +1,8 @@
 ## Test environments
-* ubuntu 19.04, R 3.6.0
-* ubuntu 14.04 (on travis-ci), R 3.6.0
-* windows 7 ultimate, R 3.6.0
+* local Ubuntu 19.04 install, R 3.6.0
+* local Windows 7 Ultimate install, R 3.6.0
+* Ubuntu 14.04 (on travis-ci), R 3.6.0
+* OS X (on travis-ci), R 3.6.0
 
 ## R CMD check results
 
