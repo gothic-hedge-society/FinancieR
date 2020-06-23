@@ -7,9 +7,6 @@
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/FinancieR-package.html</loc>
   </url>
   <url>
-    <loc>https://github.com/gothic-hedge-society/FinancieR/reference/as_stock.html</loc>
-  </url>
-  <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/calculate_daily_returns.html</loc>
   </url>
   <url>
@@ -32,6 +29,9 @@
   </url>
   <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/stock_exchange_hours.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/reference/tidyeval.html</loc>
   </url>
   <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/xts_merge_align_next.html</loc>
