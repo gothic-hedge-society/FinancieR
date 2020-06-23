@@ -4,7 +4,9 @@
 \name{currency_identifiers}
 \alias{currency_identifiers}
 \title{Currency Identifiers}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 109 rows and 4 columns.}
+\format{
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 109 rows and 4 columns.
+}
 \usage{
 currency_identifiers
 }

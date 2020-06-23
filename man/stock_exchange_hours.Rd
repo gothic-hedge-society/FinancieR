@@ -4,11 +4,13 @@
 \name{stock_exchange_hours}
 \alias{stock_exchange_hours}
 \title{Exchange Hours}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 66 rows and 13 columns.}
+\format{
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 66 rows and 13 columns.
+}
 \usage{
 stock_exchange_hours
 }
 \description{
-Operating hours and related information for worldwide exchanges. Downloaded from \url{https://www.xe.com/symbols.php} storedin a tibble:
+Operating hours and related information for worldwide exchanges. Downloaded from \url{https://www.xe.com/symbols.php} storedin a tibble
 }
 \keyword{datasets}

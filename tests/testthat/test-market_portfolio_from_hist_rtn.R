@@ -10,7 +10,7 @@ test_that(
     expect_equal(
       round(
         market_portfolio_from_hist_rtn(
-          readRDS("testdata/yahoo_historical_returns.rds")
+          testthis::read_testdata("yahoo_historical_returns")
           )$weights,
         digits = 2
       ),
@@ -29,7 +29,7 @@ test_that(
     expect_equal(
       round(
         market_portfolio_from_hist_rtn(
-          readRDS("testdata/yahoo_historical_returns.rds")
+          testthis::read_testdata("yahoo_historical_returns")
         )$sharpe,
         digits = 6
       ),

@@ -4,7 +4,8 @@
 \name{sample_historical_data}
 \alias{sample_historical_data}
 \title{Sample Historical Data}
-\format{A list in which each element is another list, and is named using the
+\format{
+A list in which each element is another list, and is named using the
 identifier of the asset to which its constituent data corresponds (e.g.,
 the element named "AAPL" contains data for Apple, Inc.).
 
@@ -29,7 +30,8 @@ AFTER split, and \code{Numerator} refers to stock BEFORE split; e.g, a
 The index of the xts object corresponds to the ex-date of the split
 described by \code{Denominator} and \code{Numerator}.
 }
-}}
+}
+}
 \usage{
 sample_historical_data
 }

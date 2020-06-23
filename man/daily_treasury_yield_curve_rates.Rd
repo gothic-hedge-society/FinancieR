@@ -4,9 +4,11 @@
 \name{daily_treasury_yield_curve_rates}
 \alias{daily_treasury_yield_curve_rates}
 \title{Daily Yield Curve Rates}
-\format{An xts object containing daily yield curve rates for the following
+\format{
+An xts object containing daily yield curve rates for the following
 time periods, which appear as column names in the xts:
-1 Mo, 2 Mo, 3 Mo, 6 Mo, 1 Yr, 2 Yr, 3 Yr, 5 Yr, 7 Yr, 10 Yr, 20 Yr, 30 Yr}
+1 Mo, 2 Mo, 3 Mo, 6 Mo, 1 Yr, 2 Yr, 3 Yr, 5 Yr, 7 Yr, 10 Yr, 20 Yr, 30 Yr
+}
 \usage{
 daily_treasury_yield_curve_rates
 }

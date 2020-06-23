@@ -4,11 +4,15 @@
 \alias{calculate_daily_returns}
 \title{Calculate Daily Returns}
 \usage{
-calculate_daily_returns(assets, date_range_xts = NULL,
+calculate_daily_returns(
+  assets,
+  date_range_xts = NULL,
   buy_at = c("close", "open", "high", "low", "price"),
   sell_at = c("close", "open", "high", "low", "price"),
-  include_volume = TRUE, include_buy_sell = FALSE,
-  returns_method = c("ln", "log2", "log10", "pct_diff", "multiple"))
+  include_volume = TRUE,
+  include_buy_sell = FALSE,
+  returns_method = c("ln", "log2", "log10", "pct_diff", "multiple")
+)
 }
 \arguments{
 \item{assets}{a list of sub-lists named and corresponding to a given

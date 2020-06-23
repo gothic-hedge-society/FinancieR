@@ -2,7 +2,7 @@
 % Please edit documentation in R/gmrr.R
 \name{gmrr}
 \alias{gmrr}
-\title{Calculate geometric means of an xts series of returns.}
+\title{gmmr}
 \usage{
 gmrr(returns_xts)
 }
@@ -10,11 +10,11 @@ gmrr(returns_xts)
 \item{returns_xts}{An xts object whose values are period-over-period returns
 observed for the assets specified by the identifiers in the column names.
 Returns are NOT assumed to be in 'percent form': i.e., make sure that in
-whatever xts is passed as \code{returns_xts}, a return of \emph{12\%} is
+whatever xts is passed as \code{returns_xts}, a return of \emph{12}\% is
 represented as \emph{0.12}.}
 }
 \value{
-a numeric vector whose values are the geometric means of the returns
+A numeric vector whose values are the geometric means of the returns
 in \code{returns_xts} and whose names are the identifiers for which each
 geometric mean return was calculated.
 }

@@ -18,8 +18,8 @@ stock_exchange_hours_table <- function(
   rox_list = list(
     "@description Operating hours and related information for worldwide ",
     "exchanges. Downloaded from \\url{https://www.xe.com/symbols.php} stored",
-    "in a tibble: "
-    # ,   
+    "in a tibble"
+    # ": ",   
     # tabular(FinancieR::stock_exchange_hours)
   )
 ){ do.call("paste0", rox_list) }

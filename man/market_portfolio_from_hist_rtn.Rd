@@ -4,17 +4,25 @@
 \alias{market_portfolio_from_hist_rtn}
 \title{Market Portfolio (MP) from Historical Returns}
 \usage{
-market_portfolio_from_hist_rtn(returns_xts, rf = 0.0025)
+market_portfolio_from_hist_rtn(rtn_xts, rf = 0.0025)
 }
 \arguments{
-\item{returns_xts}{An xts object whose values are period-over-period returns
-observed for the assets specified by the identifiers in the column names.}
+\item{rtn_xts}{An \code{\link[xts]{xts}} xts object whose values are
+period-over-period returns observed for the assets identified by column
+names, and for which the market portfolio is sought.}
 
-\item{rf}{The current prevailing risk-free rate.}
+\item{rf}{The risk-free rate to use in calculation of
+\href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe
+Ratio}, in decimal form. Defaults to \strong{0.0025}\% daily return (about
+0.91\% annually). If you specify a different value for \emph{rf},
+\strong{make sure its units match the returns in \emph{rtn_xts}}, (i.e., if
+\emph{rtn_xts} contains monthly returns, use monthly risk-free rate) and
+\strong{don't forget to use decimal representation} (i.e., \emph{rf} = 5 is
+taken to mean 500\%, not 5\%).}
 }
 \value{
-A list describing the market portfolio (MP) found by
-\code{market_portfolio_from_hist_rtn()}, having four elements:
+A list describing the market portfolio (MP) found for \emph{rtn_xts},
+having four elements:
 \describe{
 \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
 \item{\code{weights}, named numeric vector:}{The values of
@@ -27,10 +35,18 @@ predicted/forecast) for the MP over the next time interval.}
 }
 }
 \description{
-Calculate optimal portfolio weighting fractions
+Given an \code{\link[xts]{xts}}, calculate the
 }
 \details{
-Returns are NOT assumed to be in 'percent form': i.e., make sure that in
-whatever xts is passed as \code{returns_xts}, a return of \emph{12\%} is
-represented as \emph{0.12}.
+This function works by finding the Sharpe-optimum equal-weighted portfolio
+that can be created using the assets passed in. Using that portfolio as a
+starting point, the function finds the assets A and B such that
+reallocating ("selling") a small amount (\emph{step}) of A into asset B
+("buying") results in a portfolio whose Sharpe is greater than all other
+possible assets A and B. The portfolio variable is updated.
+
+This process is repeated with smaller and smaller \emph{step} sizes. When
+it is not possible to reallocate \emph{step} amount of any asset A into any
+other asset B so as to create a portfolio having a better Sharpe, the
+Market Portfolio has been reached and the function returns the value.
 }

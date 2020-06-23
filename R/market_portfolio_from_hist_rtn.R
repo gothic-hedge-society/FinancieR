@@ -1,14 +1,23 @@
 #' Market Portfolio (MP) from Historical Returns
 #' 
-#' Calculate optimal portfolio weighting fractions
+#' Given an \code{\link[xts]{xts}}, calculate the
 #' 
-#' @param returns_xts An xts object whose values are period-over-period returns
-#'   observed for the assets specified by the identifiers in the column names.
 #' 
-#' @param rf The current prevailing risk-free rate.
+#' @param rtn_xts An \code{\link[xts]{xts}} xts object whose values are 
+#'   period-over-period returns observed for the assets identified by column 
+#'   names, and for which the market portfolio is sought.
 #' 
-#' @return A list describing the market portfolio (MP) found by 
-#'   \code{market_portfolio_from_hist_rtn()}, having four elements:
+#' @param rf The risk-free rate to use in calculation of
+#'   \href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe
+#'   Ratio}, in decimal form. Defaults to \strong{0.0025}% daily return (about
+#'   0.91% annually). If you specify a different value for \emph{rf},
+#'   \strong{make sure its units match the returns in \emph{rtn_xts}}, (i.e., if
+#'   \emph{rtn_xts} contains monthly returns, use monthly risk-free rate) and
+#'   \strong{don't forget to use decimal representation} (i.e., \emph{rf} = 5 is
+#'   taken to mean 500%, not 5%).
+#' 
+#' @return A list describing the market portfolio (MP) found for \emph{rtn_xts},
+#'   having four elements:
 #'   \describe{
 #'     \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
 #'     \item{\code{weights}, named numeric vector:}{The values of 
@@ -19,109 +28,121 @@
 #'     \item{\code{ex_volatility}:}{The volatility that is expected (i.e., 
 #'     predicted/forecast) for the MP over the next time interval.}
 #'   }
-#' 
-#' @details Returns are NOT assumed to be in 'percent form': i.e., make sure that in 
-#' whatever xts is passed as \code{returns_xts}, a return of \emph{12\%} is 
-#' represented as \emph{0.12}.
+#'   
+#' @details
+#'   This function works by finding the Sharpe-optimum equal-weighted portfolio
+#'   that can be created using the assets passed in. Using that portfolio as a
+#'   starting point, the function finds the assets A and B such that
+#'   reallocating ("selling") a small amount (\emph{step}) of A into asset B
+#'   ("buying") results in a portfolio whose Sharpe is greater than all other
+#'   possible assets A and B. The portfolio variable is updated.
+#'   
+#'   This process is repeated with smaller and smaller \emph{step} sizes. When
+#'   it is not possible to reallocate \emph{step} amount of any asset A into any
+#'   other asset B so as to create a portfolio having a better Sharpe, the
+#'   Market Portfolio has been reached and the function returns the value.
 #' 
 #' @export
-market_portfolio_from_hist_rtn <- function(returns_xts, rf = 0.0025){
+market_portfolio_from_hist_rtn <- function(
+  rtn_xts, 
+  
+  rf = 0.0025
+  ){
   
   requireNamespace("xts")
   
   # calcuate expected returns using geometric mean of the data for which
   #   the user has determined the time range.
-  asset_expected_return <- gmrr(returns_xts = returns_xts)
+  asset_expected_return <- gmrr(returns_xts = rtn_xts)
   
   # create covariance matrix of returns
-  covariance_matrix <- stats::cov(returns_xts, use = "pairwise.complete.obs")
+  covariance_matrix <- stats::cov(rtn_xts, use = "pairwise.complete.obs")
   
-  # initialize `portfolio_sharpe` to an impossibly low value
-  portfolio_sharpe     <- -9999
+  # initialize `portfolio_sharpe` to zero, which represents putting everything
+  # into risk-free assets only.
+  portfolio_sharpe     <- 0
   
   # initialize `portfolio_weights` to 0 for all assets
   portfolio_weights    <- stats::setNames(
-    rep(0, ncol(returns_xts)),
-    names(returns_xts)
+    rep(0, ncol(rtn_xts)),
+    names(rtn_xts)
   )
   
-  # initialize divisor to 1
-  divisor <- 1
-  
-  
-  # Step 1: Create a rough initial portfolio.
+  # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
+  # created by selecting from the assets provided.
   
   while(TRUE){
     
-    candidate_portfolios <- vapply(
-      # vapply: start stepping through assets that haven't been added to the 
-      #   portfolio yet. 
-      setdiff(
-        names(returns_xts), 
-        names(portfolio_weights[portfolio_weights != 0])
-      ),
-      function(asset){
+    # Take all of the assets that AREN'T included in portfolio_weights...
+    candidate_portfolios <- setdiff(
+      names(rtn_xts), 
+      names(portfolio_weights[portfolio_weights != 0])
+    ) %>%
+      vapply(
         
-        # initialize `weights` to the higher-scoped `portfolio_weights`
-        weights <- portfolio_weights
-        
-        # try an equal-weighted portfolio consisting of the assets that are 
-        #   already in the portfolio, plus `asset`.
-        weights[c(
-          names(weights[weights != 0]),
-          asset
-        )] <- 1 / divisor
-        
-        # calculate expected return for the portfolio given by `weights`
-        expected_return <- sum(asset_expected_return * weights)
-        
-        # calculate expected volatility for the portfolio given by `weights`
-        expected_volatility <- sum(
-          tcrossprod(as.numeric(weights)) * covariance_matrix
-        ) %>%
-          sqrt()
-        
-        # return a tibble containing the sharpe ratio of the portfolio and the
-        #   portfolio weightings.
-        tibble::lst(
-          "sharpe"  = (expected_return - rf) / expected_volatility,
-          "weights" = weights
-        )
-      },
-      FUN.VALUE = list(numeric(1), numeric(length(portfolio_weights)))
-    ) 
+        # ...and for each one of those, add it to portfolio_weights, and weight
+        # everything equally.
+        function(asset){
+          
+          
+          # initialize `weights` to the higher-scoped `portfolio_weights`
+          weights <- portfolio_weights
+          
+          # make `weights` an equal-weighted portfolio consisting of the assets
+          # that are already in the portfolio, plus `asset`.
+          weights[c(names(weights[weights != 0]), asset)] <- 1 / (
+            length(which(weights != 0)) + 1
+          )
+          
+          
+          # calculate expected return for the portfolio given by `weights`
+          expected_return <- sum(asset_expected_return * weights)
+          
+          # calculate expected volatility for the portfolio given by `weights`
+          expected_volatility <- sum(
+            tcrossprod(as.numeric(weights)) * covariance_matrix
+          ) %>%
+            sqrt()
+          
+          tibble::lst(
+            "sharpe"  = (expected_return - rf) / expected_volatility,
+            "weights" = weights
+          )
+          
+        },
+        FUN.VALUE = list(numeric(1), numeric(length(portfolio_weights)))
+      )
     
     # If your best portfolio is better than the current record, store it.
     if(portfolio_sharpe < max(unlist(candidate_portfolios["sharpe",]))){
       
-      divisor <- divisor + 1
-      
       portfolio_weights <- candidate_portfolios[[
         "weights",
         which.max(unlist(candidate_portfolios["sharpe",]))
-        ]]
+      ]]
       
       portfolio_sharpe <- max(unlist(candidate_portfolios["sharpe",]))
       
     } else {
-      # If none of your portfolios beat your current one, then stop.
+      # If none of your portfolios beat your current one, then stop adding
+      # new assets, exit the while() and move on.
       break()
     }
+    
   }
   
   # Initialize loop vars
   step <- min(portfolio_weights[portfolio_weights != 0]) / 10
   counts <- 0
   
-  
   # Step 2: Refine the rough portfolio found in step 1.
   
   while(TRUE){
     
     # make `buy_sell_matrix`: a matrix whose row names are all the assets that
-    #   appear in returns_xts, and whose column names are all the assets whose 
+    #   appear in rtn_xts, and whose column names are all the assets whose 
     #   `portfolio_weights` are >= `step`. The values of `buy_sell_matrix` are 
-    #   the sharpe ratios that result if you start with `portfolio_weights` and 
+    #   the Sharpe ratios that result if you start with `portfolio_weights` and 
     #   SELL `step` worth of the asset given buy the column index, and BUY 
     #   `step` worth of the asset in the row index.
     # Obviously buying and selling the same asset is not useful -- these cells 
@@ -166,19 +187,19 @@ market_portfolio_from_hist_rtn <- function(returns_xts, rf = 0.0025){
       
       add_to_asset    <- rownames(buy_sell_matrix)[
         which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[1]
-        ]
+      ]
       
       take_from_asset <- colnames(buy_sell_matrix)[
         which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[2]
-        ]
+      ]
       
       portfolio_weights[add_to_asset] <- portfolio_weights[
         add_to_asset
-        ] + step
+      ] + step
       
       portfolio_weights[take_from_asset] <- portfolio_weights[
         take_from_asset
-        ] - step
+      ] - step
       
       portfolio_sharpe <-  (
         sum(
