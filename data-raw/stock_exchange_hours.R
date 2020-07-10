@@ -27,6 +27,7 @@ stock_exchange_hours <- xml2::read_html(
     "local_Open"  = gsub("\\[(.*)\\]", "", stock_exchange_hours$local_Open),
     "local_Close" = gsub("\\[(.*)\\]", "", stock_exchange_hours$local_Close),
     "local_Lunch" = gsub("\\[(.*)\\]", "", stock_exchange_hours$local_Lunch)
-  )
+  ) %>%
+  dplyr::rename("time_delta" = "Δ")
 
 usethis::use_data(stock_exchange_hours, overwrite = TRUE)

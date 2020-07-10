@@ -14,16 +14,6 @@ currency_identifiers_table <- function(
   )
 ){ do.call("paste0", rox_list) }
 
-stock_exchange_hours_table <- function(
-  rox_list = list(
-    "@description Operating hours and related information for worldwide ",
-    "exchanges. Downloaded from \\url{https://www.xe.com/symbols.php} stored",
-    "in a tibble"
-    # ": ",   
-    # tabular(FinancieR::stock_exchange_hours)
-  )
-){ do.call("paste0", rox_list) }
-
 #' @title Sample Historical Data
 #' 
 #' @eval shd_description()
@@ -91,6 +81,20 @@ stock_exchange_hours_table <- function(
 
 #' Exchange Hours
 #' 
-#' @eval stock_exchange_hours_table()
+#' Operating hours and related information for worldwide exchanges. Downloaded
+#' from \href{https://www.xe.com/symbols.php}{Xe's World Currency Symbols} and
+#' stored as a tibble.
+#' 
+#' @examples stock_exchange_hours
 #' 
 "stock_exchange_hours"
+
+#' Yahoo Adjusted Prices
+#' 
+#' Historical adjusted closing prices for 10 stock and an S&P500 tracking index
+#' taken from Yahoo Finance. To be used for development and testing purposes
+#' only -- data are not trading-quality.
+#' 
+#' @examples yahoo_adj_prices
+#' 
+"yahoo_adj_prices"

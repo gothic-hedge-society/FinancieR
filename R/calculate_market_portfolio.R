@@ -1,20 +1,23 @@
-#' Market Portfolio (MP) from Historical Returns
+#' Calculate Market Portfolio
 #' 
-#' Given an \code{\link[xts]{xts}}, calculate the
+#' Calculate the Sharpe-optimal market portfolio available for a set of assets
+#' given the expetecd returns and volatilities for each asset.
 #' 
+#' @param exp_rtn Named numeric vector for which each element is the return
+#'   expected for the asset specified by the element's name. 
+#'   
+#' @param exp_vol Named numeric vector for which each element is the volatility
+#'   expected for the asset specified by the element's name. 
 #' 
-#' @param rtn_xts An \code{\link[xts]{xts}} xts object whose values are 
-#'   period-over-period returns observed for the assets identified by column 
-#'   names, and for which the market portfolio is sought.
+#' @param exp_cor Named numeric matrix specifying the expected covariance of
+#'   returns for each asset pair.
 #' 
 #' @param rf The risk-free rate to use in calculation of
 #'   \href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe
-#'   Ratio}, in decimal form. Defaults to \strong{0.0025}% daily return (about
-#'   0.91% annually). If you specify a different value for \emph{rf},
-#'   \strong{make sure its units match the returns in \emph{rtn_xts}}, (i.e., if
-#'   \emph{rtn_xts} contains monthly returns, use monthly risk-free rate) and
-#'   \strong{don't forget to use decimal representation} (i.e., \emph{rf} = 5 is
-#'   taken to mean 500%, not 5%).
+#'   Ratio}, in decimal form. Defaults to \strong{0.00822}% daily return (about
+#'   3% annually). If you specify a different value for \emph{rf}, \strong{make
+#'   sure its units match the returns in \emph{rtn_xts}}, (i.e., if
+#'   \emph{rtn_xts} contains monthly returns, use monthly risk-free rate)!
 #' 
 #' @return A list describing the market portfolio (MP) found for \emph{rtn_xts},
 #'   having four elements:
@@ -28,8 +31,27 @@
 #'     \item{\code{ex_volatility}:}{The volatility that is expected (i.e., 
 #'     predicted/forecast) for the MP over the next time interval.}
 #'   }
+#'   If \emph{total_capital} and \emph{prices} are specified, then two more
+#'   elements are included in the list output:
+#'   \describe{
+#'     \item{\code{shares}, named numeric:}{
+#'     Integer number of shares to be bought 
+#'     }
+#'     \item{\code{cash_balance}, named numeric vector:}{The values of 
+#'       \code{weights} range from 0 to 1 and denote the fraction of the total
+#'       MP value allocated to the asset whose identifier is that value's name.}
+#'     \item{\code{ex_return}, numeric:}{The return that is expected (i.e., 
+#'     predicted/forecast) for the MP over the next time interval.}
+#'     \item{\code{ex_volatility}:}{The volatility that is expected (i.e., 
+#'     predicted/forecast) for the MP over the next time interval.}
+#'   }
 #'   
-#' @details
+#' @details 
+#' 
+#'   All arguments which are percentages (\emph{exp_rtn}, \emph{exp_vol}, and
+#'   \emph{rf}) must be supplied in decimal form; i.e., to specify "12%", use
+#'   0.12, not 12.
+#' 
 #'   This function works by finding the Sharpe-optimum equal-weighted portfolio
 #'   that can be created using the assets passed in. Using that portfolio as a
 #'   starting point, the function finds the assets A and B such that
@@ -41,31 +63,62 @@
 #'   it is not possible to reallocate \emph{step} amount of any asset A into any
 #'   other asset B so as to create a portfolio having a better Sharpe, the
 #'   Market Portfolio has been reached and the function returns the value.
+#'   
+#' @examples
+#' 
+#' ### Long only
+#' 
+#' # Load the test returns included in this package
+#' rtn_xts <- testthis::read_testdata("yahoo_historical_returns") 
+#' 
+#' # Assume that the returns that we expect for the next period (day) are the
+#' # geometric means of the historical returns:
+#' exp_rtn <- gmrr(returns_xts = rtn_xts)
+#' 
+#' # Assume that the volatilities we expect for the next period (day) are the 
+#' # geometric means of historical vol:
+#' exp_vol <- rtn_xts %>%
+#'   tibble::as_tibble() %>%
+#'    dplyr::summarize(
+#'      dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
+#'    ) %>% 
+#'    purrr::as_vector()
+#'    
+#' # Assume that the correlations of returns of each asset pair that we expect
+#' # for the next perid (day) are the observed historical correlations:
+#' exp_cor <- stats::cor(rtn_xts, use = "pairwise.complete.obs")
+#' 
+#' # Calculate the market portfolio:
+#' calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
+#' 
+#' 
+#' ### Long and Short 
+#' 
+#' # If shorting is allowed, then there are twice as many "assets" in play
+#' # because each asset can be shorted. Therefore:
+#' 
 #' 
 #' @export
-market_portfolio_from_hist_rtn <- function(
-  rtn_xts, 
-  
-  rf = 0.0025
-  ){
-  
-  requireNamespace("xts")
-  
-  # calcuate expected returns using geometric mean of the data for which
-  #   the user has determined the time range.
-  asset_expected_return <- gmrr(returns_xts = rtn_xts)
+#' 
+calculate_market_portfolio <- function(
+  exp_rtn,
+  exp_vol,
+  exp_cor,
+  rf             = 0.0000822,
+  allow_shorts   = FALSE
+){
   
   # create covariance matrix of returns
-  covariance_matrix <- stats::cov(rtn_xts, use = "pairwise.complete.obs")
+  exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
   
-  # initialize `portfolio_sharpe` to zero, which represents putting everything
-  # into risk-free assets only.
-  portfolio_sharpe     <- 0
+  # initialize `portfolio_sharpe` to zero, which represents investing all
+  # capital into risk-free assets only.
+  portfolio_sharpe  <- 0
   
   # initialize `portfolio_weights` to 0 for all assets
   portfolio_weights    <- stats::setNames(
-    rep(0, ncol(rtn_xts)),
-    names(rtn_xts)
+    rep(0, ncol(exp_cov)),
+    colnames(exp_cov)
   )
   
   # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
@@ -75,7 +128,7 @@ market_portfolio_from_hist_rtn <- function(
     
     # Take all of the assets that AREN'T included in portfolio_weights...
     candidate_portfolios <- setdiff(
-      names(rtn_xts), 
+      names(exp_rtn), 
       names(portfolio_weights[portfolio_weights != 0])
     ) %>%
       vapply(
@@ -94,15 +147,13 @@ market_portfolio_from_hist_rtn <- function(
             length(which(weights != 0)) + 1
           )
           
-          
           # calculate expected return for the portfolio given by `weights`
-          expected_return <- sum(asset_expected_return * weights)
+          expected_return <- as.numeric(exp_rtn %*% as.matrix(weights))
           
           # calculate expected volatility for the portfolio given by `weights`
-          expected_volatility <- sum(
-            tcrossprod(as.numeric(weights)) * covariance_matrix
-          ) %>%
-            sqrt()
+          expected_volatility <- sqrt(
+            as.numeric((weights %*% exp_cov) %*% as.matrix(weights))
+          )
           
           tibble::lst(
             "sharpe"  = (expected_return - rf) / expected_volatility,
@@ -150,7 +201,7 @@ market_portfolio_from_hist_rtn <- function(
     
     buy_sell_matrix <- vapply(
       # Step through the assets whose portfolio weights are >= to the amount
-      #   we'll be adding/subtracting (otherwise the'll get negative weights)
+      #   we'll be adding/subtracting (otherwise they'll get negative weights)
       names(portfolio_weights[portfolio_weights >= step]),
       function(take_from_asset){
         
@@ -167,11 +218,11 @@ market_portfolio_from_hist_rtn <- function(
           vapply(
             setdiff(names(portfolio_weights), take_from_asset),
             function(add_to_asset, wts = weights){
+              
               wts[add_to_asset] <- wts[add_to_asset] + step
-              (sum(asset_expected_return * wts) - rf) / sqrt(
-                sum(
-                  tcrossprod(as.numeric(wts)) * covariance_matrix
-                )
+              
+              as.numeric(exp_rtn %*% as.matrix(wts) - rf) / sqrt(
+                as.numeric((wts %*% exp_cov) %*% as.matrix(wts))
               )
             },
             FUN.VALUE = numeric(1)
@@ -202,20 +253,21 @@ market_portfolio_from_hist_rtn <- function(
       ] - step
       
       portfolio_sharpe <-  (
-        sum(
-          asset_expected_return * portfolio_weights
-        ) - rf
+        as.numeric(exp_rtn %*% as.matrix(portfolio_weights)) - rf
       ) / sqrt(
-        sum(
-          tcrossprod(as.numeric(portfolio_weights)) * covariance_matrix
+        as.numeric(
+          (portfolio_weights %*% exp_cov) %*% as.matrix(portfolio_weights)
         )
       )
+      
+      
     } else {
       # drop `step` by a factor of 10, but only do this `count` number of times.
       step <- min(portfolio_weights[portfolio_weights != 0]) / 10
       counts <- counts + 1
       
       if(counts >= 10){
+        usethis::ui_done("Finished")
         break()
       }
     }
@@ -224,10 +276,10 @@ market_portfolio_from_hist_rtn <- function(
   list(
     "sharpe"        = portfolio_sharpe,
     "weights"       = portfolio_weights,
-    "ex_return"     = sum(asset_expected_return * portfolio_weights),
+    "ex_return"     = as.numeric(exp_rtn %*% as.matrix(portfolio_weights)),
     "ex_volatility" = sqrt(
-      sum(
-        tcrossprod(as.numeric(portfolio_weights)) * covariance_matrix
+      as.numeric(
+        (portfolio_weights %*% exp_cov) %*% as.matrix(portfolio_weights)
       )
     )
   )
