@@ -122,7 +122,7 @@
     <p>Contains daily high, low, open, close, and volume histories, plus dividend and split events, for 29 (somewhat randomly) selected stocks.</p>
     </div>
 
-    <pre class="usage"><span class='no'>sample_historical_data</span></pre>
+    <pre class="usage"><span class='kw'>sample_historical_data</span></pre>
 
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
@@ -131,7 +131,7 @@
 identifier of the asset to which its constituent data corresponds (e.g.,
 the element named "AAPL" contains data for Apple, Inc.).</p>
 <p>Each of the constituent lists elements contains the following elements:</p>
-<dl'>
+<dl>
 <dt><strong><code>dividends</code></strong>:</dt><dd><p>An xts object having a single column -- <code>DividendAmount</code> -- giving
 the total value of any and all dividends that went ex-div on the date
 given by the index of the xts.</p></dd>
@@ -149,20 +149,21 @@ described by <code>Denominator</code> and <code>Numerator</code>.</p></dd>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>  <span class='no'>low_prices_c</span> <span class='kw'>&lt;-</span> <span class='no'>sample_historical_data</span>$<span class='no'>C</span>$<span class='no'>hlocv</span>$<span class='no'>Low</span>[<span class='st'>"2014-06-01/2015"</span>]
+    <pre class="examples"><div class='input'>  <span class='kw'>low_prices_c</span> <span class='op'>&lt;-</span> <span class='kw'>sample_historical_data</span><span class='op'>$</span><span class='kw'>C</span><span class='op'>$</span><span class='kw'>hlocv</span><span class='op'>$</span><span class='kw'>Low</span>[<span class='st'>"2014-06-01/2015"</span>]
   <span class='co'>## Daily low prices for Citibank from 01 June 2014 to the end of 2015</span>
 
-  <span class='no'>hlocv_stag</span>   <span class='kw'>&lt;-</span> <span class='no'>sample_historical_data</span>$<span class='no'>STAG</span>$<span class='no'>hlocv</span>[<span class='st'>"2012"</span>]
+  <span class='kw'>hlocv_stag</span>   <span class='op'>&lt;-</span> <span class='kw'>sample_historical_data</span><span class='op'>$</span><span class='kw'>STAG</span><span class='op'>$</span><span class='kw'>hlocv</span>[<span class='st'>"2012"</span>]
   <span class='co'>## High, Low, Open, Close, Volume data for STAG for 2012</span>
-
-  <span class='no'>hlocv_gd</span>     <span class='kw'>&lt;-</span> <span class='no'>sample_historical_data</span>$<span class='no'>GD</span>$<span class='no'>hlocv</span>[<span class='st'>"2017-03"</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"High"</span>, <span class='st'>"Low"</span>)]
+ 
+  <span class='kw'>hlocv_gd</span>     <span class='op'>&lt;-</span> <span class='kw'>sample_historical_data</span><span class='op'>$</span><span class='kw'>GD</span><span class='op'>$</span><span class='kw'>hlocv</span>[<span class='st'>"2017-03"</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"High"</span>, <span class='st'>"Low"</span>)]
   <span class='co'>## High &amp; Low prices for GD for March 2017</span>
-
-  <span class='no'>divs_son</span>     <span class='kw'>&lt;-</span> <span class='no'>sample_historical_data</span>$<span class='no'>SON</span>$<span class='no'>dividends</span>[<span class='st'>"2017"</span>]
+ 
+  <span class='kw'>divs_son</span>     <span class='op'>&lt;-</span> <span class='kw'>sample_historical_data</span><span class='op'>$</span><span class='kw'>SON</span><span class='op'>$</span><span class='kw'>dividends</span>[<span class='st'>"2017"</span>]
   <span class='co'>## Dividends paid by SON in 2017</span>
-
-  <span class='no'>splits_aapl</span>  <span class='kw'>&lt;-</span> <span class='no'>sample_historical_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span>
-  <span class='co'>## Stock splits for AAPL</span></div></pre>
+ 
+  <span class='kw'>splits_aapl</span>  <span class='op'>&lt;-</span> <span class='kw'>sample_historical_data</span><span class='op'>$</span><span class='kw'>AAPL</span><span class='op'>$</span><span class='kw'>splits</span>
+  <span class='co'>## Stock splits for AAPL</span>
+ </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -178,7 +179,7 @@ described by <code>Denominator</code> and <code>Numerator</code>.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

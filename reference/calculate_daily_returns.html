@@ -125,13 +125,13 @@ account splits and dividends.</p>
     </div>
 
     <pre class="usage"><span class='fu'>calculate_daily_returns</span>(
-  <span class='no'>assets</span>,
-  <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>buy_at</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"close"</span>, <span class='st'>"open"</span>, <span class='st'>"high"</span>, <span class='st'>"low"</span>, <span class='st'>"price"</span>),
-  <span class='kw'>sell_at</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"close"</span>, <span class='st'>"open"</span>, <span class='st'>"high"</span>, <span class='st'>"low"</span>, <span class='st'>"price"</span>),
-  <span class='kw'>include_volume</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>include_buy_sell</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>returns_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ln"</span>, <span class='st'>"log2"</span>, <span class='st'>"log10"</span>, <span class='st'>"pct_diff"</span>, <span class='st'>"multiple"</span>)
+  <span class='kw'>assets</span>,
+  date_range_xts = <span class='kw'>NULL</span>,
+  buy_at = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"close"</span>, <span class='st'>"open"</span>, <span class='st'>"high"</span>, <span class='st'>"low"</span>, <span class='st'>"price"</span>),
+  sell_at = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"close"</span>, <span class='st'>"open"</span>, <span class='st'>"high"</span>, <span class='st'>"low"</span>, <span class='st'>"price"</span>),
+  include_volume = <span class='fl'>TRUE</span>,
+  include_buy_sell = <span class='fl'>FALSE</span>,
+  returns_method = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"ln"</span>, <span class='st'>"log2"</span>, <span class='st'>"log10"</span>, <span class='st'>"pct_diff"</span>, <span class='st'>"multiple"</span>)
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -142,7 +142,7 @@ account splits and dividends.</p>
       <td><p>a list of sub-lists named and corresponding to a given
 asset, for example, "AAPL". Each sublist contains split, dividend, and
 aggregated OHLCV data as xts objects. An example of an object that may be
-passed as <code>asset_data</code> is <a href='sample_historical_data.html'>sample_historical_data</a>.</p></td>
+passed as <code>asset_data</code> is sample_historical_data.</p></td>
     </tr>
     <tr>
       <th>date_range_xts</th>
@@ -211,7 +211,7 @@ but contains the trade volume observed for a given asset on a given day.</p></li
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>
