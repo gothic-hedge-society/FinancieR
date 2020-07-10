@@ -18,6 +18,11 @@
 #'   3% annually). If you specify a different value for \emph{rf}, 
 #'   \strong{make sure its units match the returns in \emph{rtn_xts}}, (i.e., if
 #'   \emph{rtn_xts} contains monthly returns, use monthly risk-free rate)!
+#'   
+#' @param allow_shorts Defaults to FALSE; set to TRUE to allow shorting of all
+#'   the assets. There are MANY ways to do this, but by default
+#'   \emph{calculate_market_portfolio}() simply treats shorts as another asset
+#'   whose expected return equals negative the expected return of going long. 
 #' 
 #' @return A list describing the market portfolio (MP) found for \emph{rtn_xts},
 #'   having four elements:
@@ -111,6 +116,10 @@ calculate_market_portfolio <- function(
   rf             = 0.0000822,
   allow_shorts   = FALSE
 ){
+  
+  # Make sure names & elements are in order to avoid disaster
+  exp_vol <- exp_vol[names(exp_rtn)]
+  exp_cor <- exp_cor[names(exp_rtn), names(exp_rtn)]
   
   if(allow_shorts){
     

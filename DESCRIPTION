@@ -19,7 +19,8 @@ Imports:
     tibble,
     tidyr,
     zoo,
-    rlang (>= 0.1.2)
+    rlang (>= 0.1.2),
+    purrr
 Suggests: 
     testthat (>= 2.1.0),
     knitr,

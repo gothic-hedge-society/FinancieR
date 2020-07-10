@@ -28,6 +28,11 @@ Ratio}, in decimal form. Defaults to \strong{0.00822}\% daily return (about
 3\% annually). If you specify a different value for \emph{rf},
 \strong{make sure its units match the returns in \emph{rtn_xts}}, (i.e., if
 \emph{rtn_xts} contains monthly returns, use monthly risk-free rate)!}
+
+\item{allow_shorts}{Defaults to FALSE; set to TRUE to allow shorting of all
+the assets. There are MANY ways to do this, but by default
+\emph{calculate_market_portfolio}() simply treats shorts as another asset
+whose expected return equals negative the expected return of going long.}
 }
 \value{
 A list describing the market portfolio (MP) found for \emph{rtn_xts},
