@@ -73,7 +73,7 @@ All arguments which are percentages (\emph{exp_rtn}, \emph{exp_vol}, and
 
 It should go without saying, but make sure that every asset is represented
 in the three inputs: names of \emph{exp_rtn}, \emph{exp_vol}, and the row &
-colnames of \emph{exp_cov}.
+colnames of \emph{exp_cor}.
 
 This function works by finding the Sharpe-optimum equal-weighted portfolio
 that can be created using the assets passed in. Using that portfolio as a
