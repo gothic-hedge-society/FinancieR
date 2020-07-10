@@ -13,19 +13,18 @@
 #'   returns for each asset pair.
 #' 
 #' @param rf The risk-free rate to use in calculation of
-#'   \href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe
-#'   Ratio}, in decimal form. Defaults to \strong{0.00822}% daily return (about
-#'   3% annually). If you specify a different value for \emph{rf}, 
-#'   \strong{make sure its units match the returns in \emph{rtn_xts}}, (i.e., if
-#'   \emph{rtn_xts} contains monthly returns, use monthly risk-free rate)!
+#'   \href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe Ratio}, 
+#'   in decimal form. Defaults to \strong{0.00822}% daily return (about 3%
+#'   annually). If you specify a different value for \emph{rf}, \strong{make
+#'   sure its time basis matches the one used for you other inputs}, (i.e., if
+#'   \emph{exp_rtn} contains monthly returns, use monthly risk-free rate)!
 #'   
 #' @param allow_shorts Defaults to FALSE; set to TRUE to allow shorting of all
 #'   the assets. There are MANY ways to do this, but by default
 #'   \emph{calculate_market_portfolio}() simply treats shorts as another asset
 #'   whose expected return equals negative the expected return of going long. 
 #' 
-#' @return A list describing the market portfolio (MP) found for \emph{rtn_xts},
-#'   having four elements:
+#' @return A list describing the market portfolio (MP). Has four elements:
 #'   \describe{
 #'     \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
 #'     \item{\code{weights}, named numeric vector:}{The values of 
@@ -56,6 +55,10 @@
 #'   All arguments which are percentages (\emph{exp_rtn}, \emph{exp_vol}, and
 #'   \emph{rf}) must be supplied in decimal form; i.e., to specify "12%", use
 #'   0.12, not 12.
+#'   
+#'   It should go without saying, but make sure that every asset is represented
+#'   in the three inputs: names of \emph{exp_rtn}, \emph{exp_vol}, and the row &
+#'   colnames of \emph{exp_cov}.
 #' 
 #'   This function works by finding the Sharpe-optimum equal-weighted portfolio
 #'   that can be created using the assets passed in. Using that portfolio as a
@@ -71,17 +74,17 @@
 #'   
 #' @examples
 #' 
-#' # Use the sample dataset "yahoo_adj_prices", provided with the package, for this
-#' # example. Start with the assumption that the returns that we expect for the
-#' # next period (day) are the means of the historical log returns observed for 
-#' # a given date window specified by "start_date" and "end_date"
-#' end_date   <- as.Date(zoo::index(xts::last(yahoo_adj_prices))) # latest date
-#' start_date <- end_date - 365*3                                 # 3-yr window
-#' end_date
-#' start_date
+#' # Use the sample dataset "yahoo_adj_prices", provided with the package, for 
+#' # this example. Start with the assumption that the returns that we expect for 
+#' # the next period (day) are the means of the historical log returns observed 
+#' # for a given date window specified by "start_dt" and "end_dt"
+#' end_dt   <- as.Date(zoo::index(xts::last(yahoo_adj_prices))) # latest date
+#' start_dt <- end_dt - 365*3                                   # 3-yr window
+#' end_dt
+#' start_dt
 #' 
 #' # From adjusted prices, get the observed daily historical log return
-#' historical_rtn <- yahoo_adj_prices[paste0(start_date - 1, "/", end_date)] %>% {
+#' historical_rtn <- yahoo_adj_prices[paste0(start_dt - 1, "/", end_dt)] %>% {
 #'   log(.[-1,] / lag(., k =  1, na.pad = FALSE)[-nrow(.),])
 #' }
 #' 
@@ -127,7 +130,9 @@ calculate_market_portfolio <- function(
       exp_rtn, stats::setNames(exp_rtn * -1, paste0("s_", names(exp_rtn)))
     )
     
-    exp_vol <- c(exp_vol, stats::setNames(exp_vol, paste0("s_", names(exp_vol))))
+    exp_vol <- c(
+      exp_vol, stats::setNames(exp_vol, paste0("s_", names(exp_vol)))
+    )
     
     exp_cor <- rbind(
       cbind(
@@ -225,7 +230,7 @@ calculate_market_portfolio <- function(
   while(TRUE){
     
     # make `buy_sell_matrix`: a matrix whose row names are all the assets that
-    #   appear in rtn_xts, and whose column names are all the assets whose 
+    #   appear in the inputs, and whose column names are all the assets whose 
     #   `portfolio_weights` are >= `step`. The values of `buy_sell_matrix` are 
     #   the Sharpe ratios that result if you start with `portfolio_weights` and 
     #   SELL `step` worth of the asset given buy the column index, and BUY 
