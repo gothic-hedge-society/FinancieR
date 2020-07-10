@@ -15,8 +15,8 @@
 #' @param rf The risk-free rate to use in calculation of
 #'   \href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe
 #'   Ratio}, in decimal form. Defaults to \strong{0.00822}% daily return (about
-#'   3% annually). If you specify a different value for \emph{rf}, \strong{make
-#'   sure its units match the returns in \emph{rtn_xts}}, (i.e., if
+#'   3% annually). If you specify a different value for \emph{rf}, 
+#'   \strong{make sure its units match the returns in \emph{rtn_xts}}, (i.e., if
 #'   \emph{rtn_xts} contains monthly returns, use monthly risk-free rate)!
 #' 
 #' @return A list describing the market portfolio (MP) found for \emph{rtn_xts},
@@ -66,37 +66,41 @@
 #'   
 #' @examples
 #' 
-#' ### Long only
+#' # Use the sample dataset "yahoo_adj_prices", provided with the package, for this
+#' # example. Start with the assumption that the returns that we expect for the
+#' # next period (day) are the means of the historical log returns observed for 
+#' # a given date window specified by "start_date" and "end_date"
+#' end_date   <- as.Date(zoo::index(xts::last(yahoo_adj_prices))) # latest date
+#' start_date <- end_date - 365*3                                 # 3-yr window
+#' end_date
+#' start_date
 #' 
-#' # Load the test returns included in this package
-#' rtn_xts <- testthis::read_testdata("yahoo_historical_returns") 
+#' # From adjusted prices, get the observed daily historical log return
+#' historical_rtn <- yahoo_adj_prices[paste0(start_date - 1, "/", end_date)] %>% {
+#'   log(.[-1,] / lag(., k =  1, na.pad = FALSE)[-nrow(.),])
+#' }
 #' 
-#' # Assume that the returns that we expect for the next period (day) are the
-#' # geometric means of the historical returns:
-#' exp_rtn <- gmrr(returns_xts = rtn_xts)
+#' # Assume that the returns we expect for the next period (day) are the
+#' # averages of the returns observed during the date window:
+#' exp_rtn <- colMeans(historical_rtn)
 #' 
-#' # Assume that the volatilities we expect for the next period (day) are the 
-#' # geometric means of historical vol:
-#' exp_vol <- rtn_xts %>%
-#'   tibble::as_tibble() %>%
-#'    dplyr::summarize(
-#'      dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
-#'    ) %>% 
-#'    purrr::as_vector()
-#'    
+#' # Assume that the volatilities we expect for the next period (day) are the
+#' # standard deviations of the returns observed during the date window:
+#' exp_vol <- dplyr::summarize(
+#'   tibble::as_tibble(historical_rtn),
+#'   dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
+#' ) %>%
+#'   purrr::as_vector()
+#' 
 #' # Assume that the correlations of returns of each asset pair that we expect
 #' # for the next perid (day) are the observed historical correlations:
-#' exp_cor <- stats::cor(rtn_xts, use = "pairwise.complete.obs")
+#' exp_cor <- stats::cor(historical_rtn, use = "pairwise.complete.obs")
 #' 
 #' # Calculate the market portfolio:
 #' calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
 #' 
-#' 
-#' ### Long and Short 
-#' 
-#' # If shorting is allowed, then there are twice as many "assets" in play
-#' # because each asset can be shorted. Therefore:
-#' 
+#' ### Calculate the market portfolio allowing both long & short positions:
+#' calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, allow_shorts = TRUE)
 #' 
 #' @export
 #' 
@@ -107,6 +111,27 @@ calculate_market_portfolio <- function(
   rf             = 0.0000822,
   allow_shorts   = FALSE
 ){
+  
+  if(allow_shorts){
+    
+    exp_rtn <- c(
+      exp_rtn, stats::setNames(exp_rtn * -1, paste0("s_", names(exp_rtn)))
+    )
+    
+    exp_vol <- c(exp_vol, stats::setNames(exp_vol, paste0("s_", names(exp_vol))))
+    
+    exp_cor <- rbind(
+      cbind(
+        exp_cor,
+        magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
+      ),
+      cbind(
+        magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
+        exp_cor
+      )
+    )
+    
+  }
   
   # create covariance matrix of returns
   exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
@@ -267,7 +292,6 @@ calculate_market_portfolio <- function(
       counts <- counts + 1
       
       if(counts >= 10){
-        usethis::ui_done("Finished")
         break()
       }
     }
