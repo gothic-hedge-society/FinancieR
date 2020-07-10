@@ -63,7 +63,8 @@ predicted/forecast) for the MP over the next time interval.}
 }
 \description{
 Calculate the Sharpe-optimal market portfolio available for a set of assets
-given the expetecd returns and volatilities for each asset.
+given the expected returns, volatilities, and correlations of returns for
+each asset.
 }
 \details{
 All arguments which are percentages (\emph{exp_rtn}, \emph{exp_vol}, and

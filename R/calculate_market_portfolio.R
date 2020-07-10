@@ -1,7 +1,8 @@
 #' Calculate Market Portfolio
 #' 
 #' Calculate the Sharpe-optimal market portfolio available for a set of assets
-#' given the expetecd returns and volatilities for each asset.
+#' given the expected returns, volatilities, and correlations of returns for
+#' each asset.
 #' 
 #' @param exp_rtn Named numeric vector for which each element is the return
 #'   expected for the asset specified by the element's name. 
