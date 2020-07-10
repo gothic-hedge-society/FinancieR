@@ -10,6 +10,9 @@
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/calculate_daily_returns.html</loc>
   </url>
   <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/reference/calculate_market_portfolio.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/currency_identifiers.html</loc>
   </url>
   <url>
@@ -17,9 +20,6 @@
   </url>
   <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/gmrr.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/gothic-hedge-society/FinancieR/reference/market_portfolio_from_hist_rtn.html</loc>
   </url>
   <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/pipe.html</loc>
@@ -35,6 +35,9 @@
   </url>
   <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/xts_merge_align_next.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/reference/yahoo_adj_prices.html</loc>
   </url>
   <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/articles/FinancieR.html</loc>
