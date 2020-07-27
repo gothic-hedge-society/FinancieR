@@ -4,7 +4,7 @@
 \alias{xts_merge_align_next}
 \title{Merge 2 XTS Tables According to Next Non-Missing Value}
 \usage{
-xts_merge_align_next(xts1, xts2, agg_function, ...)
+xts_merge_align_next(xts1, xts2, agg_function, na.fill)
 }
 \arguments{
 \item{xts1}{An XTS object}
