@@ -59,6 +59,12 @@ into account splits and dividends.
 # Calculate the daily natural log returns of Apple and AT&T for 2014, a year
 # in which Apple had a stock split. Natural log returns, takes into account
 # divs and splits.
+#' 
+ appl_att_returns <- calculate_returns(
+   assets         = stock_data[c("AAPL", "T")],
+   date_range_xts = "2014"
+ )
+ head(appl_att_returns)
 
 
 }
