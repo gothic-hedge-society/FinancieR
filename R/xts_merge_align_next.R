@@ -19,55 +19,86 @@
 #' @param agg_function Any function that accepts a numeric vector as input and
 #'   returns a single number as output; e.g., sum
 #' @param ... Additional parameters to pass to \code{agg_function}
+#' 
+#' @examples
+#' # Hurricane Sandy hit the Northeastern United States at the end of October in
+#' # 2012, shutting down the stock exchange and most of New York on 29 October.
+#' # Texas Instruments (TXN) had scheduled a dividend to go ex-div that day, but
+#' # since the stock exchange wasn't open, there are no historical prices for 
+#' # TXN on 29 Oct 2012, when a seller of TXN would have received the dividend. 
+#' #
+#' # xts_merge_align_next() handles this situation by correctly applying the 
+#' #' # dividend to the next trading day, which happened to be the 31st:
+#' \dontrun{
+#' xts_merge_align_next(
+#'   stock_data$TXN$prices$Close["2012-10-26/2012-11-02", drop = FALSE],
+#'   stock_data$TXN$dividends$DividendAmount,
+#'   base::sum,
+#'   0
+#' )
+#' }
 #'   
-#' @export   
-
-xts_merge_align_next <- function(xts1, xts2, agg_function, ...){
+#' @keywords internal
+#' 
+xts_merge_align_next <- function(xts1, xts2, agg_function, na.fill){
   
-  loadNamespace("xts")
+  storage.mode(xts2) <- "numeric"
   
-  agg_function <- match.fun(agg_function)
+  merged_xts <- merge(
+    xts1, 
+    # Disregard dates in xts2 that fall outside the range of xts1
+    xts2[paste(
+      as.Date(min(zoo::index(xts1))),
+      as.Date(max(zoo::index(xts1))),
+      sep = "/"
+    )] 
+  )
   
-  xts2 <- xts2[paste(
-    as.Date(min(zoo::index(xts1))),
-    as.Date(max(zoo::index(xts1))),
-    sep = "/"
-  )]
-  
-  for(
-    disjunction_date in setdiff(
-      as.character(as.Date(zoo::index(xts2))), 
-      as.character(as.Date(zoo::index(xts1)))
-    )
-  ){
-    xts2 <- xts::rbind.xts(
-      xts2,
-      xts::as.xts(
-        matrix(
-          # vapply works column-wise when passed an XTS
-          vapply(
-            xts2[paste(
-              disjunction_date,
-              as.Date(min(zoo::index(xts1[paste0(disjunction_date, "/")]))),
-              sep = "/"
-            )],
-            FUN = agg_function,
-            FUN.VALUE = numeric(1),
-            ...
-          ),
-          nrow = 1,
-          ncol = ncol(xts2),
-          dimnames = list(
-            as.character(
-              as.Date(min(zoo::index(xts1[paste0(disjunction_date, "/")])))
-            ), 
-            colnames(xts2)
-          )
-        ) 
+  # If there are no dates that are in xts2 but not xts1, return the left-join.
+  if(
+    length(
+      setdiff(
+        as.character(as.Date(zoo::index(xts2))),
+        as.character(as.Date(zoo::index(xts1)))
       )
-    )
+    ) == 0
+  ){
+    return(zoo::merge.zoo(xts1, xts2, all = c(TRUE, FALSE), fill = na.fill))
   }
   
-  zoo::merge.zoo(xts1, xts2, all = c(TRUE, FALSE))
+  agg_range <- merged_xts[,colnames(xts1)] %>%
+    apply(
+      MARGIN = 1, 
+      FUN     = function(xts1_row){all(is.na(xts1_row))}
+    ) %>% {
+      stats::setNames(.[-length(.)] - .[-1], names(.)[-1])
+    } %>% {
+      tibble::tibble(
+        "from"      = names(.[which(. == -1)]),
+        "to"        = names(.[which(. == 1)]),
+        "xts_range" = paste0(from, "/", to)
+      )
+    } 
+  
+  for(i in 1:nrow(agg_range)){
+    for(xts2_col in colnames(xts2)){
+      zoo::coredata(merged_xts[agg_range$to[i], xts2_col]) <- do.call(
+        agg_function,
+        list(xts2[agg_range$xts_range[i], xts2_col])
+      )
+      merged_xts <- merged_xts[
+        setdiff(
+          as.character(as.Date(zoo::index(merged_xts))),  
+          agg_range$from[i]
+        )
+      ]
+    }
+  }
+  
+  merged_xts[
+    which(is.na(merged_xts[,colnames(xts2)])), colnames(xts2)
+  ] <- na.fill
+  
+  merged_xts
   
 }

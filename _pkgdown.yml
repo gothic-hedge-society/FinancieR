@@ -6,18 +6,21 @@ template:
     bootswatch: cyborg
 
 reference:
+- title: Package
+  contents:
+  - FinancieR
+
 - title: Functions
   contents:
-  - calculate_daily_returns
+  - calculate_returns
   - gmrr
   - calculate_market_portfolio
-  - xts_merge_align_next
 
 - title: Sample Data
   desc: For examples, testing, and development
   contents:
   - currency_identifiers
   - daily_treasury_yield_curve_rates
-  - sample_historical_data
+  - stock_data
   - stock_exchange_hours
   - yahoo_adj_prices

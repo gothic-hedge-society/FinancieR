@@ -4,45 +4,28 @@ test_that(
   "xts_merge_align_next() gives correct result for TXN during Hurricane Sandy",
   {
     
-    xts1 <- xts::rbind.xts(
-      sample_historical_data$TXN$OHLCV[max(
-        which(
-          zoo::index(sample_historical_data$TXN$OHLCV) < zoo::index(
-            xts::first(sample_historical_data$TXN$OHLCV["2012-10-31"])
-          )
-        )
-      ),],
-      sample_historical_data$TXN$OHLCV["2012-10-31"]
-    )
+    cols <- c("Open", "High", "Low", "Close", "Volume", "DividendAmount")
     
-    xts2 <- sample_historical_data$TXN$dividends
+    calculated_answer <- xts_merge_align_next(
+      xts1         = stock_data$TXN$prices["2012-10"],
+      xts2         = stock_data$TXN$dividends$DividendAmount["2012-10"],
+      agg_function = base::sum,
+      na.fill      = 0
+    )[c("2012-10-26", "2012-10-31"), cols]
     
-    xts_merge_align_next_result <- xts_merge_align_next(
-      xts1 = xts1, 
-      xts2 = xts2, 
-      agg_function = sum, 
-      na.rm = TRUE
-    )
-    
-    xts_merge_align_next_known_answer <- zoo::as.zoo(
+    known_correct_answer <- xts::xts(
       matrix(
         c(
-          28.92, 28.90, 28.055,   28.060,  28.09, 28.90, 
-          28.92, 28.09, 13015509, 9626516, NA,    0.21
+          28.09, 28.90, 28.92, 28.90, 28.055, 28.060, 28.92, 28.09, 13015509, 
+          9626516, 0.0, 0.21
         ),
         ncol = 6,
-        dimnames = list(
-          NULL, 
-          c("High", "Low", "Open", "Close", "Volume", "DividendAmount")
-        )
+        dimnames = list(NULL, cols)
       ),
       order.by = as.Date(c("2012-10-26", "2012-10-31"))
     )
     
-    expect_identical(
-      xts_merge_align_next_result,
-      xts_merge_align_next_known_answer
-    )
+    expect_equivalent(calculated_answer, known_correct_answer)
     
   }
   

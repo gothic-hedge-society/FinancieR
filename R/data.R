@@ -2,7 +2,7 @@ shd_description <- function(
   rox_list = list(
     "@description Contains daily high, low, open, close, and volume ",
     "histories, plus dividend and split events, for ",
-    length(FinancieR::sample_historical_data), 
+    length(FinancieR::stock_data), 
     " (somewhat randomly) selected stocks."
   )
 ){ do.call("paste0", rox_list) }
@@ -14,7 +14,7 @@ currency_identifiers_table <- function(
   )
 ){ do.call("paste0", rox_list) }
 
-#' @title Sample Historical Data
+#' @title Stock Data
 #' 
 #' @eval shd_description()
 #'   
@@ -46,22 +46,25 @@ currency_identifiers_table <- function(
 #'  }
 #'  
 #' @examples
-#'   low_prices_c <- sample_historical_data$C$hlocv$Low["2014-06-01/2015"]
-#'   ## Daily low prices for Citibank from 01 June 2014 to the end of 2015
+#'   ## Daily low prices for Chubb from 01 June 2014 to the end of 2015
+#'   chubb_low <- stock_data$CB$prices$Low["2014-06-01/2015"]
+#'   tail(chubb_low)
 #'
-#'   hlocv_stag   <- sample_historical_data$STAG$hlocv["2012"]
-#'   ## High, Low, Open, Close, Volume data for STAG for 2012
+#'   ## All prices data for Pepsico for 2012
+#'   pep_2012 <- stock_data$PEP$prices["2012"]
+#'   tail(pep_2012)
 #'  
-#'   hlocv_gd     <- sample_historical_data$GD$hlocv["2017-03", c("High", "Low")]
 #'   ## High & Low prices for GD for March 2017
+#'   gd_high_and_low <- stock_data$GD$prices["2017-03", c("High", "Low")]
+#'   tail(gd_high_and_low)
 #'  
-#'   divs_son     <- sample_historical_data$SON$dividends["2017"]
-#'   ## Dividends paid by SON in 2017
+#'   ## Dividends paid by Johnson & Johnson in 2017
+#'   stock_data$JNJ$dividends["2017"]
 #'  
-#'   splits_aapl  <- sample_historical_data$AAPL$splits
 #'   ## Stock splits for AAPL
+#'   stock_data$AAPL$splits
 #'  
-"sample_historical_data"
+"stock_data"
 
 #' Daily Yield Curve Rates
 #' 

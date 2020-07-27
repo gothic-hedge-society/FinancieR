@@ -4,7 +4,7 @@
 \alias{xts_merge_align_next}
 \title{Merge 2 XTS Tables According to Next Non-Missing Value}
 \usage{
-xts_merge_align_next(xts1, xts2, agg_function, ...)
+xts_merge_align_next(xts1, xts2, agg_function, na.fill)
 }
 \arguments{
 \item{xts1}{An XTS object}
@@ -31,3 +31,23 @@ at index \code{B} for the columns in the merged XTS coming from \code{xts2}
 equal the aggregated value (as specified; e.g., \code{sum}) of the values
 of the columns in \code{xts2} in the range \code{A:B}.
 }
+\examples{
+# Hurricane Sandy hit the Northeastern United States at the end of October in
+# 2012, shutting down the stock exchange and most of New York on 29 October.
+# Texas Instruments (TXN) had scheduled a dividend to go ex-div that day, but
+# since the stock exchange wasn't open, there are no historical prices for 
+# TXN on 29 Oct 2012, when a seller of TXN would have received the dividend. 
+#
+# xts_merge_align_next() handles this situation by correctly applying the 
+#' # dividend to the next trading day, which happened to be the 31st:
+\dontrun{
+xts_merge_align_next(
+  stock_data$TXN$prices$Close["2012-10-26/2012-11-02", drop = FALSE],
+  stock_data$TXN$dividends$DividendAmount,
+  base::sum,
+  0
+)
+}
+  
+}
+\keyword{internal}
