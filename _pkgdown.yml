@@ -6,6 +6,10 @@ template:
     bootswatch: cyborg
 
 reference:
+- title: Package
+  contents:
+  - FinancieR
+
 - title: Functions
   contents:
   - calculate_returns
