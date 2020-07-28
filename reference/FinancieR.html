@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Exchange Hours — stock_exchange_hours • FinancieR</title>
+<title>FinancieR package — FinancieR • FinancieR</title>
 
 
 <!-- jquery -->
@@ -41,10 +41,8 @@
   <link href="../extra.css" rel="stylesheet">
   <script src="../extra.js"></script>
 
-<meta property="og:title" content="Exchange Hours — stock_exchange_hours" />
-<meta property="og:description" content="Operating hours and related information for worldwide exchanges. Downloaded
-from Xe's World Currency Symbols and
-stored as a tibble." />
+<meta property="og:title" content="FinancieR package — FinancieR" />
+<meta property="og:description" content="Useful financial functions" />
 
 
 
@@ -115,40 +113,18 @@ stored as a tibble." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Exchange Hours</h1>
-    <small class="dont-index">Source: <a href='https://github.com/gothic-hedge-society/FinancieR/blob/master/R/data.R'><code>R/data.R</code></a></small>
-    <div class="hidden name"><code>stock_exchange_hours.Rd</code></div>
+    <h1><code>FinancieR</code> package</h1>
+    <small class="dont-index">Source: <a href='https://github.com/gothic-hedge-society/FinancieR/blob/master/R/FinancieR.R'><code>R/FinancieR.R</code></a></small>
+    <div class="hidden name"><code>FinancieR.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Operating hours and related information for worldwide exchanges. Downloaded
-from <a href='https://www.xe.com/symbols.php'>Xe's World Currency Symbols</a> and
-stored as a tibble.</p>
+    <p>Useful financial functions</p>
     </div>
 
-    <pre class="usage"><span class='kw'>stock_exchange_hours</span></pre>
 
 
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
 
-    <p>An object of class <code>tbl_df</code> (inherits from <code>tbl</code>, <code>data.frame</code>) with 70 rows and 13 columns.</p>
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>stock_exchange_hours</span></div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 70 x 13</span><span>
-#&gt;    Name  ID    Country City  Zone  time_delta DST   local_Open local_Close
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      
-#&gt; </span><span style='color: #555555;'> 1</span><span> Euro… AMS   Nether… Amst… CET   +1         </span><span style='color: #555555;'>"</span><span>Mar… 09:00      17:40      
-#&gt; </span><span style='color: #555555;'> 2</span><span> Arme… AMX   Armenia Yere… AMT   +4         </span><span style='color: #555555;'>""</span><span>    10:00      15:00      
-#&gt; </span><span style='color: #555555;'> 3</span><span> Amma… ASE   Jordan  Amman EET   +2         </span><span style='color: #555555;'>"</span><span>Mar… 10:00      12:00      
-#&gt; </span><span style='color: #555555;'> 4</span><span> Aust… ASX   Austra… Sydn… AEST  +10        </span><span style='color: #555555;'>"</span><span>Oct… 10:00      16:00      
-#&gt; </span><span style='color: #555555;'> 5</span><span> Buen… BCBA  Argent… Buen… ART   −3         </span><span style='color: #555555;'>""</span><span>    11:00      17:00      
-#&gt; </span><span style='color: #555555;'> 6</span><span> Span… BME   Spain   Madr… CET   +1         </span><span style='color: #555555;'>"</span><span>Mar… 09:00      17:30      
-#&gt; </span><span style='color: #555555;'> 7</span><span> Mexi… BMV   Mexico  Mexi… CST   −6         </span><span style='color: #555555;'>"</span><span>Apr… 08:30      15:00      
-#&gt; </span><span style='color: #555555;'> 8</span><span> Bols… Bove… Brazil  São … BRT   −3         </span><span style='color: #555555;'>"</span><span>Sus… 10:00      17:30      
-#&gt; </span><span style='color: #555555;'> 9</span><span> Euro… BRU   Belgium Brus… CET   +1         </span><span style='color: #555555;'>"</span><span>Mar… 09:00      17:30      
-#&gt; </span><span style='color: #555555;'>10</span><span> Bomb… BSE   India   Mumb… IST   +5.5       </span><span style='color: #555555;'>""</span><span>    09:15      15:30      
-#&gt; </span><span style='color: #555555;'># … with 60 more rows, and 4 more variables: local_Lunch </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, UTC_Open </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>,</span><span>
-#&gt; </span><span style='color: #555555;'>#   UTC_Close </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, UTC_Lunch </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'></div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

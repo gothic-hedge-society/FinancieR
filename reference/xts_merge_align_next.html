@@ -142,7 +142,7 @@ equal the aggregated value (as specified; e.g., <code>sum</code>) of the values
 of the columns in <code>xts2</code> in the range <code>A:B</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>xts_merge_align_next</span>(<span class='kw'>xts1</span>, <span class='kw'>xts2</span>, <span class='kw'>agg_function</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>xts_merge_align_next</span>(<span class='kw'>xts1</span>, <span class='kw'>xts2</span>, <span class='kw'>agg_function</span>, <span class='kw'>na.fill</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,12 +162,35 @@ the range of <code>xts1</code>, but do not appear in <code>xts1</code></p></td>
 returns a single number as output; e.g., sum</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>Additional parameters to pass to <code>agg_function</code></p></td>
+      <th>na.fill</th>
+      <td><p>Not all indices of <em>xts2</em> may occur in <em>xts1</em>,
+therefore, the left join (<em>xts1</em>, <em>xts2</em>) will almost always
+result in missing values (NA) in <em>xts2</em> columns of the merged xts.
+<em>na.fill</em> specifies what value to fill in for those NA values.</p></td>
     </tr>
     </table>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># Hurricane Sandy hit the Northeastern United States at the end of October in</span>
+<span class='co'># 2012, shutting down the stock exchange and most of New York on 29 October.</span>
+<span class='co'># Texas Instruments (TXN) had scheduled a dividend to go ex-div that day, but</span>
+<span class='co'># since the stock exchange wasn't open, there are no historical prices for</span>
+<span class='co'># TXN on 29 Oct 2012, when a seller of TXN would have received the dividend.</span>
+<span class='co'>#</span>
+<span class='co'># xts_merge_align_next() handles this situation by correctly applying the</span>
+<span class='co'>#' # dividend to the next trading day, which happened to be the 31st:</span>
+<span class='fu'>xts_merge_align_next</span>(
+  <span class='kw'>stock_data</span><span class='op'>$</span><span class='kw'>TXN</span><span class='op'>$</span><span class='kw'>prices</span><span class='op'>$</span><span class='kw'>Close</span>[<span class='st'>"2012-10-26/2012-11-02"</span>, drop = <span class='fl'>FALSE</span>],
+  <span class='kw'>stock_data</span><span class='op'>$</span><span class='kw'>TXN</span><span class='op'>$</span><span class='kw'>dividends</span><span class='op'>$</span><span class='kw'>DividendAmount</span>,
+  <span class='kw'>base</span>::<span class='kw'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>,
+  <span class='fl'>0</span>
+)</div><div class='output co'>#&gt;                     Close DividendAmount
+#&gt; 2012-10-26 04:00:00 28.92           0.00
+#&gt; 2012-10-29 04:00:00    NA           0.21
+#&gt; 2012-10-31 04:00:00 28.09           0.21
+#&gt; 2012-11-01 04:00:00 29.21           0.00
+#&gt; 2012-11-02 04:00:00 28.53           0.00</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
