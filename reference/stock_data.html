@@ -151,52 +151,52 @@ described by <code>Denominator</code> and <code>Numerator</code>.</p></dd>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>  <span class='co'>## Daily low prices for Chubb from 01 June 2014 to the end of 2015</span>
   <span class='no'>chubb_low</span> <span class='kw'>&lt;-</span> <span class='no'>stock_data</span>$<span class='no'>CB</span>$<span class='no'>prices</span>$<span class='no'>Low</span>[<span class='st'>"2014-06-01/2015"</span>]
-  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span>(<span class='no'>chubb_low</span>)</div><div class='output co'>#&gt;                          Low
-#&gt; 2015-12-23 05:00:00 117.2400
-#&gt; 2015-12-24 05:00:00 117.6300
-#&gt; 2015-12-28 05:00:00 117.4600
-#&gt; 2015-12-29 05:00:00 117.7700
-#&gt; 2015-12-30 05:00:00 118.0700
-#&gt; 2015-12-31 05:00:00 116.7326</div><div class='input'>
+  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span>(<span class='no'>chubb_low</span>)</div><div class='output co'>#&gt;                 Low
+#&gt; 2015-12-23 117.2400
+#&gt; 2015-12-24 117.6300
+#&gt; 2015-12-28 117.4600
+#&gt; 2015-12-29 117.7700
+#&gt; 2015-12-30 118.0700
+#&gt; 2015-12-31 116.7326</div><div class='input'>
   <span class='co'>## All prices data for Pepsico for 2012</span>
   <span class='no'>pep_2012</span> <span class='kw'>&lt;-</span> <span class='no'>stock_data</span>$<span class='no'>PEP</span>$<span class='no'>prices</span>[<span class='st'>"2012"</span>]
-  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span>(<span class='no'>pep_2012</span>)</div><div class='output co'>#&gt;                      Open  High    Low Close    TWAP    VWAP  Volume
-#&gt; 2012-12-21 05:00:00 69.98 70.09 69.234 69.63 69.6429 69.7605 8751056
-#&gt; 2012-12-24 05:00:00 69.33 69.60 69.010 69.43 69.2595 69.2725 2071245
-#&gt; 2012-12-26 05:00:00 69.41 69.43 68.580 68.84 68.8609 68.8640 3731741
-#&gt; 2012-12-27 05:00:00 68.75 68.93 68.185 68.67 68.5106 68.5265 4748031
-#&gt; 2012-12-28 05:00:00 68.34 68.69 68.010 68.02 68.3277 68.2912 3764538
-#&gt; 2012-12-31 05:00:00 67.78 68.45 67.390 68.43 67.8504 67.9085 5899730
-#&gt;                     PreviousCloseDate PreviousClose
-#&gt; 2012-12-21 05:00:00             15694         70.11
-#&gt; 2012-12-24 05:00:00             15695         69.63
-#&gt; 2012-12-26 05:00:00             15698         69.43
-#&gt; 2012-12-27 05:00:00             15700         68.84
-#&gt; 2012-12-28 05:00:00             15701         68.67
-#&gt; 2012-12-31 05:00:00             15702         68.02</div><div class='input'>
+  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span>(<span class='no'>pep_2012</span>)</div><div class='output co'>#&gt;             Open  High    Low Close    TWAP    VWAP  Volume PreviousCloseDate
+#&gt; 2012-12-21 69.98 70.09 69.234 69.63 69.6429 69.7605 8751056             15694
+#&gt; 2012-12-24 69.33 69.60 69.010 69.43 69.2595 69.2725 2071245             15695
+#&gt; 2012-12-26 69.41 69.43 68.580 68.84 68.8609 68.8640 3731741             15698
+#&gt; 2012-12-27 68.75 68.93 68.185 68.67 68.5106 68.5265 4748031             15700
+#&gt; 2012-12-28 68.34 68.69 68.010 68.02 68.3277 68.2912 3764538             15701
+#&gt; 2012-12-31 67.78 68.45 67.390 68.43 67.8504 67.9085 5899730             15702
+#&gt;            PreviousClose
+#&gt; 2012-12-21         70.11
+#&gt; 2012-12-24         69.63
+#&gt; 2012-12-26         69.43
+#&gt; 2012-12-27         68.84
+#&gt; 2012-12-28         68.67
+#&gt; 2012-12-31         68.02</div><div class='input'>
   <span class='co'>## High &amp; Low prices for GD for March 2017</span>
   <span class='no'>gd_high_and_low</span> <span class='kw'>&lt;-</span> <span class='no'>stock_data</span>$<span class='no'>GD</span>$<span class='no'>prices</span>[<span class='st'>"2017-03"</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"High"</span>, <span class='st'>"Low"</span>)]
-  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span>(<span class='no'>gd_high_and_low</span>)</div><div class='output co'>#&gt;                        High      Low
-#&gt; 2017-03-24 04:00:00 189.895 186.3500
-#&gt; 2017-03-27 04:00:00 186.180 183.7201
-#&gt; 2017-03-28 04:00:00 189.450 184.8800
-#&gt; 2017-03-29 04:00:00 188.920 187.2000
-#&gt; 2017-03-30 04:00:00 189.300 188.2000
-#&gt; 2017-03-31 04:00:00 188.560 186.4200</div><div class='input'>
+  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span>(<span class='no'>gd_high_and_low</span>)</div><div class='output co'>#&gt;               High      Low
+#&gt; 2017-03-24 189.895 186.3500
+#&gt; 2017-03-27 186.180 183.7201
+#&gt; 2017-03-28 189.450 184.8800
+#&gt; 2017-03-29 188.920 187.2000
+#&gt; 2017-03-30 189.300 188.2000
+#&gt; 2017-03-31 188.560 186.4200</div><div class='input'>
   <span class='co'>## Dividends paid by Johnson &amp; Johnson in 2017</span>
-  <span class='no'>stock_data</span>$<span class='no'>JNJ</span>$<span class='no'>dividends</span>[<span class='st'>"2017"</span>]</div><div class='output co'>#&gt;                     DividendAmount RecordDate   DeclaredDate Type              
-#&gt; 2017-02-24 05:00:00 "0.800"        "2017-02-28" "2017-01-03" "OrdinaryDividend"
-#&gt; 2017-05-25 04:00:00 "0.840"        "2017-05-30" "NA"         "OrdinaryDividend"
-#&gt; 2017-08-25 04:00:00 "0.840"        "2017-08-29" "2017-07-17" "OrdinaryDividend"
-#&gt; 2017-11-27 05:00:00 "0.840"        "2017-11-28" "2017-10-19" "OrdinaryDividend"
-#&gt;                     PaymentFrequency
-#&gt; 2017-02-24 05:00:00 "Quarterly"     
-#&gt; 2017-05-25 04:00:00 "Quarterly"     
-#&gt; 2017-08-25 04:00:00 "Quarterly"     
-#&gt; 2017-11-27 05:00:00 "Quarterly"     </div><div class='input'>
+  <span class='no'>stock_data</span>$<span class='no'>JNJ</span>$<span class='no'>dividends</span>[<span class='st'>"2017"</span>]</div><div class='output co'>#&gt;            DividendAmount RecordDate   DeclaredDate Type              
+#&gt; 2017-02-24 "0.800"        "2017-02-28" "2017-01-03" "OrdinaryDividend"
+#&gt; 2017-05-25 "0.840"        "2017-05-30" "NA"         "OrdinaryDividend"
+#&gt; 2017-08-25 "0.840"        "2017-08-29" "2017-07-17" "OrdinaryDividend"
+#&gt; 2017-11-27 "0.840"        "2017-11-28" "2017-10-19" "OrdinaryDividend"
+#&gt;            PaymentFrequency
+#&gt; 2017-02-24 "Quarterly"     
+#&gt; 2017-05-25 "Quarterly"     
+#&gt; 2017-08-25 "Quarterly"     
+#&gt; 2017-11-27 "Quarterly"     </div><div class='input'>
   <span class='co'>## Stock splits for AAPL</span>
-  <span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span></div><div class='output co'>#&gt;                     Denominator Numerator
-#&gt; 2014-06-09 04:00:00           7         1</div><div class='input'> 
+  <span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span></div><div class='output co'>#&gt;            Denominator Numerator
+#&gt; 2014-06-09           7         1</div><div class='input'> 
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

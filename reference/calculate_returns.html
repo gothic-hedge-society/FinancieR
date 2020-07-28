@@ -194,17 +194,17 @@ specified by the element's column name.</p>
 )
 
 <span class='co'># Print the first 10 rows:</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>aapl_att_returns</span>, <span class='fl'>10</span>)</div><div class='output co'>#&gt;                             AAPL             T
-#&gt; 2014-01-03 05:00:00 -0.022210746 -0.0043010819
-#&gt; 2014-01-06 05:00:00  0.005438253  0.0045871640
-#&gt; 2014-01-07 05:00:00 -0.007181981 -0.0002860821
-#&gt; 2014-01-08 05:00:00  0.006317525 -0.0071787817
-#&gt; 2014-01-09 05:00:00 -0.012854131 -0.0206557949
-#&gt; 2014-01-10 05:00:00 -0.006693129  0.0023823716
-#&gt; 2014-01-13 05:00:00  0.005221455 -0.0095637310
-#&gt; 2014-01-14 05:00:00  0.019702704  0.0053908486
-#&gt; 2014-01-15 05:00:00  0.019878344  0.0092166551
-#&gt; 2014-01-16 05:00:00 -0.005595502  0.0050184607</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>aapl_att_returns</span>, <span class='fl'>10</span>)</div><div class='output co'>#&gt;                    AAPL             T
+#&gt; 2014-01-03 -0.022210746 -0.0043010819
+#&gt; 2014-01-06  0.005438253  0.0045871640
+#&gt; 2014-01-07 -0.007181981 -0.0002860821
+#&gt; 2014-01-08  0.006317525 -0.0071787817
+#&gt; 2014-01-09 -0.012854131 -0.0206557949
+#&gt; 2014-01-10 -0.006693129  0.0023823716
+#&gt; 2014-01-13  0.005221455 -0.0095637310
+#&gt; 2014-01-14  0.019702704  0.0053908486
+#&gt; 2014-01-15  0.019878344  0.0092166551
+#&gt; 2014-01-16 -0.005595502  0.0050184607</div><div class='input'>
 <span class='co'># Let's check this result in a few key places. </span>
 
 <span class='co'># 1) Normal trading day</span>
@@ -213,12 +213,12 @@ specified by the element's column name.</p>
 <span class='co'>#      returns using Close prices. Let's pick Monday, 21 July 2014, which was a</span>
 <span class='co'>#      normal trading day (no dividend, no split) for AT&amp;T. The previous trading</span>
 <span class='co'>#      day was Friday, 18 Jul 2014:</span>
-<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>[<span class='st'>"2014-07-18/2014-07-21"</span>]</div><div class='output co'>#&gt;                      Open  High   Low Close    TWAP    VWAP   Volume
-#&gt; 2014-07-18 04:00:00 36.18 36.19 36.00 36.17 36.1052 36.1115 16132950
-#&gt; 2014-07-21 04:00:00 36.07 36.16 35.88 35.96 36.0222 36.0169 20917407
-#&gt;                     PreviousCloseDate PreviousClose
-#&gt; 2014-07-18 04:00:00             16268         36.03
-#&gt; 2014-07-21 04:00:00             16269         36.17</div><div class='input'>
+<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>[<span class='st'>"2014-07-18/2014-07-21"</span>]</div><div class='output co'>#&gt;             Open  High   Low Close    TWAP    VWAP   Volume PreviousCloseDate
+#&gt; 2014-07-18 36.18 36.19 36.00 36.17 36.1052 36.1115 16132950             16268
+#&gt; 2014-07-21 36.07 36.16 35.88 35.96 36.0222 36.0169 20917407             16269
+#&gt;            PreviousClose
+#&gt; 2014-07-18         36.03
+#&gt; 2014-07-21         36.17</div><div class='input'>
 <span class='co'>#      The natural log return using Close prices (calculate_returns() default)</span>
 <span class='co'>#      as calculated by hand should be:</span>
 <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(
@@ -227,20 +227,20 @@ specified by the element's column name.</p>
 )</div><div class='output co'>#&gt; [1] -0.005822836</div><div class='input'>
 <span class='co'>#      This return was realized on 2014-07-21, so it should appear at that date</span>
 <span class='co'>#      index in the results returned by calculate_returns():</span>
-<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-21"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;                                T
-#&gt; 2014-07-21 04:00:00 -0.005822836</div><div class='input'>
+<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-21"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;                       T
+#&gt; 2014-07-21 -0.005822836</div><div class='input'>
 <span class='co'># 2) AT&amp;T's dividend</span>
 <span class='co'>#      AT&amp;T paid several dividends in 2014:</span>
-<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>dividends</span>[<span class='st'>"2014"</span>]</div><div class='output co'>#&gt;                     DividendAmount RecordDate   DeclaredDate Type              
-#&gt; 2014-01-08 05:00:00 "0.46000"      "2014-01-10" "2013-12-13" "OrdinaryDividend"
-#&gt; 2014-04-08 04:00:00 "0.46000"      "2014-04-10" "2014-03-28" "OrdinaryDividend"
-#&gt; 2014-07-08 04:00:00 "0.46000"      "2014-07-10" "2014-06-27" "OrdinaryDividend"
-#&gt; 2014-10-08 04:00:00 "0.46000"      "2014-10-10" "2014-09-26" "OrdinaryDividend"
-#&gt;                     PaymentFrequency
-#&gt; 2014-01-08 05:00:00 "Quarterly"     
-#&gt; 2014-04-08 04:00:00 "Quarterly"     
-#&gt; 2014-07-08 04:00:00 "Quarterly"     
-#&gt; 2014-10-08 04:00:00 "Quarterly"     </div><div class='input'>
+<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>dividends</span>[<span class='st'>"2014"</span>]</div><div class='output co'>#&gt;            DividendAmount RecordDate   DeclaredDate Type              
+#&gt; 2014-01-08 "0.46000"      "2014-01-10" "2013-12-13" "OrdinaryDividend"
+#&gt; 2014-04-08 "0.46000"      "2014-04-10" "2014-03-28" "OrdinaryDividend"
+#&gt; 2014-07-08 "0.46000"      "2014-07-10" "2014-06-27" "OrdinaryDividend"
+#&gt; 2014-10-08 "0.46000"      "2014-10-10" "2014-09-26" "OrdinaryDividend"
+#&gt;            PaymentFrequency
+#&gt; 2014-01-08 "Quarterly"     
+#&gt; 2014-04-08 "Quarterly"     
+#&gt; 2014-07-08 "Quarterly"     
+#&gt; 2014-10-08 "Quarterly"     </div><div class='input'>
 <span class='co'>#     If you had bought a share of AT&amp;T stock on 07 July 2014 and sold it at the</span>
 <span class='co'>#     Close price the next day after the dividend went ex-div, you would have</span>
 <span class='co'>#     collected the closing price from the sale plus the dividend amount, </span>
@@ -253,13 +253,13 @@ specified by the element's column name.</p>
 )</div><div class='output co'>#&gt; [1] 0</div><div class='input'>
 <span class='co'>#      This return was realized on 2014-07-08, so it should appear at that date</span>
 <span class='co'>#      index in the results returned by calculate_returns():</span>
-<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-08"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;                     T
-#&gt; 2014-07-08 04:00:00 0</div><div class='input'><span class='co'># --&gt; This isn't an "accident". Ask yourself why this might be, </span>
+<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-08"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;            T
+#&gt; 2014-07-08 0</div><div class='input'><span class='co'># --&gt; This isn't an "accident". Ask yourself why this might be, </span>
 
 <span class='co'># 2) AAPL's split</span>
 <span class='co'>#      Apple underwent a major split on a Monday in June of 2014:</span>
-<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span></div><div class='output co'>#&gt;                     Denominator Numerator
-#&gt; 2014-06-09 04:00:00           7         1</div><div class='input'>
+<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span></div><div class='output co'>#&gt;            Denominator Numerator
+#&gt; 2014-06-09           7         1</div><div class='input'>
 <span class='co'>#     If you had bought a share of AAPL at Close price on Friday, you would have</span>
 <span class='co'>#     woken up on Monday morning with 7 shares... each one of which worth about</span>
 <span class='co'>#     1/7th what they were worth previously. If you sold those shares at Close</span>
@@ -272,8 +272,8 @@ specified by the element's column name.</p>
 )</div><div class='output co'>#&gt; [1] 0.01587469</div><div class='input'>
 <span class='co'>#      This return was realized on 2014-06-09, so it should appear at that date</span>
 <span class='co'>#      index in the results returned by calculate_returns():</span>
-<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-06-09"</span>, <span class='st'>"AAPL"</span>]</div><div class='output co'>#&gt;                           AAPL
-#&gt; 2014-06-09 04:00:00 0.01587469</div></pre>
+<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-06-09"</span>, <span class='st'>"AAPL"</span>]</div><div class='output co'>#&gt;                  AAPL
+#&gt; 2014-06-09 0.01587469</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
