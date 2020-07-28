@@ -107,6 +107,22 @@ log(
 aapl_att_returns["2014-07-08", "T"]
 # --> This isn't an "accident". Ask yourself why this might be, 
 
+# 2) AAPL's split
+#      Apple underwent a major split on a Monday in June of 2014:
+stock_data$AAPL$splits
 
+#     If you had bought a share of AAPL at Close price on Friday, you would have
+#     woken up on Monday morning with 7 shares... each one of which worth about
+#     1/7th what they were worth previously. If you sold those shares at Close
+#     price on Monday, your total return would be:
+log(
+  (
+    as.numeric(stock_data$AAPL$prices$Close["2014-06-09"]) *
+      as.numeric(stock_data$AAPL$splits$Denominator["2014-06-09"])
+  ) / as.numeric(stock_data$AAPL$prices$Close["2014-06-06"])
+)
 
+#      This return was realized on 2014-06-09, so it should appear at that date
+#      index in the results returned by calculate_returns():
+aapl_att_returns["2014-06-09", "AAPL"]
 }
