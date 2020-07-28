@@ -10,11 +10,11 @@ Authors@R:
 Description: What the package does (one paragraph).
 License: GPL-3
 Depends: 
-    R (>= 3.6.0)
+    R (>= 3.6.0),
+    xts
 Imports: 
     magrittr,
     lattice,
-    xts,
     dplyr,
     tibble,
     tidyr,
