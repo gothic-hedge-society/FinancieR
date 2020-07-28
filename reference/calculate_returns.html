@@ -254,9 +254,10 @@ specified by the element's column name.</p>
 <span class='co'>#      This return was realized on 2014-07-08, so it should appear at that date</span>
 <span class='co'>#      index in the results returned by calculate_returns():</span>
 <span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-08"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;            T
-#&gt; 2014-07-08 0</div><div class='input'><span class='co'># --&gt; This isn't an "accident". Ask yourself why this might be, </span>
+#&gt; 2014-07-08 0</div><div class='input'><span class='co'># --&gt; In this case, the stock closed at the same price as the previous day once</span>
+<span class='co'>#     the dividend was taken into account, so return = 0.</span>
 
-<span class='co'># 2) AAPL's split</span>
+<span class='co'># 3) AAPL's split</span>
 <span class='co'>#      Apple underwent a major split on a Monday in June of 2014:</span>
 <span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span></div><div class='output co'>#&gt;            Denominator Numerator
 #&gt; 2014-06-09           7         1</div><div class='input'>
