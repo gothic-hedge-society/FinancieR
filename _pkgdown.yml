@@ -15,6 +15,7 @@ reference:
   - calculate_returns
   - gmrr
   - calculate_market_portfolio
+  - xts_merge_align_next
 
 - title: Sample Data
   desc: For examples, testing, and development

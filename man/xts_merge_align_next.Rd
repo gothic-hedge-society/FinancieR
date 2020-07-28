@@ -15,7 +15,10 @@ the range of \code{xts1}, but do not appear in \code{xts1}}
 \item{agg_function}{Any function that accepts a numeric vector as input and
 returns a single number as output; e.g., sum}
 
-\item{...}{Additional parameters to pass to \code{agg_function}}
+\item{na.fill}{Not all indices of \emph{xts2} may occur in \emph{xts1},
+therefore, the left join (\emph{xts1}, \emph{xts2}) will almost always
+result in missing values (NA) in \emph{xts2} columns of the merged xts.
+\emph{na.fill} specifies what value to fill in for those NA values.}
 }
 \description{
 For two XTS objects \code{xts1} and \code{xts2}, let \code{A}
@@ -35,12 +38,11 @@ of the columns in \code{xts2} in the range \code{A:B}.
 # Hurricane Sandy hit the Northeastern United States at the end of October in
 # 2012, shutting down the stock exchange and most of New York on 29 October.
 # Texas Instruments (TXN) had scheduled a dividend to go ex-div that day, but
-# since the stock exchange wasn't open, there are no historical prices for 
-# TXN on 29 Oct 2012, when a seller of TXN would have received the dividend. 
+# since the stock exchange wasn't open, there are no historical prices for
+# TXN on 29 Oct 2012, when a seller of TXN would have received the dividend.
 #
-# xts_merge_align_next() handles this situation by correctly applying the 
+# xts_merge_align_next() handles this situation by correctly applying the
 #' # dividend to the next trading day, which happened to be the 31st:
-\dontrun{
 xts_merge_align_next(
   stock_data$TXN$prices$Close["2012-10-26/2012-11-02", drop = FALSE],
   stock_data$TXN$dividends$DividendAmount,
@@ -48,6 +50,3 @@ xts_merge_align_next(
   0
 )
 }
-  
-}
-\keyword{internal}
