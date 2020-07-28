@@ -86,4 +86,27 @@ log(
 #      This return was realized on 2014-07-21, so it should appear at that date
 #      index in the results returned by calculate_returns():
 aapl_att_returns["2014-07-21", "T"]
+
+# 2) AT&T's dividend
+#      AT&T paid several dividends in 2014:
+stock_data$T$dividends["2014"]
+
+#     If you had bought a share of AT&T stock on 07 July 2014 and sold it at the
+#     Close price the next day after the dividend went ex-div, you would have
+#     collected the closing price from the sale plus the dividend amount, 
+#     meaning that your total earned return would have been:
+log(
+  (
+    as.numeric(stock_data$T$prices$Close["2014-07-08"]) + 
+      as.numeric(stock_data$T$dividends$DividendAmount["2014-07-08"])
+  ) / as.numeric(stock_data$T$prices$Close["2014-07-07"])
+)
+
+#      This return was realized on 2014-07-08, so it should appear at that date
+#      index in the results returned by calculate_returns():
+aapl_att_returns["2014-07-08", "T"]
+# --> This isn't an "accident". Ask yourself why this might be, 
+
+
+
 }

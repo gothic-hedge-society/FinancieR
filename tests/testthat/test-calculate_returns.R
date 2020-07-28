@@ -77,3 +77,21 @@ test_that(
   )  
 )
 
+test_that(
+  "The second example in calculate_returns() documentation works.",
+  expect_identical(
+    log(
+      (
+        as.numeric(stock_data$T$prices$Close["2014-07-08"]) + 
+          as.numeric(stock_data$T$dividends$DividendAmount["2014-07-08"])
+      ) / as.numeric(stock_data$T$prices$Close["2014-07-07"])
+    ),
+    as.numeric(
+      calculate_returns(
+        assets         = stock_data[c("AAPL", "T")],
+        date_range_xts = "2014"
+      )["2014-07-08", "T"]
+    )
+  )  
+)
+
