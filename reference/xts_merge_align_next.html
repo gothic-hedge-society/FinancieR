@@ -142,7 +142,7 @@ equal the aggregated value (as specified; e.g., <code>sum</code>) of the values
 of the columns in <code>xts2</code> in the range <code>A:B</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>xts_merge_align_next</span>(<span class='kw'>xts1</span>, <span class='kw'>xts2</span>, <span class='kw'>agg_function</span>, <span class='kw'>na.fill</span>)</pre>
+    <pre class="usage"><span class='fu'>xts_merge_align_next</span>(<span class='no'>xts1</span>, <span class='no'>xts2</span>, <span class='no'>agg_function</span>, <span class='no'>na.fill</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,9 +181,9 @@ result in missing values (NA) in <em>xts2</em> columns of the merged xts.
 <span class='co'># xts_merge_align_next() handles this situation by correctly applying the</span>
 <span class='co'>#' # dividend to the next trading day, which happened to be the 31st:</span>
 <span class='fu'>xts_merge_align_next</span>(
-  <span class='kw'>stock_data</span><span class='op'>$</span><span class='kw'>TXN</span><span class='op'>$</span><span class='kw'>prices</span><span class='op'>$</span><span class='kw'>Close</span>[<span class='st'>"2012-10-26/2012-11-02"</span>, drop = <span class='fl'>FALSE</span>],
-  <span class='kw'>stock_data</span><span class='op'>$</span><span class='kw'>TXN</span><span class='op'>$</span><span class='kw'>dividends</span><span class='op'>$</span><span class='kw'>DividendAmount</span>,
-  <span class='kw'>base</span>::<span class='kw'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>,
+  <span class='no'>stock_data</span>$<span class='no'>TXN</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2012-10-26/2012-11-02"</span>, <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>],
+  <span class='no'>stock_data</span>$<span class='no'>TXN</span>$<span class='no'>dividends</span>$<span class='no'>DividendAmount</span>,
+  <span class='kw pkg'>base</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/r/base/sum.html'>sum</a></span>,
   <span class='fl'>0</span>
 )</div><div class='output co'>#&gt;                     Close DividendAmount
 #&gt; 2012-10-26 04:00:00 28.92           0.00
@@ -206,7 +206,7 @@ result in missing values (NA) in <em>xts2</em> columns of the merged xts.
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

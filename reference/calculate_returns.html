@@ -125,11 +125,11 @@ into account splits and dividends.</p>
     </div>
 
     <pre class="usage"><span class='fu'>calculate_returns</span>(
-  <span class='kw'>assets</span>,
-  date_range_xts = <span class='kw'>NULL</span>,
-  buy_at = <span class='st'>"Close"</span>,
-  sell_at = <span class='st'>"Close"</span>,
-  returns_method = <span class='st'>"ln"</span>
+  <span class='no'>assets</span>,
+  <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>buy_at</span> <span class='kw'>=</span> <span class='st'>"Close"</span>,
+  <span class='kw'>sell_at</span> <span class='kw'>=</span> <span class='st'>"Close"</span>,
+  <span class='kw'>returns_method</span> <span class='kw'>=</span> <span class='st'>"ln"</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -188,13 +188,13 @@ specified by the element's column name.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Calculate the daily natural log returns of Apple (AAPL) and AT&amp;T (T) for 2014,</span>
 <span class='co'># a year in which Apple had a major stock split. </span>
-<span class='kw'>aapl_att_returns</span> <span class='op'>&lt;-</span> <span class='fu'>calculate_returns</span>(
-  assets         = <span class='kw'>stock_data</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"AAPL"</span>, <span class='st'>"T"</span>)],
-  date_range_xts = <span class='st'>"2014"</span>
+<span class='no'>aapl_att_returns</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_returns</span>(
+  <span class='kw'>assets</span>         <span class='kw'>=</span> <span class='no'>stock_data</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"AAPL"</span>, <span class='st'>"T"</span>)],
+  <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='st'>"2014"</span>
 )
 
 <span class='co'># Print the first 10 rows:</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='kw'>aapl_att_returns</span>, <span class='fl'>10</span>)</div><div class='output co'>#&gt;                             AAPL             T
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>aapl_att_returns</span>, <span class='fl'>10</span>)</div><div class='output co'>#&gt;                             AAPL             T
 #&gt; 2014-01-03 05:00:00 -0.022210746 -0.0043010819
 #&gt; 2014-01-06 05:00:00  0.005438253  0.0045871640
 #&gt; 2014-01-07 05:00:00 -0.007181981 -0.0002860821
@@ -213,7 +213,7 @@ specified by the element's column name.</p>
 <span class='co'>#      returns using Close prices. Let's pick Monday, 21 July 2014, which was a</span>
 <span class='co'>#      normal trading day (no dividend, no split) for AT&amp;T. The previous trading</span>
 <span class='co'>#      day was Friday, 18 Jul 2014:</span>
-<span class='kw'>stock_data</span><span class='op'>$</span><span class='kw'>T</span><span class='op'>$</span><span class='kw'>prices</span>[<span class='st'>"2014-07-18/2014-07-21"</span>]</div><div class='output co'>#&gt;                      Open  High   Low Close    TWAP    VWAP   Volume
+<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>[<span class='st'>"2014-07-18/2014-07-21"</span>]</div><div class='output co'>#&gt;                      Open  High   Low Close    TWAP    VWAP   Volume
 #&gt; 2014-07-18 04:00:00 36.18 36.19 36.00 36.17 36.1052 36.1115 16132950
 #&gt; 2014-07-21 04:00:00 36.07 36.16 35.88 35.96 36.0222 36.0169 20917407
 #&gt;                     PreviousCloseDate PreviousClose
@@ -222,12 +222,12 @@ specified by the element's column name.</p>
 <span class='co'>#      The natural log return using Close prices (calculate_returns() default)</span>
 <span class='co'>#      as calculated by hand should be:</span>
 <span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(
-  <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='kw'>stock_data</span><span class='op'>$</span><span class='kw'>T</span><span class='op'>$</span><span class='kw'>prices</span><span class='op'>$</span><span class='kw'>Close</span>[<span class='st'>"2014-07-21"</span>]) <span class='op'>/</span>
-    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='kw'>stock_data</span><span class='op'>$</span><span class='kw'>T</span><span class='op'>$</span><span class='kw'>prices</span><span class='op'>$</span><span class='kw'>Close</span>[<span class='st'>"2014-07-18"</span>])
+  <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-07-21"</span>]) /
+    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-07-18"</span>])
 )</div><div class='output co'>#&gt; [1] -0.005822836</div><div class='input'>
 <span class='co'>#      This return was realized on 2014-07-21, so it should appear at that date</span>
 <span class='co'>#      index in the results returned by calculate_returns():</span>
-<span class='kw'>aapl_att_returns</span>[<span class='st'>"2014-07-21"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;                                T
+<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-21"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;                                T
 #&gt; 2014-07-21 04:00:00 -0.005822836</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -244,7 +244,7 @@ specified by the element's column name.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>
