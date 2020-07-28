@@ -228,7 +228,52 @@ specified by the element's column name.</p>
 <span class='co'>#      This return was realized on 2014-07-21, so it should appear at that date</span>
 <span class='co'>#      index in the results returned by calculate_returns():</span>
 <span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-21"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;                                T
-#&gt; 2014-07-21 04:00:00 -0.005822836</div></pre>
+#&gt; 2014-07-21 04:00:00 -0.005822836</div><div class='input'>
+<span class='co'># 2) AT&amp;T's dividend</span>
+<span class='co'>#      AT&amp;T paid several dividends in 2014:</span>
+<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>dividends</span>[<span class='st'>"2014"</span>]</div><div class='output co'>#&gt;                     DividendAmount RecordDate   DeclaredDate Type              
+#&gt; 2014-01-08 05:00:00 "0.46000"      "2014-01-10" "2013-12-13" "OrdinaryDividend"
+#&gt; 2014-04-08 04:00:00 "0.46000"      "2014-04-10" "2014-03-28" "OrdinaryDividend"
+#&gt; 2014-07-08 04:00:00 "0.46000"      "2014-07-10" "2014-06-27" "OrdinaryDividend"
+#&gt; 2014-10-08 04:00:00 "0.46000"      "2014-10-10" "2014-09-26" "OrdinaryDividend"
+#&gt;                     PaymentFrequency
+#&gt; 2014-01-08 05:00:00 "Quarterly"     
+#&gt; 2014-04-08 04:00:00 "Quarterly"     
+#&gt; 2014-07-08 04:00:00 "Quarterly"     
+#&gt; 2014-10-08 04:00:00 "Quarterly"     </div><div class='input'>
+<span class='co'>#     If you had bought a share of AT&amp;T stock on 07 July 2014 and sold it at the</span>
+<span class='co'>#     Close price the next day after the dividend went ex-div, you would have</span>
+<span class='co'>#     collected the closing price from the sale plus the dividend amount, </span>
+<span class='co'>#     meaning that your total earned return would have been:</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(
+  (
+    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-07-08"</span>]) +
+      <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>dividends</span>$<span class='no'>DividendAmount</span>[<span class='st'>"2014-07-08"</span>])
+  ) / <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-07-07"</span>])
+)</div><div class='output co'>#&gt; [1] 0</div><div class='input'>
+<span class='co'>#      This return was realized on 2014-07-08, so it should appear at that date</span>
+<span class='co'>#      index in the results returned by calculate_returns():</span>
+<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-08"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;                     T
+#&gt; 2014-07-08 04:00:00 0</div><div class='input'><span class='co'># --&gt; This isn't an "accident". Ask yourself why this might be, </span>
+
+<span class='co'># 2) AAPL's split</span>
+<span class='co'>#      Apple underwent a major split on a Monday in June of 2014:</span>
+<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span></div><div class='output co'>#&gt;                     Denominator Numerator
+#&gt; 2014-06-09 04:00:00           7         1</div><div class='input'>
+<span class='co'>#     If you had bought a share of AAPL at Close price on Friday, you would have</span>
+<span class='co'>#     woken up on Monday morning with 7 shares... each one of which worth about</span>
+<span class='co'>#     1/7th what they were worth previously. If you sold those shares at Close</span>
+<span class='co'>#     price on Monday, your total return would be:</span>
+<span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(
+  (
+    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-06-09"</span>]) *
+      <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span>$<span class='no'>Denominator</span>[<span class='st'>"2014-06-09"</span>])
+  ) / <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-06-06"</span>])
+)</div><div class='output co'>#&gt; [1] 0.01587469</div><div class='input'>
+<span class='co'>#      This return was realized on 2014-06-09, so it should appear at that date</span>
+<span class='co'>#      index in the results returned by calculate_returns():</span>
+<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-06-09"</span>, <span class='st'>"AAPL"</span>]</div><div class='output co'>#&gt;                           AAPL
+#&gt; 2014-06-09 04:00:00 0.01587469</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
