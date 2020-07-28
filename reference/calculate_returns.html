@@ -186,8 +186,8 @@ account any splits and dividends that may have occurred) for the asset
 specified by the element's column name.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Calculate the daily natural log returns of Apple (AAPL) and AT&amp;T (T) for 2014,</span>
-<span class='co'># a year in which Apple had a major stock split. </span>
+    <pre class="examples"><div class='input'><span class='co'># Calculate daily natural log returns of Apple (AAPL) and AT&amp;T (T) for 2014, a</span>
+<span class='co'># year in which Apple had a major stock split.</span>
 <span class='no'>aapl_att_returns</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_returns</span>(
   <span class='kw'>assets</span>         <span class='kw'>=</span> <span class='no'>stock_data</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"AAPL"</span>, <span class='st'>"T"</span>)],
   <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='st'>"2014"</span>
