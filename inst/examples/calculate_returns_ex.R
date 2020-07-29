@@ -47,9 +47,10 @@ log(
 #      This return was realized on 2014-07-08, so it should appear at that date
 #      index in the results returned by calculate_returns():
 aapl_att_returns["2014-07-08", "T"]
-# --> This isn't an "accident". Ask yourself why this might be, 
+# --> In this case, the stock closed at the same price as the previous day once
+#     the dividend was taken into account, so return = 0.
 
-# 2) AAPL's split
+# 3) AAPL's split
 #      Apple underwent a major split on a Monday in June of 2014:
 stock_data$AAPL$splits
 
