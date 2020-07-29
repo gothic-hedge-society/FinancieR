@@ -8,7 +8,7 @@ calculate_market_portfolio(
   exp_rtn,
   exp_vol,
   exp_cor,
-  rf = 8.22e-05,
+  rfr = 8.22e-05,
   allow_shorts = FALSE
 )
 }
@@ -22,10 +22,10 @@ expected for the asset specified by the element's name.}
 \item{exp_cor}{Named numeric matrix specifying the expected covariance of
 returns for each asset pair.}
 
-\item{rf}{The risk-free rate to use in calculation of
+\item{rfr}{The risk-free rate to use in calculation of
 \href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe Ratio},
 in decimal form. Defaults to \strong{0.00822}\% daily return (about 3\%
-annually). If you specify a different value for \emph{rf}, \strong{make
+annually). If you specify a different value for \emph{rfr}, \strong{make
 sure its time basis matches the one used for you other inputs}, (i.e., if
 \emph{exp_rtn} contains monthly returns, use monthly risk-free rate)!}
 
@@ -68,7 +68,7 @@ each asset.
 }
 \details{
 All arguments which are percentages (\emph{exp_rtn}, \emph{exp_vol}, and
-\emph{rf}) must be supplied in decimal form; i.e., to specify "12\%", use
+\emph{rfr}) must be supplied in decimal form; i.e., to specify "12\%", use
 0.12, not 12.
 
 It should go without saying, but make sure that every asset is represented

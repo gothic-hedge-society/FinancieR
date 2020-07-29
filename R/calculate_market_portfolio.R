@@ -13,10 +13,10 @@
 #' @param exp_cor Named numeric matrix specifying the expected covariance of
 #'   returns for each asset pair.
 #' 
-#' @param rf The risk-free rate to use in calculation of
+#' @param rfr The risk-free rate to use in calculation of
 #'   \href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe Ratio}, 
 #'   in decimal form. Defaults to \strong{0.00822}% daily return (about 3%
-#'   annually). If you specify a different value for \emph{rf}, \strong{make
+#'   annually). If you specify a different value for \emph{rfr}, \strong{make
 #'   sure its time basis matches the one used for you other inputs}, (i.e., if
 #'   \emph{exp_rtn} contains monthly returns, use monthly risk-free rate)!
 #'   
@@ -54,7 +54,7 @@
 #' @details 
 #' 
 #'   All arguments which are percentages (\emph{exp_rtn}, \emph{exp_vol}, and
-#'   \emph{rf}) must be supplied in decimal form; i.e., to specify "12%", use
+#'   \emph{rfr}) must be supplied in decimal form; i.e., to specify "12%", use
 #'   0.12, not 12.
 #'   
 #'   It should go without saying, but make sure that every asset is represented
@@ -117,7 +117,7 @@ calculate_market_portfolio <- function(
   exp_rtn,
   exp_vol,
   exp_cor,
-  rf             = 0.0000822,
+  rfr             = 0.0000822,
   allow_shorts   = FALSE
 ){
   
@@ -196,7 +196,7 @@ calculate_market_portfolio <- function(
           )
           
           tibble::lst(
-            "sharpe"  = (expected_return - rf) / expected_volatility,
+            "sharpe"  = (expected_return - rfr) / expected_volatility,
             "weights" = weights
           )
           
@@ -261,7 +261,7 @@ calculate_market_portfolio <- function(
               
               wts[add_to_asset] <- wts[add_to_asset] + step
               
-              as.numeric(exp_rtn %*% as.matrix(wts) - rf) / sqrt(
+              as.numeric(exp_rtn %*% as.matrix(wts) - rfr) / sqrt(
                 as.numeric((wts %*% exp_cov) %*% as.matrix(wts))
               )
             },
@@ -293,7 +293,7 @@ calculate_market_portfolio <- function(
       ] - step
       
       portfolio_sharpe <-  (
-        as.numeric(exp_rtn %*% as.matrix(portfolio_weights)) - rf
+        as.numeric(exp_rtn %*% as.matrix(portfolio_weights)) - rfr
       ) / sqrt(
         as.numeric(
           (portfolio_weights %*% exp_cov) %*% as.matrix(portfolio_weights)
