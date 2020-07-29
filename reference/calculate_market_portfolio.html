@@ -130,8 +130,10 @@ each asset.</p>
   <span class='no'>exp_rtn</span>,
   <span class='no'>exp_vol</span>,
   <span class='no'>exp_cor</span>,
-  <span class='kw'>rfr</span> <span class='kw'>=</span> <span class='fl'>8.22e-05</span>,
-  <span class='kw'>allow_shorts</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>rfr</span> <span class='kw'>=</span> <span class='fl'>2.7397e-05</span>,
+  <span class='kw'>allow_shorts</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>prices</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>portfolio_aum</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -154,12 +156,20 @@ returns for each asset pair.</p></td>
     </tr>
     <tr>
       <th>rfr</th>
-      <td><p>The risk-free rate to use in calculation of
-<a href='https://www.investopedia.com/articles/07/sharpe_ratio.asp'>Sharpe Ratio</a>,
-in decimal form. Defaults to <strong>0.00822</strong>% daily return (about 3%
-annually). If you specify a different value for <em>rfr</em>, <strong>make
-sure its time basis matches the one used for you other inputs</strong>, (i.e., if
-<em>exp_rtn</em> contains monthly returns, use monthly risk-free rate)!</p></td>
+      <td><p>The risk-free rate (in decimal form; i.e., to specify a rate of
+"3%" use "0.03", <em>not</em> "3") that <strong>YOU</strong> can earn on cash with
+reasonable liquidity constraints that <strong>YOU</strong> can tolerate. For big
+banks and in economic textbooks, this rate is usually the current rate on
+3-month T-bills (or even higher). That might be just fine for you if you
+plan on rebalancing once a year. For a trader running a strategy that can't
+tolerate cash being tied up for 3 months at a time, the <em>rfr</em> should
+be set to whatever interest rate your brokerage is giving you on cash in
+your trading account. Used in calculation of the
+<a href='https://www.investopedia.com/articles/07/sharpe_ratio.asp'>Sharpe
+Ratio</a>. Defaults to <strong>0.0027397</strong>% daily return (about 1% annually).
+If you specify a different value for <em>rfr</em>, <strong>make sure its time
+basis matches the one used for you other inputs</strong>, (i.e., if <em>exp_rtn</em>
+contains monthly returns, use monthly risk-free rate)!</p></td>
     </tr>
     <tr>
       <th>allow_shorts</th>
@@ -246,37 +256,37 @@ Market Portfolio has been reached and the function returns the value.</p>
 
 <span class='co'># Calculate the market portfolio:</span>
 <span class='fu'>calculate_market_portfolio</span>(<span class='no'>exp_rtn</span>, <span class='no'>exp_vol</span>, <span class='no'>exp_cor</span>)</div><div class='output co'>#&gt; $sharpe
-#&gt; [1] 0.0741225
+#&gt; [1] 0.07785381
 #&gt; 
 #&gt; $weights
-#&gt; AAPL  XOM  LNC  MRK  WMT  HOG  RMD AMZN  CMG   FB  IVV 
-#&gt; 0.14 0.00 0.00 0.00 0.18 0.00 0.14 0.38 0.16 0.00 0.00 
+#&gt;  AAPL   XOM   LNC   MRK   WMT   HOG   RMD  AMZN   CMG    FB   IVV 
+#&gt; 0.140 0.000 0.000 0.000 0.214 0.000 0.126 0.360 0.160 0.000 0.000 
 #&gt; 
 #&gt; $ex_return
-#&gt; [1] 0.001178704
+#&gt; [1] 0.001160257
 #&gt; 
 #&gt; $ex_volatility
-#&gt; [1] 0.01479314
+#&gt; [1] 0.01455112
 #&gt; </div><div class='input'>
 <span class='co'>### Calculate the market portfolio allowing both long &amp; short positions:</span>
 <span class='fu'>calculate_market_portfolio</span>(<span class='no'>exp_rtn</span>, <span class='no'>exp_vol</span>, <span class='no'>exp_cor</span>, <span class='kw'>allow_shorts</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; $sharpe
-#&gt; [1] 0.1185601
+#&gt; [1] 0.1263747
 #&gt; 
 #&gt; $weights
 #&gt;       AAPL        XOM        LNC        MRK        WMT        HOG        RMD 
-#&gt; 0.22000000 0.00000000 0.00000000 0.00000000 0.08666667 0.00000000 0.10333333 
+#&gt; 0.21666667 0.00000000 0.00000000 0.00000000 0.08666667 0.00000000 0.10000000 
 #&gt;       AMZN        CMG         FB        IVV     s_AAPL      s_XOM      s_LNC 
-#&gt; 0.11000000 0.10666667 0.00000000 0.00000000 0.00000000 0.17666667 0.05333333 
+#&gt; 0.11000000 0.10666667 0.00000000 0.00000000 0.00000000 0.17666667 0.05000000 
 #&gt;      s_MRK      s_WMT      s_HOG      s_RMD     s_AMZN      s_CMG       s_FB 
-#&gt; 0.00000000 0.00000000 0.09000000 0.00000000 0.00000000 0.00000000 0.05333333 
+#&gt; 0.00000000 0.00000000 0.08666667 0.00000000 0.00000000 0.00000000 0.06666667 
 #&gt;      s_IVV 
 #&gt; 0.00000000 
 #&gt; 
 #&gt; $ex_return
-#&gt; [1] 0.0009240314
+#&gt; [1] 0.0009029178
 #&gt; 
 #&gt; $ex_volatility
-#&gt; [1] 0.007100461
+#&gt; [1] 0.006927977
 #&gt; </div><div class='input'>
 </div></pre>
   </div>
