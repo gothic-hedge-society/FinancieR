@@ -1,5 +1,5 @@
-# Calculate the daily natural log returns of Apple (AAPL) and AT&T (T) for 2014,
-# a year in which Apple had a major stock split. 
+# Calculate daily natural log returns of Apple (AAPL) and AT&T (T) for 2014, a
+# year in which Apple had a major stock split.
 aapl_att_returns <- calculate_returns(
   assets         = stock_data[c("AAPL", "T")],
   date_range_xts = "2014"
