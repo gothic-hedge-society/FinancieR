@@ -8,8 +8,10 @@ calculate_market_portfolio(
   exp_rtn,
   exp_vol,
   exp_cor,
-  rfr = 8.22e-05,
-  allow_shorts = FALSE
+  rfr = 2.7397e-05,
+  allow_shorts = FALSE,
+  prices = NULL,
+  portfolio_aum = NULL
 )
 }
 \arguments{
@@ -22,12 +24,20 @@ expected for the asset specified by the element's name.}
 \item{exp_cor}{Named numeric matrix specifying the expected covariance of
 returns for each asset pair.}
 
-\item{rfr}{The risk-free rate to use in calculation of
-\href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe Ratio},
-in decimal form. Defaults to \strong{0.00822}\% daily return (about 3\%
-annually). If you specify a different value for \emph{rfr}, \strong{make
-sure its time basis matches the one used for you other inputs}, (i.e., if
-\emph{exp_rtn} contains monthly returns, use monthly risk-free rate)!}
+\item{rfr}{The risk-free rate (in decimal form; i.e., to specify a rate of
+"3\%" use "0.03", \emph{not} "3") that \strong{YOU} can earn on cash with
+reasonable liquidity constraints that \strong{YOU} can tolerate. For big
+banks and in economic textbooks, this rate is usually the current rate on
+3-month T-bills (or even higher). That might be just fine for you if you
+plan on rebalancing once a year. For a trader running a strategy that can't
+tolerate cash being tied up for 3 months at a time, the \emph{rfr} should
+be set to whatever interest rate your brokerage is giving you on cash in
+your trading account. Used in calculation of the
+\href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe
+Ratio}. Defaults to \strong{0.0027397}\% daily return (about 1\% annually).
+If you specify a different value for \emph{rfr}, \strong{make sure its time
+basis matches the one used for you other inputs}, (i.e., if \emph{exp_rtn}
+contains monthly returns, use monthly risk-free rate)!}
 
 \item{allow_shorts}{Defaults to FALSE; set to TRUE to allow shorting of all
 the assets. There are MANY ways to do this, but by default
