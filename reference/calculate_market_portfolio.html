@@ -130,7 +130,7 @@ each asset.</p>
   <span class='no'>exp_rtn</span>,
   <span class='no'>exp_vol</span>,
   <span class='no'>exp_cor</span>,
-  <span class='kw'>rf</span> <span class='kw'>=</span> <span class='fl'>8.22e-05</span>,
+  <span class='kw'>rfr</span> <span class='kw'>=</span> <span class='fl'>8.22e-05</span>,
   <span class='kw'>allow_shorts</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
@@ -153,11 +153,11 @@ expected for the asset specified by the element's name.</p></td>
 returns for each asset pair.</p></td>
     </tr>
     <tr>
-      <th>rf</th>
+      <th>rfr</th>
       <td><p>The risk-free rate to use in calculation of
 <a href='https://www.investopedia.com/articles/07/sharpe_ratio.asp'>Sharpe Ratio</a>,
 in decimal form. Defaults to <strong>0.00822</strong>% daily return (about 3%
-annually). If you specify a different value for <em>rf</em>, <strong>make
+annually). If you specify a different value for <em>rfr</em>, <strong>make
 sure its time basis matches the one used for you other inputs</strong>, (i.e., if
 <em>exp_rtn</em> contains monthly returns, use monthly risk-free rate)!</p></td>
     </tr>
@@ -198,7 +198,7 @@ predicted/forecast) for the MP over the next time interval.</p></dd>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>All arguments which are percentages (<em>exp_rtn</em>, <em>exp_vol</em>, and
-<em>rf</em>) must be supplied in decimal form; i.e., to specify "12%", use
+<em>rfr</em>) must be supplied in decimal form; i.e., to specify "12%", use
 0.12, not 12.</p>
 <p>It should go without saying, but make sure that every asset is represented
 in the three inputs: names of <em>exp_rtn</em>, <em>exp_vol</em>, and the row &amp;
