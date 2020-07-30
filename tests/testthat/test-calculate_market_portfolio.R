@@ -29,7 +29,7 @@ test_that(
   ),
   {
     
-    mp <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
+    mp <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, 0.0000822)
     
     # Testing that the portfolio weightings match
     expect_true(
@@ -61,7 +61,7 @@ test_that(
   {
     
     mp <- calculate_market_portfolio(
-      exp_rtn, exp_vol, exp_cor, allow_shorts = TRUE
+      exp_rtn, exp_vol, exp_cor, 0.0000822, allow_shorts = TRUE
     )
     
     # Testing that the portfolio weightings match

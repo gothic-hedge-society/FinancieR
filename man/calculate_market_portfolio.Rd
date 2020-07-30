@@ -43,9 +43,21 @@ contains monthly returns, use monthly risk-free rate)!}
 the assets. There are MANY ways to do this, but by default
 \emph{calculate_market_portfolio}() simply treats shorts as another asset
 whose expected return equals negative the expected return of going long.}
+
+\item{prices}{Optional: a named numeric vector for which each name is the
+identifier of an asset and each element is the current price of that asset
+for which a market portfolio is to be calculated on a shares basis. See the
+"Returns" section for more info.}
+
+\item{portfolio_aum}{Optional: numeric, length 1, giving the total amount of
+assets under management for which a market portfolio is to be calculated on
+a shares basis. See "Returns" section for more info.}
 }
 \value{
-A list describing the market portfolio (MP). Has four elements:
+If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum}
+not specified): #'   A list describing the market portfolio (MP). Contains
+the following four elements:
+
 \describe{
 \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
 \item{\code{weights}, named numeric vector:}{The values of
@@ -56,19 +68,18 @@ predicted/forecast) for the MP over the next time interval.}
 \item{\code{ex_volatility}:}{The volatility that is expected (i.e.,
 predicted/forecast) for the MP over the next time interval.}
 }
-If \emph{total_capital} and \emph{prices} are specified, then two more
-elements are included in the list output:
+
+If \strong{shares basis} (\emph{prices} and \emph{portfolio_aum}
+specified): \emph{calculate_market_portfolio}() will optimize the portfolio
+assuming that  \emph{portfolio_aum} is available for investing and that the
+price of each asset is given by \emph{prices}. Returns a list describing
+the market portfolio (MP) which contains the for elements described above,
+plus two more:
+
 \describe{
-\item{\code{shares}, named numeric:}{
-Integer number of shares to be bought
-}
-\item{\code{cash_balance}, named numeric vector:}{The values of
-\code{weights} range from 0 to 1 and denote the fraction of the total
-MP value allocated to the asset whose identifier is that value's name.}
-\item{\code{ex_return}, numeric:}{The return that is expected (i.e.,
-predicted/forecast) for the MP over the next time interval.}
-\item{\code{ex_volatility}:}{The volatility that is expected (i.e.,
-predicted/forecast) for the MP over the next time interval.}
+\item{shares:}{Named numeric vector giving the number of shares of each
+asset calculated for the market portfolio}
+\item{cash:}{Numeric. Leftover cash not invested in assets.}
 }
 }
 \description{
@@ -98,10 +109,9 @@ other asset B so as to create a portfolio having a better Sharpe, the
 Market Portfolio has been reached and the function returns the value.
 }
 \examples{
-
-# Use the sample dataset "yahoo_adj_prices", provided with the package, for 
-# this example. Start with the assumption that the returns that we expect for 
-# the next period (day) are the means of the historical log returns observed 
+# Use the sample dataset "yahoo_adj_prices", provided with the package, for
+# this example. Start with the assumption that the returns that we expect for
+# the next period (day) are the means of the historical log returns observed
 # for a given date window specified by "start_dt" and "end_dt"
 end_dt   <- as.Date(zoo::index(xts::last(yahoo_adj_prices))) # latest date
 start_dt <- end_dt - 365*3                                   # 3-yr window
@@ -134,5 +144,4 @@ calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
 
 ### Calculate the market portfolio allowing both long & short positions:
 calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, allow_shorts = TRUE)
-
 }

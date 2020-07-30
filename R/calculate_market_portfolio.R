@@ -32,8 +32,22 @@
 #'   the assets. There are MANY ways to do this, but by default
 #'   \emph{calculate_market_portfolio}() simply treats shorts as another asset
 #'   whose expected return equals negative the expected return of going long. 
+#'   
+#' @param prices Optional: a named numeric vector for which each name is the
+#'   identifier of an asset and each element is the current price of that asset
+#'   for which a market portfolio is to be calculated on a shares basis. See the
+#'   "Returns" section for more info.
+#'   
+#' @param portfolio_aum Optional: numeric, length 1, giving the total amount of
+#'   assets under management for which a market portfolio is to be calculated on
+#'   a shares basis. See "Returns" section for more info.
+#'    
 #' 
-#' @return A list describing the market portfolio (MP). Has four elements:
+#' @return 
+#'   If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum} 
+#'   not specified): #'   A list describing the market portfolio (MP). Contains
+#'   the following four elements:
+#'   
 #'   \describe{
 #'     \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
 #'     \item{\code{weights}, named numeric vector:}{The values of 
@@ -44,20 +58,21 @@
 #'     \item{\code{ex_volatility}:}{The volatility that is expected (i.e., 
 #'     predicted/forecast) for the MP over the next time interval.}
 #'   }
-#'   If \emph{total_capital} and \emph{prices} are specified, then two more
-#'   elements are included in the list output:
+#'   
+#'   If \strong{shares basis} (\emph{prices} and \emph{portfolio_aum}
+#'   specified): \emph{calculate_market_portfolio}() will optimize the portfolio
+#'   assuming that  \emph{portfolio_aum} is available for investing and that the
+#'   price of each asset is given by \emph{prices}. Returns a list describing
+#'   the market portfolio (MP) which contains the for elements described above,
+#'   plus two more:
+#'   
 #'   \describe{
-#'     \item{\code{shares}, named numeric:}{
-#'     Integer number of shares to be bought 
-#'     }
-#'     \item{\code{cash_balance}, named numeric vector:}{The values of 
-#'       \code{weights} range from 0 to 1 and denote the fraction of the total
-#'       MP value allocated to the asset whose identifier is that value's name.}
-#'     \item{\code{ex_return}, numeric:}{The return that is expected (i.e., 
-#'     predicted/forecast) for the MP over the next time interval.}
-#'     \item{\code{ex_volatility}:}{The volatility that is expected (i.e., 
-#'     predicted/forecast) for the MP over the next time interval.}
+#'     \item{shares:}{Named numeric vector giving the number of shares of each
+#'     asset calculated for the market portfolio}
+#'     \item{cash:}{Numeric. Leftover cash not invested in assets.}
 #'   }
+#'   
+#'   
 #'   
 #' @details 
 #' 
@@ -81,43 +96,7 @@
 #'   other asset B so as to create a portfolio having a better Sharpe, the
 #'   Market Portfolio has been reached and the function returns the value.
 #'   
-#' @examples
-#' 
-#' # Use the sample dataset "yahoo_adj_prices", provided with the package, for 
-#' # this example. Start with the assumption that the returns that we expect for 
-#' # the next period (day) are the means of the historical log returns observed 
-#' # for a given date window specified by "start_dt" and "end_dt"
-#' end_dt   <- as.Date(zoo::index(xts::last(yahoo_adj_prices))) # latest date
-#' start_dt <- end_dt - 365*3                                   # 3-yr window
-#' end_dt
-#' start_dt
-#' 
-#' # From adjusted prices, get the observed daily historical log return
-#' historical_rtn <- yahoo_adj_prices[paste0(start_dt - 1, "/", end_dt)] %>% {
-#'   log(.[-1,] / lag(., k =  1, na.pad = FALSE)[-nrow(.),])
-#' }
-#' 
-#' # Assume that the returns we expect for the next period (day) are the
-#' # averages of the returns observed during the date window:
-#' exp_rtn <- colMeans(historical_rtn)
-#' 
-#' # Assume that the volatilities we expect for the next period (day) are the
-#' # standard deviations of the returns observed during the date window:
-#' exp_vol <- dplyr::summarize(
-#'   tibble::as_tibble(historical_rtn),
-#'   dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
-#' ) %>%
-#'   purrr::as_vector()
-#' 
-#' # Assume that the correlations of returns of each asset pair that we expect
-#' # for the next perid (day) are the observed historical correlations:
-#' exp_cor <- stats::cor(historical_rtn, use = "pairwise.complete.obs")
-#' 
-#' # Calculate the market portfolio:
-#' calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
-#' 
-#' ### Calculate the market portfolio allowing both long & short positions:
-#' calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, allow_shorts = TRUE)
+#' @example inst/examples/calculate_market_portfolio_ex.R
 #' 
 #' @export
 #' 
@@ -323,7 +302,7 @@ calculate_market_portfolio <- function(
     }
   }
   
-  list(
+  mp <- list(
     "sharpe"        = portfolio_sharpe,
     "weights"       = portfolio_weights,
     "ex_return"     = as.numeric(exp_rtn %*% as.matrix(portfolio_weights)),
@@ -333,5 +312,144 @@ calculate_market_portfolio <- function(
       )
     )
   )
+  
+  if(is.null(prices) || is.null(portfolio_aum)) return(mp)
+  
+  rm(
+    list = c(
+      "buy_sell_matrix", "candidate_portfolios", "add_to_asset", "counts", 
+      "take_from_asset", "step", "portfolio_sharpe", "portfolio_weights"
+    )
+  )
+  
+  prices  <- c(
+    prices,  
+    "cash" = portfolio_aum - (
+      floor((mp$weights * portfolio_aum) / prices) %*% as.matrix(prices)
+    )
+  )
+  
+  realized_shares <- c(
+    floor((mp$weights * portfolio_aum) / prices[-length(prices)]),
+    "cash" = 1
+  )
+  
+  exp_rtn <- c(exp_rtn, "cash" = rfr)
+  exp_vol <- c(exp_vol, "cash" = 0)
+  exp_cov <- exp_cov %>%
+    cbind("cash" = 0) %>%
+    rbind("cash" = 0)
+  
+  realized_weights <- realized_shares * prices / portfolio_aum
+  realized_exp_rtn <- as.numeric(exp_rtn %*% as.matrix(realized_weights))
+  realized_exp_vol <- as.numeric(
+    sqrt(
+      as.numeric(
+        (realized_weights %*% exp_cov) %*% as.matrix(realized_weights)
+      )
+    )
+  )
+  realized_sharpe <- (realized_exp_rtn - rfr) / realized_exp_vol
+  
+  while(TRUE){
+    
+    buy_sell_shares_matrix <- matrix(
+      0,
+      ncol     = length(realized_shares),
+      nrow     = length(realized_shares),
+      dimnames = list(
+        "buy"  = names(realized_shares),
+        "sell" = names(realized_shares)
+      )
+    )
+    
+    for(sell_asset in colnames(buy_sell_shares_matrix)){
+      for(buy_asset in rownames(buy_sell_shares_matrix)){
+        if(
+          buy_asset == sell_asset | (
+            prices[buy_asset] > prices[sell_asset]
+          ) | realized_shares[sell_asset] == 0
+        ){
+          buy_sell_shares_matrix[buy_asset, sell_asset] <- -1
+        } else {
+          
+          shares <- realized_shares
+          prc    <- prices
+          
+          if(buy_asset == "cash"){
+            prc[buy_asset]  <- prc[buy_asset] + prc[sell_asset]  
+            shares[sell_asset] <- shares[sell_asset] - 1
+          } else if(sell_asset == "cash"){
+            prc[sell_asset] <- prc[sell_asset] - prc[buy_asset]  
+            shares[buy_asset]  <- shares[buy_asset] + 1
+          } else {
+            shares[buy_asset]  <- shares[buy_asset] + 1
+            shares[sell_asset] <- shares[sell_asset] - 1
+          }
+          
+          weights <- (shares * prc) / portfolio_aum
+          
+          buy_sell_shares_matrix[buy_asset, sell_asset] <- as.numeric(
+            exp_rtn %*% as.matrix(weights) - rfr
+          ) / sqrt(as.numeric((weights %*% exp_cov) %*% as.matrix(weights)))
+          
+        }
+      }
+    }
+    
+    # If we got a better sharpe ratio in `buy_sell_matrix`, keep it & update!
+    if(max(buy_sell_shares_matrix) <= realized_sharpe) break()
+    
+    asset_bought <- rownames(buy_sell_shares_matrix)[
+      which(
+        buy_sell_shares_matrix == max(buy_sell_shares_matrix),
+        arr.ind = TRUE
+      )[, "buy"]
+    ]
+    
+    asset_sold <- colnames(buy_sell_shares_matrix)[
+      which(
+        buy_sell_shares_matrix == max(buy_sell_shares_matrix),
+        arr.ind = TRUE
+      )[, "sell"]
+    ]
+    
+    old_realized_shares <- realized_shares
+    old_prices          <- prices
+    
+    if(asset_bought == "cash"){
+      prices[asset_bought]  <- prices[asset_bought] + prices[asset_sold]  
+      realized_shares[asset_sold] <- realized_shares[asset_sold] - 1
+    } else if(asset_sold == "cash"){
+      prices[asset_sold] <- prices[asset_sold] - prices[asset_bought]  
+      realized_shares[asset_bought]  <- realized_shares[asset_bought] + 1
+    } else {
+      realized_shares[asset_bought]  <- realized_shares[asset_bought] + 1
+      realized_shares[asset_sold]    <- realized_shares[asset_sold] - 1
+    }
+    
+    realized_weights <- (realized_shares * prices) / portfolio_aum
+    realized_exp_rtn <- as.numeric(exp_rtn %*% as.matrix(realized_weights))
+    realized_exp_vol <- as.numeric(
+      sqrt(
+        as.numeric(
+          (realized_weights %*% exp_cov) %*% as.matrix(realized_weights)
+        )
+      )
+    )
+    realized_sharpe <- (realized_exp_rtn - rfr) / realized_exp_vol
+    
+  }
+  
+  mp_shares <- list(
+    "sharpe"        = realized_sharpe,
+    "shares"        = realized_shares[-length(shares)],
+    "cash"          = as.numeric(prices[length(prices)]),
+    "weights"       = realized_weights[-length(weights)],
+    "ex_return"     = realized_exp_rtn,
+    "ex_volatility" = realized_exp_vol
+  )
+  
+  mp_shares
   
 }
