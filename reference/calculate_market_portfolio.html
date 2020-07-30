@@ -178,11 +178,27 @@ the assets. There are MANY ways to do this, but by default
 <em>calculate_market_portfolio</em>() simply treats shorts as another asset
 whose expected return equals negative the expected return of going long.</p></td>
     </tr>
+    <tr>
+      <th>prices</th>
+      <td><p>Optional: a named numeric vector for which each name is the
+identifier of an asset and each element is the current price of that asset
+for which a market portfolio is to be calculated on a shares basis. See the
+"Returns" section for more info.</p></td>
+    </tr>
+    <tr>
+      <th>portfolio_aum</th>
+      <td><p>Optional: numeric, length 1, giving the total amount of
+assets under management for which a market portfolio is to be calculated on
+a shares basis. See "Returns" section for more info.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list describing the market portfolio (MP). Has four elements:</p><dl'>
+    <p>If <strong>weights basis</strong> (<em>prices</em> and <em>portfolio_aum</em>
+not specified): #'   A list describing the market portfolio (MP). Contains
+the following four elements:</p>
+<dl'>
 <dt><code>sharpe</code>, numeric:</dt><dd><p>Sharpe Ratio of MP</p></dd>
 <dt><code>weights</code>, named numeric vector:</dt><dd><p>The values of
 <code>weights</code> range from 0 to 1 and denote the fraction of the total
@@ -192,16 +208,18 @@ predicted/forecast) for the MP over the next time interval.</p></dd>
 <dt><code>ex_volatility</code>:</dt><dd><p>The volatility that is expected (i.e.,
 predicted/forecast) for the MP over the next time interval.</p></dd>
 
-</dl><p>If <em>total_capital</em> and <em>prices</em> are specified, then two more
-elements are included in the list output:</p><dl'>
-<dt><code>shares</code>, named numeric:</dt><dd><p>Integer number of shares to be bought</p></dd>
-<dt><code>cash_balance</code>, named numeric vector:</dt><dd><p>The values of
-<code>weights</code> range from 0 to 1 and denote the fraction of the total
-MP value allocated to the asset whose identifier is that value's name.</p></dd>
-<dt><code>ex_return</code>, numeric:</dt><dd><p>The return that is expected (i.e.,
-predicted/forecast) for the MP over the next time interval.</p></dd>
-<dt><code>ex_volatility</code>:</dt><dd><p>The volatility that is expected (i.e.,
-predicted/forecast) for the MP over the next time interval.</p></dd>
+</dl>
+
+<p>If <strong>shares basis</strong> (<em>prices</em> and <em>portfolio_aum</em>
+specified): <em>calculate_market_portfolio</em>() will optimize the portfolio
+assuming that  <em>portfolio_aum</em> is available for investing and that the
+price of each asset is given by <em>prices</em>. Returns a list describing
+the market portfolio (MP) which contains the for elements described above,
+plus two more:</p>
+<dl'>
+<dt>shares:</dt><dd><p>Named numeric vector giving the number of shares of each
+asset calculated for the market portfolio</p></dd>
+<dt>cash:</dt><dd><p>Numeric. Leftover cash not invested in assets.</p></dd>
 
 </dl>
 
@@ -225,10 +243,9 @@ other asset B so as to create a portfolio having a better Sharpe, the
 Market Portfolio has been reached and the function returns the value.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='co'># Use the sample dataset "yahoo_adj_prices", provided with the package, for </span>
-<span class='co'># this example. Start with the assumption that the returns that we expect for </span>
-<span class='co'># the next period (day) are the means of the historical log returns observed </span>
+    <pre class="examples"><div class='input'><span class='co'># Use the sample dataset "yahoo_adj_prices", provided with the package, for</span>
+<span class='co'># this example. Start with the assumption that the returns that we expect for</span>
+<span class='co'># the next period (day) are the means of the historical log returns observed</span>
 <span class='co'># for a given date window specified by "start_dt" and "end_dt"</span>
 <span class='no'>end_dt</span>   <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='kw pkg'>zoo</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/zoo/man/index.html'>index</a></span>(<span class='kw pkg'>xts</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/xts/man/first.html'>last</a></span>(<span class='no'>yahoo_adj_prices</span>))) <span class='co'># latest date</span>
 <span class='no'>start_dt</span> <span class='kw'>&lt;-</span> <span class='no'>end_dt</span> - <span class='fl'>365</span>*<span class='fl'>3</span>                                   <span class='co'># 3-yr window</span>
@@ -287,8 +304,7 @@ Market Portfolio has been reached and the function returns the value.</p>
 #&gt; 
 #&gt; $ex_volatility
 #&gt; [1] 0.006927977
-#&gt; </div><div class='input'>
-</div></pre>
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
