@@ -91,13 +91,3 @@ currency_identifiers_table <- function(
 #' @examples stock_exchange_hours
 #' 
 "stock_exchange_hours"
-
-#' Yahoo Adjusted Prices
-#' 
-#' Historical adjusted closing prices for 10 stock and an S&P500 tracking index
-#' taken from Yahoo Finance. To be used for development and testing purposes
-#' only -- data are not trading-quality.
-#' 
-#' @examples yahoo_adj_prices
-#' 
-"yahoo_adj_prices"

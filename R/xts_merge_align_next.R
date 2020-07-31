@@ -31,15 +31,14 @@ xts_merge_align_next <- function(xts1, xts2, agg_function, na.fill){
   
   storage.mode(xts2) <- "numeric"
   
-  merged_xts <- merge(
-    xts1, 
-    # Disregard dates in xts2 that fall outside the range of xts1
-    xts2[paste(
-      as.Date(min(zoo::index(xts1))),
-      as.Date(max(zoo::index(xts1))),
-      sep = "/"
-    )] 
-  )
+  # Disregard dates in xts2 that fall outside the range of xts1
+  xts2 <- xts2[paste(
+    as.Date(min(zoo::index(xts1))),
+    as.Date(max(zoo::index(xts1))),
+    sep = "/"
+  )]
+  
+  merged_xts <- merge(xts1, xts2)
   
   # If there are no dates that are in xts2 but not xts1, return the left-join.
   if(

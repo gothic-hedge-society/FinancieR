@@ -48,6 +48,9 @@ calculate_returns <- function(
   returns_method = "ln"
 ){
   
+  # Need xts namespace
+  requireNamespace("xts", quietly = TRUE)
+  
   assets[sort(names(assets))] %>%
     purrr::imap(
       function(asset, asset_name){

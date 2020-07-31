@@ -1,4 +1,6 @@
 
+yahoo_adj_prices <- testthis::read_testdata("yahoo_adj_prices.rds")
+
 end_date   <- as.Date(zoo::index(xts::last(yahoo_adj_prices))) # latest date
 start_date <- end_date - 365*3                                 # 3-yr window
 
@@ -21,6 +23,8 @@ historical_rtn <- yahoo_adj_prices[
   log(.[-1,] / lag(., k =  1, na.pad = FALSE)[-nrow(.),])
 }
 
+mp_by_wt <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, 0.0000822)
+
 context("MP calcs match Excel: weights")
 test_that(
   paste0(
@@ -28,14 +32,11 @@ test_that(
     "mode' when applied to yahoo sample data: Longs Only"
   ),
   {
-    
-    mp <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, 0.0000822)
-    
     # Testing that the portfolio weightings match
     expect_true(
       all(
         abs(
-          mp$weights -
+          mp_by_wt$weights -
             c(
               "AAPL" = 0.148547,           "XOM"  = 0,
               "LNC"  = 0,                  "MRK"  = 0,
@@ -48,12 +49,17 @@ test_that(
       )
     )
     
-    expect_true(abs(mp$sharpe - 0.0741772) <= 0.0001)
+    expect_true(abs(mp_by_wt$sharpe - 0.0741772) <= 0.0001)
     
   }
 )
 
 context("MP calcs match Excel: weights + shorts")
+
+mp_by_wt_shorts <- calculate_market_portfolio(
+  exp_rtn, exp_vol, exp_cor, 0.0000822, allow_shorts = TRUE
+)
+
 test_that(
   paste0(
     "calculate_market_portfolio returns the known correct answer in 'Weights ",
@@ -61,15 +67,11 @@ test_that(
   ),
   {
     
-    mp <- calculate_market_portfolio(
-      exp_rtn, exp_vol, exp_cor, 0.0000822, allow_shorts = TRUE
-    )
-    
     # Testing that the portfolio weightings match
     expect_true(
       all(
         abs(
-          mp$weights -
+          mp_by_wt_shorts$weights -
             c(
               "AAPL"   = 0.22149982386928,  "XOM"    = 0,
               "LNC"    = 0,                 "MRK"    = 0,
@@ -87,12 +89,12 @@ test_that(
       )
     )
     
-    expect_true(abs(mp$sharpe - 0.118638) <= 0.0001)
+    expect_true(abs(mp_by_wt_shorts$sharpe - 0.118638) <= 0.0001)
     
   }
 )
 
-context("MP calcs shares mode balance")
+context("Cash Balance: shares mode")
 
 portfolio_aum <- runif(1, 100000, 5000000) + runif(1)
 prices        <- yahoo_adj_prices[sample(zoo::index(yahoo_adj_prices), 1)] %>% {
@@ -122,7 +124,7 @@ mp_by_shares_shorts <- calculate_market_portfolio(
   portfolio_aum = portfolio_aum 
 )
 
-prices <- c(
+prices_shorts <- c(
   prices, stats::setNames(prices, paste0("s_", names(prices)))
 )
 
@@ -131,10 +133,54 @@ test_that(
   expect_true(
     round(
       as.numeric(
-        mp_by_shares_shorts$shares %*% as.matrix(prices)
+        mp_by_shares_shorts$shares %*% as.matrix(prices_shorts)
       ) + mp_by_shares_shorts$cash,
       digits = 2
     ) == round(portfolio_aum, digits = 2)
   )
 )
 
+context("Not longing & shorting the same stock")
+test_that(
+  "Weights basis",
+  expect_length(
+    intersect(
+      mp_by_wt_shorts$weights[
+        grep("^s_", names(mp_by_wt_shorts$weights), value = TRUE) 
+      ] %>% {
+        names(.[which(. > 0)])
+      },
+      mp_by_wt_shorts$weights[
+        setdiff(
+          names(mp_by_wt_shorts$weights),
+          grep("^s_", names(mp_by_wt_shorts$weights), value = TRUE) 
+        )
+      ] %>% {
+        names(.[which(. > 0)])
+      }
+    ),
+    0
+  )
+)
+test_that(
+  "Shares basis",
+  expect_length(
+    intersect(
+      mp_by_shares_shorts$shares[
+        grep("^s_", names(mp_by_shares_shorts$shares), value = TRUE) 
+      ] %>% {
+        names(.[which(. > 0)])
+      },
+      mp_by_shares_shorts$shares[
+        setdiff(
+          names(mp_by_shares_shorts$shares),
+          grep("^s_", names(mp_by_shares_shorts$shares), value = TRUE) 
+        )
+      ] %>% {
+        names(.[which(. > 0)])
+      }
+    ),
+    0
+  )
+)
+  
