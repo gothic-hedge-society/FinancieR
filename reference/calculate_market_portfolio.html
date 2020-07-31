@@ -272,7 +272,8 @@ Market Portfolio has been reached and the function returns the value.</p>
 <span class='no'>exp_cor</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>stats</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>cor</a></span>(<span class='no'>historical_rtn</span>, <span class='kw'>use</span> <span class='kw'>=</span> <span class='st'>"pairwise.complete.obs"</span>)
 
 <span class='co'># Calculate the market portfolio:</span>
-<span class='fu'>calculate_market_portfolio</span>(<span class='no'>exp_rtn</span>, <span class='no'>exp_vol</span>, <span class='no'>exp_cor</span>)</div><div class='output co'>#&gt; $sharpe
+<span class='no'>mp_by_wt</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(<span class='no'>exp_rtn</span>, <span class='no'>exp_vol</span>, <span class='no'>exp_cor</span>)
+<span class='no'>mp_by_wt</span></div><div class='output co'>#&gt; $sharpe
 #&gt; [1] 0.07785381
 #&gt; 
 #&gt; $weights
@@ -286,7 +287,10 @@ Market Portfolio has been reached and the function returns the value.</p>
 #&gt; [1] 0.01455112
 #&gt; </div><div class='input'>
 <span class='co'>### Calculate the market portfolio allowing both long &amp; short positions:</span>
-<span class='fu'>calculate_market_portfolio</span>(<span class='no'>exp_rtn</span>, <span class='no'>exp_vol</span>, <span class='no'>exp_cor</span>, <span class='kw'>allow_shorts</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; $sharpe
+<span class='no'>mp_by_wt_shorts</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(
+  <span class='no'>exp_rtn</span>, <span class='no'>exp_vol</span>, <span class='no'>exp_cor</span>, <span class='kw'>allow_shorts</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)
+<span class='no'>mp_by_wt_shorts</span></div><div class='output co'>#&gt; $sharpe
 #&gt; [1] 0.1263747
 #&gt; 
 #&gt; $weights
@@ -304,6 +308,81 @@ Market Portfolio has been reached and the function returns the value.</p>
 #&gt; 
 #&gt; $ex_volatility
 #&gt; [1] 0.006927977
+#&gt; </div><div class='input'>
+<span class='co'>### Repeat the above, assuming you have $250,000 to invest and that the stocks</span>
+<span class='co'>### may be bought at their most recent prices:</span>
+
+<span class='no'>prices</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>stats</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/stats/setNames.html'>setNames</a></span>(
+  <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='kw pkg'>xts</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/pkg/xts/man/first.html'>last</a></span>(<span class='no'>yahoo_adj_prices</span>)),
+  <span class='fu'><a href='https://rdrr.io/r/base/colnames.html'>colnames</a></span>(<span class='no'>yahoo_adj_prices</span>)
+)
+<span class='no'>portfolio_aum</span> <span class='kw'>&lt;-</span> <span class='fl'>250000</span>
+
+<span class='no'>mp_by_shares</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(
+  <span class='no'>exp_rtn</span>,
+  <span class='no'>exp_vol</span>,
+  <span class='no'>exp_cor</span>,
+  <span class='kw'>prices</span>        <span class='kw'>=</span> <span class='no'>prices</span>,
+  <span class='kw'>portfolio_aum</span> <span class='kw'>=</span> <span class='no'>portfolio_aum</span>
+)
+<span class='no'>mp_by_shares</span></div><div class='output co'>#&gt; $sharpe
+#&gt; [1] 0.07785758
+#&gt; 
+#&gt; $shares
+#&gt; AAPL  XOM  LNC  MRK  WMT  HOG  RMD AMZN  CMG   FB  IVV 
+#&gt;   95    0    0    0  439    0  177   33   37    0    0 
+#&gt; 
+#&gt; $cash
+#&gt; [1] 150.32
+#&gt; 
+#&gt; $weights
+#&gt;      AAPL       XOM       LNC       MRK       WMT       HOG       RMD      AMZN 
+#&gt; 0.1392814 0.0000000 0.0000000 0.0000000 0.2125989 0.0000000 0.1288206 0.3649021 
+#&gt;       CMG        FB       IVV 
+#&gt; 0.1537957 0.0000000 0.0000000 
+#&gt; 
+#&gt; $ex_return
+#&gt; [1] 0.001160675
+#&gt; 
+#&gt; $ex_volatility
+#&gt; [1] 0.01455578
+#&gt; </div><div class='input'>
+<span class='co'>### Allow shorting:</span>
+<span class='no'>mp_by_shares_shorts</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(
+  <span class='no'>exp_rtn</span>,
+  <span class='no'>exp_vol</span>,
+  <span class='no'>exp_cor</span>,
+  <span class='kw'>allow_shorts</span>  <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>prices</span>        <span class='kw'>=</span> <span class='no'>prices</span>,
+  <span class='kw'>portfolio_aum</span> <span class='kw'>=</span> <span class='no'>portfolio_aum</span>
+)
+<span class='no'>mp_by_shares_shorts</span></div><div class='output co'>#&gt; $sharpe
+#&gt; [1] 0.1263763
+#&gt; 
+#&gt; $shares
+#&gt;   AAPL    XOM    LNC    MRK    WMT    HOG    RMD   AMZN    CMG     FB    IVV 
+#&gt;    148      0      0      0    184      0    135     10     25      0      1 
+#&gt; s_AAPL  s_XOM  s_LNC  s_MRK  s_WMT  s_HOG  s_RMD s_AMZN  s_CMG   s_FB  s_IVV 
+#&gt;      0    941    326      0      0    875      0      0      0     69      0 
+#&gt; 
+#&gt; $cash
+#&gt; [1] 81.44
+#&gt; 
+#&gt; $weights
+#&gt;       AAPL        XOM        LNC        MRK        WMT        HOG        RMD 
+#&gt; 0.21698576 0.00000000 0.00000000 0.00000000 0.08910752 0.00000000 0.09825300 
+#&gt;       AMZN        CMG         FB        IVV     s_AAPL      s_XOM      s_LNC 
+#&gt; 0.11057640 0.10391600 0.00000000 0.00125284 0.00000000 0.17577880 0.05042568 
+#&gt;      s_MRK      s_WMT      s_HOG      s_RMD     s_AMZN      s_CMG       s_FB 
+#&gt; 0.00000000 0.00000000 0.08652000 0.00000000 0.00000000 0.00000000 0.06685824 
+#&gt;      s_IVV 
+#&gt; 0.00000000 
+#&gt; 
+#&gt; $ex_return
+#&gt; [1] 0.0009005196
+#&gt; 
+#&gt; $ex_volatility
+#&gt; [1] 0.006908909
 #&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
