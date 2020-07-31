@@ -1,4 +1,3 @@
-context("Accuracy")
 
 end_date   <- as.Date(zoo::index(xts::last(yahoo_adj_prices))) # latest date
 start_date <- end_date - 365*3                                 # 3-yr window
@@ -22,6 +21,7 @@ historical_rtn <- yahoo_adj_prices[
   log(.[-1,] / lag(., k =  1, na.pad = FALSE)[-nrow(.),])
 }
 
+context("MP calcs match Excel: weights")
 test_that(
   paste0(
     "calculate_market_portfolio returns the known correct answer in 'Weights ",
@@ -53,6 +53,7 @@ test_that(
   }
 )
 
+context("MP calcs match Excel: weights + shorts")
 test_that(
   paste0(
     "calculate_market_portfolio returns the known correct answer in 'Weights ",
@@ -90,3 +91,50 @@ test_that(
     
   }
 )
+
+context("MP calcs shares mode balance")
+
+portfolio_aum <- runif(1, 100000, 5000000) + runif(1)
+prices        <- yahoo_adj_prices[sample(zoo::index(yahoo_adj_prices), 1)] %>% {
+  stats::setNames(as.numeric(.), colnames(.)) 
+}
+
+mp_by_shares <- calculate_market_portfolio(
+  exp_rtn, exp_vol, exp_cor, prices = prices, portfolio_aum = portfolio_aum 
+)
+
+test_that(
+  "Cash balances for mp by shares, no shorting",
+  expect_true(
+    round(
+      as.numeric(mp_by_shares$shares %*% as.matrix(prices)) + mp_by_shares$cash,
+      digits = 2
+    ) == round(portfolio_aum, digits = 2)
+  )
+)
+
+mp_by_shares_shorts <- calculate_market_portfolio(
+  exp_rtn, 
+  exp_vol, 
+  exp_cor, 
+  allow_shorts  = TRUE,
+  prices        = prices, 
+  portfolio_aum = portfolio_aum 
+)
+
+prices <- c(
+  prices, stats::setNames(prices, paste0("s_", names(prices)))
+)
+
+test_that(
+  "Cash balances for mp by shares, with shorting",
+  expect_true(
+    round(
+      as.numeric(
+        mp_by_shares_shorts$shares %*% as.matrix(prices)
+      ) + mp_by_shares_shorts$cash,
+      digits = 2
+    ) == round(portfolio_aum, digits = 2)
+  )
+)
+

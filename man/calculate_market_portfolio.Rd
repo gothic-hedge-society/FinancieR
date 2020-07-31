@@ -140,8 +140,41 @@ exp_vol <- dplyr::summarize(
 exp_cor <- stats::cor(historical_rtn, use = "pairwise.complete.obs")
 
 # Calculate the market portfolio:
-calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
+mp_by_wt <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
+mp_by_wt
 
 ### Calculate the market portfolio allowing both long & short positions:
-calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, allow_shorts = TRUE)
+mp_by_wt_shorts <- calculate_market_portfolio(
+  exp_rtn, exp_vol, exp_cor, allow_shorts = TRUE
+)
+mp_by_wt_shorts
+
+### Repeat the above, assuming you have $250,000 to invest and that the stocks
+### may be bought at their most recent prices:
+
+prices <- stats::setNames(
+  as.numeric(xts::last(yahoo_adj_prices)),
+  colnames(yahoo_adj_prices)
+)
+portfolio_aum <- 250000
+
+mp_by_shares <- calculate_market_portfolio(
+  exp_rtn, 
+  exp_vol, 
+  exp_cor, 
+  prices        = prices,
+  portfolio_aum = portfolio_aum
+)
+mp_by_shares
+
+### Allow shorting:
+mp_by_shares_shorts <- calculate_market_portfolio(
+  exp_rtn,
+  exp_vol,
+  exp_cor,
+  allow_shorts  = TRUE,
+  prices        = prices,
+  portfolio_aum = portfolio_aum
+)
+mp_by_shares_shorts
 }

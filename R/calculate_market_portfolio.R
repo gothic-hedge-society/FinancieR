@@ -135,6 +135,12 @@ calculate_market_portfolio <- function(
       )
     )
     
+    if(!is.null(prices)){
+      prices <- c(
+        prices, stats::setNames(prices, paste0("s_", names(prices)))
+      )
+    }
+    
   }
   
   # create covariance matrix of returns
@@ -377,17 +383,18 @@ calculate_market_portfolio <- function(
           prc    <- prices
           
           if(buy_asset == "cash"){
-            prc[buy_asset]  <- prc[buy_asset] + prc[sell_asset]  
             shares[sell_asset] <- shares[sell_asset] - 1
           } else if(sell_asset == "cash"){
-            prc[sell_asset] <- prc[sell_asset] - prc[buy_asset]  
             shares[buy_asset]  <- shares[buy_asset] + 1
           } else {
             shares[buy_asset]  <- shares[buy_asset] + 1
             shares[sell_asset] <- shares[sell_asset] - 1
           }
           
-          weights <- (shares * prc) / portfolio_aum
+          prc["cash"] <- portfolio_aum - (
+            shares[-length(shares)] %*% prc[-length(prc)]
+          )
+          weights     <- (shares * prc) / portfolio_aum
           
           buy_sell_shares_matrix[buy_asset, sell_asset] <- as.numeric(
             exp_rtn %*% as.matrix(weights) - rfr
@@ -414,19 +421,18 @@ calculate_market_portfolio <- function(
       )[, "sell"]
     ]
     
-    old_realized_shares <- realized_shares
-    old_prices          <- prices
-    
     if(asset_bought == "cash"){
-      prices[asset_bought]  <- prices[asset_bought] + prices[asset_sold]  
       realized_shares[asset_sold] <- realized_shares[asset_sold] - 1
     } else if(asset_sold == "cash"){
-      prices[asset_sold] <- prices[asset_sold] - prices[asset_bought]  
       realized_shares[asset_bought]  <- realized_shares[asset_bought] + 1
     } else {
       realized_shares[asset_bought]  <- realized_shares[asset_bought] + 1
       realized_shares[asset_sold]    <- realized_shares[asset_sold] - 1
     }
+    
+    prices["cash"] <- portfolio_aum - (
+      realized_shares[-length(realized_shares)] %*% prices[-length(prices)]
+    )
     
     realized_weights <- (realized_shares * prices) / portfolio_aum
     realized_exp_rtn <- as.numeric(exp_rtn %*% as.matrix(realized_weights))
