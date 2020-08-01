@@ -215,11 +215,13 @@ specified): <em>calculate_market_portfolio</em>() will optimize the portfolio
 assuming that  <em>portfolio_aum</em> is available for investing and that the
 price of each asset is given by <em>prices</em>. Returns a list describing
 the market portfolio (MP) which contains the for elements described above,
-plus two more:</p>
+plus three more:</p>
 <dl'>
 <dt>shares:</dt><dd><p>Named numeric vector giving the number of shares of each
 asset calculated for the market portfolio</p></dd>
-<dt>cash:</dt><dd><p>Numeric. Leftover cash not invested in assets.</p></dd>
+<dt>prices:</dt><dd><p>Named umeric vector giving the prices used by
+calculate_market_portfolio() to determine the MP.</p></dd>
+<dt>cash:</dt><dd><p>Numeric, length 1. Leftover cash not invested in assets.</p></dd>
 
 </dl>
 
@@ -241,6 +243,27 @@ possible assets A and B. The portfolio variable is updated.</p>
 it is not possible to reallocate <em>step</em> amount of any asset A into any
 other asset B so as to create a portfolio having a better Sharpe, the
 Market Portfolio has been reached and the function returns the value.</p>
+<p><strong>Weights</strong> mode:
+If either <em>prices</em> or <em>portfolio_aum</em> is unspecified in the call
+to <em>calculate_market_portfolio</em>(), then the function operates in
+"<em>Weights Mode</em>" and will attempt to answer the question: "What is the
+the optimum fractional, real-valued weight of each asset in the
+Sharpe-optimal MP?" Because the Sharpe ratio and the optimum weights are
+real numbers, this operation can be computed with arbitrary precision, to
+infinte decimal places. <em>calculate_market_portfolio</em>() was written to
+be clearly understood and run reasonably fast, and testing indicates that
+the weights are reliable to within +/- 1% (i.e., "0.18" to "0.20" for a
+reported weight of "0.19") of the optimal value. As such, weights reported
+by <em>weights mode</em> should be considered somewhat approximate.</p>
+<p><strong>Shares</strong> mode:
+A much different situation arises when we ask the question: "Given $5MM in
+capital, what's the optimum portfolio that can be built from a set of
+assets trading at given prices?" Note that the formulation of this question
+requires both <em>prices</em> and <em>portfolio_aum</em> to be provided.
+Because shares can only be bought in integer values, and because the sum of
+the capital allocated to each asset (including "cash") must equal
+<em>portfolio_aum</em>, the number of values available for the <em>shares</em>
+vector is countably finite and it is possible to find an exact solution.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Let's pick an example date for which to create an MP:</span>
@@ -388,6 +411,16 @@ Market Portfolio has been reached and the function returns the value.</p>
 #&gt; 
 #&gt; $ex_volatility
 #&gt; [1] 0.004129863
+#&gt; 
+#&gt; $prices
+#&gt;   AAPL   ABBV    ADM    AFL    AOS    ATO     CB     CL    COP   CTAS    CVX 
+#&gt; 174.33 100.24  40.22  90.00  63.24  82.59 145.85  75.64  57.93 161.22 127.84 
+#&gt;    EMR    ESS    FRT     GD    HRL    IVV    JNJ    KMB    LEG    MCD    MMM 
+#&gt;  72.32 236.27 125.44 205.88  36.40 276.57 144.14 116.80  47.95 173.54 241.28 
+#&gt;   MSFT    NSC    PEP    PNR    PSX    SHW      T    TFC   TROW    TXN    VFC 
+#&gt;  88.22 153.60 118.08  72.88 101.72 424.21  37.49  52.09 111.75 110.39  76.13 
+#&gt;    WBA    WMT 
+#&gt;  73.42 100.39 
 #&gt; </div><div class='input'>
 <span class='co'>### Allow shorting:</span>
 <span class='no'>mp_by_shares_shorts</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(
@@ -447,6 +480,22 @@ Market Portfolio has been reached and the function returns the value.</p>
 #&gt; 
 #&gt; $ex_volatility
 #&gt; [1] 0.001872769
+#&gt; 
+#&gt; $prices
+#&gt;   AAPL   ABBV    ADM    AFL    AOS    ATO     CB     CL    COP   CTAS    CVX 
+#&gt; 174.33 100.24  40.22  90.00  63.24  82.59 145.85  75.64  57.93 161.22 127.84 
+#&gt;    EMR    ESS    FRT     GD    HRL    IVV    JNJ    KMB    LEG    MCD    MMM 
+#&gt;  72.32 236.27 125.44 205.88  36.40 276.57 144.14 116.80  47.95 173.54 241.28 
+#&gt;   MSFT    NSC    PEP    PNR    PSX    SHW      T    TFC   TROW    TXN    VFC 
+#&gt;  88.22 153.60 118.08  72.88 101.72 424.21  37.49  52.09 111.75 110.39  76.13 
+#&gt;    WBA    WMT s_AAPL s_ABBV  s_ADM  s_AFL  s_AOS  s_ATO   s_CB   s_CL  s_COP 
+#&gt;  73.42 100.39 174.33 100.24  40.22  90.00  63.24  82.59 145.85  75.64  57.93 
+#&gt; s_CTAS  s_CVX  s_EMR  s_ESS  s_FRT   s_GD  s_HRL  s_IVV  s_JNJ  s_KMB  s_LEG 
+#&gt; 161.22 127.84  72.32 236.27 125.44 205.88  36.40 276.57 144.14 116.80  47.95 
+#&gt;  s_MCD  s_MMM s_MSFT  s_NSC  s_PEP  s_PNR  s_PSX  s_SHW    s_T  s_TFC s_TROW 
+#&gt; 173.54 241.28  88.22 153.60 118.08  72.88 101.72 424.21  37.49  52.09 111.75 
+#&gt;  s_TXN  s_VFC  s_WBA  s_WMT 
+#&gt; 110.39  76.13  73.42 100.39 
 #&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
