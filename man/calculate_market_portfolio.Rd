@@ -74,12 +74,14 @@ specified): \emph{calculate_market_portfolio}() will optimize the portfolio
 assuming that  \emph{portfolio_aum} is available for investing and that the
 price of each asset is given by \emph{prices}. Returns a list describing
 the market portfolio (MP) which contains the for elements described above,
-plus two more:
+plus three more:
 
 \describe{
 \item{shares:}{Named numeric vector giving the number of shares of each
 asset calculated for the market portfolio}
-\item{cash:}{Numeric. Leftover cash not invested in assets.}
+\item{prices:}{Named umeric vector giving the prices used by
+calculate_market_portfolio() to determine the MP.}
+\item{cash:}{Numeric, length 1. Leftover cash not invested in assets.}
 }
 }
 \description{
@@ -107,6 +109,29 @@ This process is repeated with smaller and smaller \emph{step} sizes. When
 it is not possible to reallocate \emph{step} amount of any asset A into any
 other asset B so as to create a portfolio having a better Sharpe, the
 Market Portfolio has been reached and the function returns the value.
+
+\strong{Weights} mode:
+If either \emph{prices} or \emph{portfolio_aum} is unspecified in the call
+to \emph{calculate_market_portfolio}(), then the function operates in
+"\emph{Weights Mode}" and will attempt to answer the question: "What is the
+the optimum fractional, real-valued weight of each asset in the
+Sharpe-optimal MP?" Because the Sharpe ratio and the optimum weights are
+real numbers, this operation can be computed with arbitrary precision, to
+infinte decimal places. \emph{calculate_market_portfolio}() was written to
+be clearly understood and run reasonably fast, and testing indicates that
+the weights are reliable to within +/- 1\% (i.e., "0.18" to "0.20" for a
+reported weight of "0.19") of the optimal value. As such, weights reported
+by \emph{weights mode} should be considered somewhat approximate.
+
+\strong{Shares} mode:
+A much different situation arises when we ask the question: "Given $5MM in
+capital, what's the optimum portfolio that can be built from a set of
+assets trading at given prices?" Note that the formulation of this question
+requires both \emph{prices} and \emph{portfolio_aum} to be provided.
+Because shares can only be bought in integer values, and because the sum of
+the capital allocated to each asset (including "cash") must equal
+\emph{portfolio_aum}, the number of values available for the \emph{shares}
+vector is countably finite and it is possible to find an exact solution.
 }
 \examples{
 # Let's pick an example date for which to create an MP:
