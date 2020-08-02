@@ -3,7 +3,7 @@ shd_description <- function(
     "@description Contains daily high, low, open, close, and volume ",
     "histories, plus dividend and split events, for ",
     length(FinancieR::stock_data), 
-    " (somewhat randomly) selected stocks."
+    " (somewhat randomly) selected stocks collected from public sources."
   )
 ){ do.call("paste0", rox_list) }
 
@@ -17,6 +17,10 @@ currency_identifiers_table <- function(
 #' @title Stock Data
 #' 
 #' @eval shd_description()
+#' 
+#' @section Disclaimer: Absolutely no promise, guarantee, or representation is
+#'   made by the authors of FinancieR concerning the accuracy or reliability of
+#'   \emph{stock_data}, or any other data in the FinancieR package.
 #'   
 #' @format A list in which each element is another list, and is named using the
 #'   identifier of the asset to which its constituent data corresponds (e.g., 

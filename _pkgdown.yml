@@ -23,4 +23,5 @@ reference:
   - currency_identifiers
   - daily_treasury_yield_curve_rates
   - stock_data
+  - stock_info
   - stock_exchange_hours
