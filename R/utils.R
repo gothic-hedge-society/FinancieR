@@ -8,7 +8,7 @@ tabular <- function(df, rowname_var = NULL, ...) {
     df <- df[, c(ncol(df), 1:(ncol(df) - 1))]
     rownames(df) <- NULL
   }
-
+  
   paste(
     "\\tabular{", 
     paste(
@@ -35,5 +35,68 @@ tabular <- function(df, rowname_var = NULL, ...) {
     "}", 
     sep = ""
   )
-
+  
 }
+
+compactify <- function(portfolio_vec, cpct, shorts){
+  portfolio_vec %>% {
+    if(cpct){
+      . <- .[which(. != 0)]
+      if(shorts){
+        .[grep("^s_", names(.))] <- .[grep("^s_", names(.))] * -1
+        names(.)[grep("^s_", names(.))] <- gsub(
+          "^s_", "", grep("^s_", names(.), value = TRUE)
+        )
+        .
+      }
+      .
+    } else {
+      .
+    }
+  }
+}
+
+cash_bal <- function(portfolio){
+  round(
+    as.numeric(
+      portfolio$shares %*% as.matrix(portfolio$prices)
+    ) + portfolio$cash, 
+    digits = 2
+  )
+}
+
+sharify <- function(portfolio, prices, portfolio_aum, shorts){
+  portfolio <<- portfolio
+  prices <<- prices
+  shorts <<- shorts
+  stop("YOLO")
+  
+  shares <- (compactify(portfolio$weights) * portfolio_aum) %>% {
+    ./prices[names(.)]
+  } %>% {
+    .[which(. < 0)] <- ceiling(.[which(. < 0)])
+    .[which(. > 0)] <- floor(.[which(. > 0)])
+    .
+  }
+  cash   <- portfolio_aum - (mp$shares %*% mp$prices)
+  
+  # append cash when buy_selling or calculating sharpe.
+  # cash may never be negative.
+  weights <- realized_shares * prices / portfolio_aum
+  
+  #      %>%
+  #     list(
+  #       ,
+  #       "exp_rtn"          = as.numeric(exp_rtn %*% as.matrix(realized_weights)),
+  #       "exp_vol" = as.numeric(
+  #         sqrt(
+  #           as.numeric(
+  #             (realized_weights %*% exp_cov) %*% as.matrix(realized_weights)
+  #           )
+  #         )
+  #       ),
+  #       "sharpe"  = (realized_exp_rtn - rfr) / realized_exp_vol
+  #     )
+  #   
+}
+

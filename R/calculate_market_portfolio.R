@@ -41,6 +41,10 @@
 #' @param portfolio_aum Optional: numeric, length 1, giving the total amount of
 #'   assets under management for which a market portfolio is to be calculated on
 #'   a shares basis. See "Returns" section for more info.
+#'   
+#' @param compact Logical, length 1. If TRUE (Default), then only non-zero 
+#'   components of the market portfolio will be included and short positions
+#'   will be indicated by a negative sign.
 #'    
 #' @details 
 #' 
@@ -129,7 +133,8 @@ calculate_market_portfolio <- function(
   rfr           = 0.000027397,
   allow_shorts  = FALSE,
   prices        = NULL,
-  portfolio_aum = NULL
+  portfolio_aum = NULL,
+  compact       = TRUE
 ){
   
   # Make sure names & elements are in order to avoid disaster
@@ -156,12 +161,6 @@ calculate_market_portfolio <- function(
         exp_cor
       )
     )
-    
-    if(!is.null(prices)){
-      prices <- c(
-        prices, stats::setNames(prices, paste0("s_", names(prices)))
-      )
-    }
     
   }
   
@@ -332,7 +331,11 @@ calculate_market_portfolio <- function(
   
   mp <- list(
     "sharpe"        = portfolio_sharpe,
-    "weights"       = portfolio_weights,
+    "weights"       = compactify(
+      portfolio_vec = portfolio_weights, 
+      cpct          = compact & is.null(prices) & is.null(portfolio_aum), 
+      shorts        = allow_shorts
+    ),
     "ex_return"     = as.numeric(exp_rtn %*% as.matrix(portfolio_weights)),
     "ex_volatility" = sqrt(
       as.numeric(
@@ -350,17 +353,7 @@ calculate_market_portfolio <- function(
     )
   )
   
-  prices  <- c(
-    prices,  
-    "cash" = portfolio_aum - (
-      floor((mp$weights * portfolio_aum) / prices) %*% as.matrix(prices)
-    )
-  )
-  
-  realized_shares <- c(
-    floor((mp$weights * portfolio_aum) / prices[-length(prices)]),
-    "cash" = 1
-  )
+  mp <- sharify(mp, prices, portfolio_aum, allow_shorts)
   
   exp_rtn <- c(exp_rtn, "cash" = rfr)
   exp_vol <- c(exp_vol, "cash" = 0)
@@ -368,39 +361,37 @@ calculate_market_portfolio <- function(
     cbind("cash" = 0) %>%
     rbind("cash" = 0)
   
-  realized_weights <- realized_shares * prices / portfolio_aum
-  realized_exp_rtn <- as.numeric(exp_rtn %*% as.matrix(realized_weights))
-  realized_exp_vol <- as.numeric(
-    sqrt(
-      as.numeric(
-        (realized_weights %*% exp_cov) %*% as.matrix(realized_weights)
-      )
-    )
-  )
-  realized_sharpe <- (realized_exp_rtn - rfr) / realized_exp_vol
+  record_mp <- mp
   
   while(TRUE){
-    
-    buy_sell_shares_matrix <- matrix(
-      0,
-      ncol     = length(realized_shares),
-      nrow     = length(realized_shares),
-      dimnames = list(
-        "buy"  = names(realized_shares),
-        "sell" = names(realized_shares)
-      )
-    )
     
     for(sell_asset in colnames(buy_sell_shares_matrix)){
       for(buy_asset in rownames(buy_sell_shares_matrix)){
         if(
-          buy_asset == sell_asset | (
-            prices[buy_asset] > prices[sell_asset]
-          ) | realized_shares[sell_asset] == 0
+          gsub("^s_", "", buy_asset) == gsub("^s_", "", sell_asset) | 
+          prices[buy_asset] > prices[sell_asset] | 
+          realized_shares[sell_asset] == 0 |
+          # don't buy a short position if you already own that stock
+          (
+            grepl("^s_", buy_asset) && as.logical(
+              realized_shares[
+                gsub("^s_", "", buy_asset)
+              ] > 0
+            )
+          ) |
+          # don't buy a long position if you're already short that stock
+          (
+            !grepl("^s_", buy_asset) & isTRUE(
+              realized_shares[paste0("s_", buy_asset)] < 0
+            )
+          ) |
+          # don't sell a long & buy a short in the same move
+          (!grepl("^s_", sell_asset) & grepl("^s_", buy_asset)) |
+          # don't buy a long & sell a short in the same move
+          (!grepl("^s_", buy_asset) & grepl("^s_", sell_asset)) 
         ){
-          buy_sell_shares_matrix[buy_asset, sell_asset] <- -1
+          next()
         } else {
-          
           shares <- realized_shares
           prc    <- prices
           
@@ -421,13 +412,12 @@ calculate_market_portfolio <- function(
           buy_sell_shares_matrix[buy_asset, sell_asset] <- as.numeric(
             exp_rtn %*% as.matrix(weights) - rfr
           ) / sqrt(as.numeric((weights %*% exp_cov) %*% as.matrix(weights)))
-          
         }
       }
     }
     
     # If we got a better sharpe ratio in `buy_sell_matrix`, keep it & update!
-    if(max(buy_sell_shares_matrix) <= realized_sharpe) break()
+    if(max(buy_sell_shares_matrix) <= realized_sharpe) stop("yolo")
     
     asset_bought <- rownames(buy_sell_shares_matrix)[
       which(
@@ -469,18 +459,24 @@ calculate_market_portfolio <- function(
     
   }
   
+  
   mp_shares <- list(
     "sharpe"        = realized_sharpe,
-    "shares"        = realized_shares[-length(shares)] %>% {
-      storage.mode(.) <- "integer"
-      .
-    },
-    "cash"          = as.numeric(prices[length(prices)]),
-    "weights"       = realized_weights[-length(weights)],
+    "shares"        = compactify(
+      portfolio_vec = realized_shares[-length(realized_shares)], 
+      cpct          = compact, 
+      shorts        = allow_shorts
+    ),
+    "cash"          = as.numeric(prices["cash"]),
+    "weights"       = compactify(
+      portfolio_vec = realized_weights[-length(realized_weights)], 
+      cpct          = compact, 
+      shorts        = allow_shorts
+    ),
     "ex_return"     = realized_exp_rtn,
-    "ex_volatility" = realized_exp_vol,
-    "prices"        = prices[-length(prices)]
-  )
+    "ex_volatility" = realized_exp_vol
+  ) %>%
+    c(list("prices" = prices[names(.$shares)]))
   
   mp_shares
   
