@@ -41,6 +41,10 @@
 #' @param portfolio_aum Optional: numeric, length 1, giving the total amount of
 #'   assets under management for which a market portfolio is to be calculated on
 #'   a shares basis. See "Returns" section for more info.
+#'   
+#' @param compact Logical, length 1. If TRUE (Default), then only non-zero 
+#'   components of the market portfolio will be included and short positions
+#'   will be indicated by a negative sign.
 #'    
 #' @details 
 #' 
@@ -129,7 +133,8 @@ calculate_market_portfolio <- function(
   rfr           = 0.000027397,
   allow_shorts  = FALSE,
   prices        = NULL,
-  portfolio_aum = NULL
+  portfolio_aum = NULL,
+  compact       = TRUE
 ){
   
   # Make sure names & elements are in order to avoid disaster
@@ -332,7 +337,11 @@ calculate_market_portfolio <- function(
   
   mp <- list(
     "sharpe"        = portfolio_sharpe,
-    "weights"       = portfolio_weights,
+    "weights"       = compactify(
+      portfolio_vec = portfolio_weights, 
+      cpct          = compact & is.null(prices) & is.null(portfolio_aum), 
+      shorts        = allow_shorts
+    ),
     "ex_return"     = as.numeric(exp_rtn %*% as.matrix(portfolio_weights)),
     "ex_volatility" = sqrt(
       as.numeric(
@@ -471,16 +480,17 @@ calculate_market_portfolio <- function(
   
   mp_shares <- list(
     "sharpe"        = realized_sharpe,
-    "shares"        = realized_shares[-length(shares)] %>% {
-      storage.mode(.) <- "integer"
-      .
-    },
-    "cash"          = as.numeric(prices[length(prices)]),
+    "shares"        = compactify(
+      portfolio_vec = realized_shares[-length(shares)], 
+      cpct          = compact, 
+      shorts        = allow_shorts
+    ),
+    "cash"          = as.numeric(prices["cash"]),
     "weights"       = realized_weights[-length(weights)],
     "ex_return"     = realized_exp_rtn,
-    "ex_volatility" = realized_exp_vol,
-    "prices"        = prices[-length(prices)]
-  )
+    "ex_volatility" = realized_exp_vol
+  ) %>%
+    c(list("prices" = prices[names(.$shares)]))
   
   mp_shares
   

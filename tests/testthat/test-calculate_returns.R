@@ -1,7 +1,6 @@
-context("Accuracy")
-
 # Do a few checks on returns that were calculated by spreadsheet.
 
+context("TXN & Hurricane Sandy")
 test_that(
   paste0(
     "calculate_returns() correctly handles Texas Instruments' Hurricane ",
@@ -35,6 +34,7 @@ test_that(
   )
 )
 
+context("Apple's 7-1 Split in 2014")
 test_that(
   "calculate_daily_returns() correctly handles Apple's 7-to-1 split in 2014.",
   expect_equivalent(
@@ -61,6 +61,7 @@ test_that(
   )
 )
 
+context("calculate_returns() examples work")
 test_that(
   "The first example in calculate_returns() documentation works.",
   expect_identical(

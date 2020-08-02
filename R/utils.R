@@ -8,7 +8,7 @@ tabular <- function(df, rowname_var = NULL, ...) {
     df <- df[, c(ncol(df), 1:(ncol(df) - 1))]
     rownames(df) <- NULL
   }
-
+  
   paste(
     "\\tabular{", 
     paste(
@@ -35,5 +35,23 @@ tabular <- function(df, rowname_var = NULL, ...) {
     "}", 
     sep = ""
   )
+  
+}
 
+compactify <- function(portfolio_vec, cpct, shorts){
+  portfolio_vec %>% {
+    if(cpct){
+      . <- .[which(. != 0)]
+      if(shorts){
+        .[grep("^s_", names(.))] <- .[grep("^s_", names(.))] * -1
+        names(.)[grep("^s_", names(.))] <- gsub(
+          "^s_", "", grep("^s_", names(.), value = TRUE)
+        )
+        .
+      }
+      .
+    } else {
+      .
+    }
+  }
 }
