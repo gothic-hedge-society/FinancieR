@@ -56,14 +56,6 @@ compactify <- function(portfolio_vec, cpct, shorts){
   }
 }
 
-cash_bal <- function(portfolio){
-  round(
-    as.numeric(
-      portfolio$shares %*% as.matrix(portfolio$prices)
-    ) + portfolio$cash, 
-    digits = 2
-  )
-}
 
 sharify <- function(portfolio, prices, portfolio_aum, shorts){
   portfolio <<- portfolio

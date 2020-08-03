@@ -459,25 +459,6 @@ calculate_market_portfolio <- function(
     
   }
   
-  
-  mp_shares <- list(
-    "sharpe"        = realized_sharpe,
-    "shares"        = compactify(
-      portfolio_vec = realized_shares[-length(realized_shares)], 
-      cpct          = compact, 
-      shorts        = allow_shorts
-    ),
-    "cash"          = as.numeric(prices["cash"]),
-    "weights"       = compactify(
-      portfolio_vec = realized_weights[-length(realized_weights)], 
-      cpct          = compact, 
-      shorts        = allow_shorts
-    ),
-    "ex_return"     = realized_exp_rtn,
-    "ex_volatility" = realized_exp_vol
-  ) %>%
-    c(list("prices" = prices[names(.$shares)]))
-  
-  mp_shares
+  mp
   
 }
