@@ -1,4 +1,5 @@
 
+context("Creating test objects for CMP: Weights Mode")
 yahoo_adj_prices <- testthis::read_testdata("yahoo_adj_prices.rds")
 
 end_date   <- as.Date(zoo::index(xts::last(yahoo_adj_prices))) # latest date
