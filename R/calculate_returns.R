@@ -52,8 +52,15 @@ calculate_returns <- function(
   requireNamespace("xts", quietly = TRUE)
   
   assets[sort(names(assets))] %>%
-    purrr::imap(
-      function(asset, asset_name){
+    purrr::map(
+      function(asset){
+        
+        asset <<- asset
+        stop()
+        
+        asset <- asset[date_range_xts, c(buy_at, sell_at)]
+        
+        attributes(asset)$Symbol
         
         prices_xts <- if(is.null(date_range_xts)){
           asset$prices

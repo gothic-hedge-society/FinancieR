@@ -21,7 +21,6 @@ parameter_j <- function(){
       }
   )
 }
-
 #' Using `[` on Objects of Class "stock"
 #'
 #' You can quickly retrieve price, dividend, split, and MnA data useing the `[`
@@ -67,7 +66,7 @@ parameter_j <- function(){
   stock_extract_try <- tryCatch(
     {
 
-      if(is.null(i)){ i <- paste0(trading_dates()[1]) }
+      if(is.null(i)){ i <- paste0(trading_dates()[1], "/") }
 
       stock_block <- stock_blockify(x, i, j)
 

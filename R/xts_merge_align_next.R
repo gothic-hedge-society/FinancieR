@@ -25,7 +25,7 @@
 #'
 #' @example inst/examples/xts_merge_align_next_ex.R
 #'
-#' @export
+#' @keywords internal
 #'
 xts_merge_align_next <- function(xts1, xts2, agg_function, na.fill){
 
@@ -33,25 +33,17 @@ xts_merge_align_next <- function(xts1, xts2, agg_function, na.fill){
     storage.mode(xts2) <- "numeric"
   }
 
-  # Disregard dates in xts2 that fall outside the range of xts1
-  xts2 <- xts2[paste(
-    as.Date(min(zoo::index(xts1))),
-    as.Date(max(zoo::index(xts1))),
-    sep = "/"
-  )]
-
-  merged_xts <- merge(xts1, xts2)
-
   # If there are no dates that are in xts2 but not xts1, return the left-join.
-  if(
-    length(
-      setdiff(
-        as.character(as.Date(zoo::index(xts2))),
-        as.character(as.Date(zoo::index(xts1)))
-      )
-    ) == 0
-  ){
-    return(zoo::merge.zoo(xts1, xts2, all = c(TRUE, FALSE), fill = na.fill))
+  if(length(setdiff(zoo::index(xts2), zoo::index(xts1))) == 0){
+    return(xts::merge.xts(xts1, xts2, join = "left", fill = na.fill))
+  }
+
+  # Disregard dates in xts2 that fall outside the range of xts1
+  # Then, want to full merge them because we need the NAs, if any.
+  merged_xts <- xts2 %>% {
+    .[paste0(zoo::index(xts::first(xts1)), "/", zoo::index(xts::last(xts1)))]
+  } %>% {
+    xts::merge.xts(xts1, .)
   }
 
   agg_range <- merged_xts[,colnames(xts1)] %>%
