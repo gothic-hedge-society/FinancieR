@@ -89,15 +89,15 @@ parameter_j <- function(){
 
           storage.mode(stock_block) <- "character"
           stock_block$symbol        <- as.character(x$MnA$company)
-          stock_block$multiplier    <- as.character(
-            stock_data[[
-              as.character(utils::tail(x$MnA$acquired_by, 1))
-            ]]$MnA$multiple
-          )
+          stock_block$multiplier    <- as.character(1)
 
           stock_block_2 <- stock_blockify(
             x = stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
-            i = paste0(needed_dates[1], "/", utils::tail(needed_dates, 1)),
+            i = paste0(
+              zoo::index(xts::first(stock_block)),
+              "/",
+              needed_dates[length(needed_dates)]
+            ),
             j = j
           )
 
@@ -106,11 +106,15 @@ parameter_j <- function(){
             stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
             "Symbol"
           )
-          stock_block_2$multiplier    <- as.character(x$MnA$multiple)
+          stock_block_2$multiplier    <- as.character(1)
 
           stock_block <- xts::rbind.xts(stock_block, stock_block_2) %>% {
-            .[!duplicated(zoo::index(.)),]
+            .[!duplicated(zoo::index(.), fromLast = TRUE),]
           }
+
+          stock_block[
+            zoo::index(xts::last(x$MnA)), "multiplier"
+          ] <- as.character(xts::last(x$MnA)$multiple)
 
         }
       }

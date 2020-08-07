@@ -14,7 +14,7 @@ stock_data$TXN["2012-10-25/2012-11-05", "Close"]
 
 
 # Mergers are handled as illustrated below for the PX-LIN merger in 2018.
-# Shareholders of PX received 1.54 shares of the new company, LIN, for every 1
+# Shareholders of PX received 1 share of the new company, LIN, for every 1
 # share of PX.
 stock_data$PX["2018-10-29/2018-11-05", "Close"]
 

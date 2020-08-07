@@ -36,7 +36,7 @@ test_that(
 
 context("Apple's 7-1 Split in 2014")
 test_that(
-  "calculate_daily_returns() correctly handles Apple's 7-to-1 split in 2014.",
+  "calculate_returns() correctly handles Apple's 7-to-1 split in 2014.",
   expect_equivalent(
     c("ln", "log2", "log10", "pct_diff", "multiple") %>%
       vapply(
@@ -114,3 +114,14 @@ test_that(
   )  
 )
 
+test_that(
+  "calculate_returns() handles mergers",
+  expect_identical(
+    calculate_returns(
+      assets         = stock_data$PX,
+      date_range_xts = "2018-10-28/2018-11-04"
+    ),
+    testthis::read_testdata("PX_LIN_returns.rds")
+  )
+  
+)

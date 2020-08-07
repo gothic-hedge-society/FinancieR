@@ -19,8 +19,8 @@ test_that(
       tibble::tibble(
         "company"     = "PX",
         "acquired_by" = "LIN",
-        "multiple"    = 1.54,
-        "eff_date"    = as.Date("2018-10-31"),
+        "multiple"    = 1,
+        "eff_date"    = "2018-10-31",
         "type"        = "merger"
       ) %>% {
         xts::xts(
@@ -35,7 +35,7 @@ test_that(
         "company"  = "LIN",
         "acquired" = "PX",
         "multiple" = 1,
-        "eff_date" = as.Date("2018-10-31"),
+        "eff_date" = "2018-10-31",
         "type"     = "merger"
       ) %>% {
         xts::xts(

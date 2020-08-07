@@ -51,91 +51,52 @@ calculate_returns <- function(
   # Need xts namespace
   requireNamespace("xts", quietly = TRUE)
   
+  if(inherits(assets, "stock")){
+    assets <- stats::setNames(list(assets), nm = attr(assets, "Symbol"))
+  }
+  
   assets[sort(names(assets))] %>%
     purrr::map(
       function(asset){
         
-        asset <<- asset
-        stop()
-        
-        asset <- asset[date_range_xts, c(buy_at, sell_at)]
-        
-        attributes(asset)$Symbol
-        
-        prices_xts <- if(is.null(date_range_xts)){
-          asset$prices
-        } else {
-          asset$prices[date_range_xts]
-        } %>% {
-          xts::merge.xts(
-            xts::lag.xts(.[,buy_at, drop = FALSE], k = 1),
-            .[,sell_at]
+        if(any(names(asset) == "MnA")){
+          asset      <- asset[date_range_xts, c(buy_at, sell_at)]
+          asset_name <- paste(
+            unique(as.character(asset$symbol)), collapse = "-"
           )
-        } %>% {
-          .[-unique(which(is.na(.), arr.ind = TRUE)[,"row"]),]
-        } %>%
-          magrittr::set_colnames(c("buy_price", "sell_price"))
-        
-        divs_xts <- if(is.null(date_range_xts)){
-          asset$dividends$DividendAmount
+          asset      <- asset[, find_numeric_columns(asset)] 
         } else {
-          asset$dividends$DividendAmount[date_range_xts]
-        } %>% {
-          storage.mode(.) <- "numeric"
-          .
+          asset_name <- attr(asset, "Symbol")
+          asset      <- asset[date_range_xts, c(buy_at, sell_at)]
+        }
+        storage.mode(asset) <- "numeric"
+        
+        buy_price  <- xts::lag.xts(asset[, buy_at], k = 1, na.pad = FALSE)
+        sell_price <- asset[, sell_at][-1, ]
+        
+        if(all(c("Denominator", "Numerator") %in% colnames(asset))){
+          sell_price <- sell_price * asset$Denominator / asset$Numerator
         }
         
-        splits_xts <- if(is.null(date_range_xts)){
-          asset$splits
-        } else {
-          asset$splits[date_range_xts]
+        if(any(colnames(asset) == "DividendAmount")){
+          sell_price <- sell_price + asset$DividendAmount
         }
         
-        # If there are dividends for this asset, merge the dividend amounts with
-        # the prices data. Only keep dividends whose ex-dates are within the
-        # range of the historical price data.
-        if(isTRUE(nrow(divs_xts) > 0)){
-          prices_xts <- xts_merge_align_next(
-            xts1         = prices_xts,
-            xts2         = divs_xts,
-            agg_function = base::sum,
-            na.fill      = 0
-          )
-        } else {
-          prices_xts$DividendAmount <- 0
+        if(any(colnames(asset) == "multiplier")){
+          sell_price <- sell_price * asset$multiplier
         }
-        
-        # Similar process for splits.
-        if(isTRUE(nrow(splits_xts) > 0)){
-          prices_xts <- xts_merge_align_next(
-            xts1         = prices_xts,
-            xts2         = splits_xts,
-            na.fill      = 1,
-            agg_function = base::prod
-          )
-        } else {
-          prices_xts$Denominator <- prices_xts$Numerator <- 1
-        }
-        
-        prices_xts$sell_price <- (
-          prices_xts$sell_price * prices_xts$Denominator / prices_xts$Numerator
-        ) + prices_xts$DividendAmount
-        
-        prices_xts <- prices_xts[,c("buy_price", "sell_price")]
-        
         
         switch(
           returns_method,
-          "ln"       = log(prices_xts$sell_price / prices_xts$buy_price),
-          "log2"     = log2(prices_xts$sell_price / prices_xts$buy_price),
-          "log10"    = log10(prices_xts$sell_price / prices_xts$buy_price),
-          "pct_diff" = ((prices_xts$sell_price / prices_xts$buy_price) - 1),
-          "multiple" = prices_xts$sell_price / prices_xts$buy_price
-        ) %>%
-          xts::as.xts() %>% {
-            colnames(.) <- asset_name
-            .
-          }
+          "ln"       = log(sell_price / buy_price),
+          "log2"     = log2(sell_price / buy_price),
+          "log10"    = log10(sell_price / buy_price),
+          "pct_diff" = ((sell_price / buy_price) - 1),
+          "multiple" = sell_price / buy_price
+        ) %>% {
+          colnames(.) <- asset_name
+          .
+        }
         
       }
     ) %>%

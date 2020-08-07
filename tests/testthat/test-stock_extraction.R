@@ -3,9 +3,9 @@ context("Building extraction test objects")
 IVV_date_only       <- stock_data$IVV["2019-06-11"]
 IVV_june_2019       <- stock_data$IVV["2019-06"]
 TXN_hurricane_sandy <- stock_data$TXN["2012-10-25/2012-11-05", "Close"]
-PX_merger           <- stock_data$PX["2018-10-29/2018-11-05", "Close"]
+PX_merger           <- stock_data$PX["2018-10-28/2018-11-04", "Close"]
 LIN_merger          <- stock_data$LIN[
-  "2018-10-29/2018-11-05", c("Close", "DividendAmount")
+  "2018-10-28/2018-11-04", c("Close", "DividendAmount")
 ]
 AAPL_split <- stock_data$AAPL["2014-06-05/2014-06-11", c("Open", "Close")]
 
