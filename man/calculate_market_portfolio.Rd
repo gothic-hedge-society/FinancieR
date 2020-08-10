@@ -11,8 +11,7 @@ calculate_market_portfolio(
   rfr = 2.7397e-05,
   allow_shorts = FALSE,
   prices = NULL,
-  portfolio_aum = NULL,
-  compact = TRUE
+  portfolio_aum = NULL
 )
 }
 \arguments{
@@ -53,10 +52,6 @@ for which a market portfolio is to be calculated on a shares basis. See the
 \item{portfolio_aum}{Optional: numeric, length 1, giving the total amount of
 assets under management for which a market portfolio is to be calculated on
 a shares basis. See "Returns" section for more info.}
-
-\item{compact}{Logical, length 1. If TRUE (Default), then only non-zero
-components of the market portfolio will be included and short positions
-will be indicated by a negative sign.}
 }
 \value{
 If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum}

@@ -32,66 +32,19 @@ mp_by_shares              <- calculate_market_portfolio(
   prices        = prices, 
   portfolio_aum = portfolio_aum 
 )
-mp_by_shares_not_c        <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, 
-  prices        = prices, 
-  portfolio_aum = portfolio_aum,
-  compact       = FALSE
-)
 mp_by_shares_shorts       <- calculate_market_portfolio(
   exp_rtn, exp_vol, exp_cor, 
   allow_shorts  = TRUE,
-  prices        = prices, 
-  portfolio_aum = portfolio_aum 
-)
-mp_by_shares_shorts_not_c <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, 
-  allow_shorts  = TRUE,
-  prices        = prices, 
-  portfolio_aum = portfolio_aum,
-  compact       = FALSE
+  prices        = prices
 )
 
 ####### Cash Balances ----------------------------------------------------------
 context("Cash Balances (shares mode only)")
 test_that(
-  "Cash balances for mp by shares, no shorting, compact",
+  "Cash balances for mp by shares, no shorting",
   expect_equal(cash_bal(mp_by_shares), portfolio_aum)
 )
 test_that(
-  "Cash balances for mp by shares, no shorting, NOT compact",
-  expect_equal(cash_bal(mp_by_shares_not_c), portfolio_aum)
-)
-test_that(
-  "Cash balances for mp by shares, with shorting, compact",
+  "Cash balances for mp by shares, with shorting",
   expect_equal(cash_bal(mp_by_shares_shorts), portfolio_aum)
 )
-test_that(
-  "Cash balances for mp by shares, with shorting, NOT compact",
-  expect_equal(cash_bal(mp_by_shares_shorts_not_c), portfolio_aum)
-)
-
-###### Not longing & shorting same stocks --------------------------------------
-context("Not longing & shorting same stock")
-test_that(
-  "Shares basis",
-  expect_length(
-    intersect(
-      mp_by_shares_shorts$shares[
-        grep("^s_", names(mp_by_shares_shorts$shares), value = TRUE) 
-      ] %>% {
-        names(.[which(. > 0)])
-      },
-      mp_by_shares_shorts$shares[
-        setdiff(
-          names(mp_by_shares_shorts$shares),
-          grep("^s_", names(mp_by_shares_shorts$shares), value = TRUE) 
-        )
-      ] %>% {
-        names(.[which(. > 0)])
-      }
-    ),
-    0
-  )
-)
-

@@ -50,3 +50,4 @@ xts_merge_align_next(
   0
 )
 }
+\keyword{internal}

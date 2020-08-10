@@ -38,11 +38,11 @@ tabular <- function(df, rowname_var = NULL, ...) {
   
 }
 
-compactify <- function(portfolio_vec, cpct, shorts){
+compactify <- function(portfolio_vec){
   portfolio_vec %>% {
     if(cpct){
       . <- .[which(. != 0)]
-      if(shorts){
+      if(any(grepl("^s_", names(.)))){
         .[grep("^s_", names(.))] <- .[grep("^s_", names(.))] * -1
         names(.)[grep("^s_", names(.))] <- gsub(
           "^s_", "", grep("^s_", names(.), value = TRUE)

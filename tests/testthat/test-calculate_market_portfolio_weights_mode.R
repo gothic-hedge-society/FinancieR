@@ -23,17 +23,6 @@ historical_rtn <- yahoo_adj_prices[
 }
 
 ####### Calculate market portfolios --------------------------------------------
-mp_by_wt_not_c            <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, 
-  rfr     = 0.0000822, 
-  compact = FALSE
-)
-mp_by_wt_shorts_not_c     <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, 
-  rfr          = 0.0000822, 
-  allow_shorts = TRUE, 
-  compact      = FALSE
-)
 mp_by_wt                  <- calculate_market_portfolio(
   exp_rtn, exp_vol, exp_cor, 
   rfr     = 0.0000822
@@ -45,61 +34,7 @@ mp_by_wt_shorts           <- calculate_market_portfolio(
 )
 
 ###### Match Excel (historical Yahoo! calcs) -----------------------------------
-context("MP calcs match Excel (weights mode, NOT compact)")
-test_that(
-  paste0(
-    "calculate_market_portfolio returns the known correct answer in 'Weights ",
-    "mode' when applied to yahoo sample data: Longs Only, not compact"
-  ),
-  {
-    expect_true(
-      all(
-        abs(
-          mp_by_wt_not_c$weights -
-            c(
-              "AAPL" = 0.148547,           "XOM"  = 0,
-              "LNC"  = 0,                  "MRK"  = 0,
-              "WMT"  = 0.183588,           "HOG"  = 0,
-              "RMD"  = 0.135547,           "AMZN" = 0.375110,
-              "CMG"  = 0.157209,           "FB"   = 0,
-              "IVV"  = 0
-            )
-        ) <= 0.01
-      )
-    )
-    expect_true(abs(mp_by_wt_not_c$sharpe - 0.0741772) <= 0.0001)
-  }
-)
-test_that(
-  paste0(
-    "calculate_market_portfolio returns the known correct answer in 'Weights ",
-    "mode' when applied to yahoo sample data: Longs & Shorts, not compact"
-  ),
-  {
-    expect_true(
-      all(
-        abs(
-          mp_by_wt_shorts_not_c$weights -
-            c(
-              "AAPL"   = 0.22149982386928,  "XOM"    = 0,
-              "LNC"    = 0,                 "MRK"    = 0,
-              "WMT"    = 0.085905853006483, "HOG"    = 0,
-              "RMD"    = 0.10223481640288,  "AMZN"   = 0.1089034518828,
-              "CMG"    = 0.107268170374074, "FB"     = 0,
-              "IVV"    = 0,                 "s_AAPL" = 0,           
-              "s_XOM"  = 0.178211569663418, "s_LNC"  = 0.053400812220571,                  
-              "s_MRK"  = 0,                 "s_WMT"  = 0,
-              "s_HOG"  = 0.09064410541401,  "s_RMD"  = 0,
-              "s_AMZN" = 0,                 "s_CMG"  = 0,
-              "s_FB"   = 0.051931431523259, "s_IVV"  = 0
-            )
-        ) <= 0.01
-      )
-    )
-    expect_true(abs(mp_by_wt_shorts_not_c$sharpe - 0.118638) <= 0.0001)
-  }
-)
-context("MP calcs match Excel (weights mode, compact)")
+context("MP calcs match Excel (weights mode)")
 test_that(
   paste0(
     "calculate_market_portfolio returns the known correct answer in 'Weights ",
@@ -142,28 +77,4 @@ test_that(
     )
     expect_true(abs(mp_by_wt_shorts$sharpe - 0.118638) <= 0.0001)
   }
-)
-
-###### Not longing & shorting same stocks --------------------------------------
-context("Not longing & shorting same stock")
-test_that(
-  "Weights basis",
-  expect_length(
-    intersect(
-      mp_by_wt_shorts$weights[
-        grep("^s_", names(mp_by_wt_shorts$weights), value = TRUE) 
-      ] %>% {
-        names(.[which(. > 0)])
-      },
-      mp_by_wt_shorts$weights[
-        setdiff(
-          names(mp_by_wt_shorts$weights),
-          grep("^s_", names(mp_by_wt_shorts$weights), value = TRUE) 
-        )
-      ] %>% {
-        names(.[which(. > 0)])
-      }
-    ),
-    0
-  )
 )
