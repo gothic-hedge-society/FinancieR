@@ -326,10 +326,7 @@ calculate_market_portfolio <- function(
   
   mp <- list(
     "sharpe"        = portfolio_sharpe,
-    "weights"       = compactify(
-      portfolio_vec = portfolio_weights, 
-      shorts        = allow_shorts
-    ),
+    "weights"       = compactify(portfolio_weights),
     "ex_return"     = as.numeric(exp_rtn %*% as.matrix(portfolio_weights)),
     "ex_volatility" = sqrt(
       as.numeric(
@@ -347,110 +344,27 @@ calculate_market_portfolio <- function(
     )
   )
   
-  mp <- sharify(mp, prices, portfolio_aum, allow_shorts)
+  mp$shares <- (portfolio$weights * portfolio_aum / prices) %>% {
+    .[which(. < 0)] <- ceiling(.[which(. < 0)])
+    .[which(. > 0)] <- floor(.[which(. > 0)])
+    compactify(.)
+  }
+  mp$prices        <- prices
+  mp$weights       <- mp$shares * prices / portfolio_aum
+  mp$ex_return     <- as.numeric(exp_rtn %*% as.matrix(mp$weights))
+  mp$ex_volatility <- sqrt(
+    as.numeric((mp$weights %*% exp_cov) %*% as.matrix(mp$weights))
+  )
+  mp$cash          <- portfolio_aum - (mp$shares %*% mp$prices)
   
-  exp_rtn <- c(exp_rtn, "cash" = rfr)
-  exp_vol <- c(exp_vol, "cash" = 0)
-  exp_cov <- exp_cov %>%
-    cbind("cash" = 0) %>%
-    rbind("cash" = 0)
-  
-  record_mp <- mp
   
   while(TRUE){
-    
-    for(sell_asset in colnames(buy_sell_shares_matrix)){
-      for(buy_asset in rownames(buy_sell_shares_matrix)){
-        if(
-          gsub("^s_", "", buy_asset) == gsub("^s_", "", sell_asset) | 
-          prices[buy_asset] > prices[sell_asset] | 
-          realized_shares[sell_asset] == 0 |
-          # don't buy a short position if you already own that stock
-          (
-            grepl("^s_", buy_asset) && as.logical(
-              realized_shares[
-                gsub("^s_", "", buy_asset)
-              ] > 0
-            )
-          ) |
-          # don't buy a long position if you're already short that stock
-          (
-            !grepl("^s_", buy_asset) & isTRUE(
-              realized_shares[paste0("s_", buy_asset)] < 0
-            )
-          ) |
-          # don't sell a long & buy a short in the same move
-          (!grepl("^s_", sell_asset) & grepl("^s_", buy_asset)) |
-          # don't buy a long & sell a short in the same move
-          (!grepl("^s_", buy_asset) & grepl("^s_", sell_asset)) 
-        ){
-          next()
-        } else {
-          shares <- realized_shares
-          prc    <- prices
-          
-          if(buy_asset == "cash"){
-            shares[sell_asset] <- shares[sell_asset] - 1
-          } else if(sell_asset == "cash"){
-            shares[buy_asset]  <- shares[buy_asset] + 1
-          } else {
-            shares[buy_asset]  <- shares[buy_asset] + 1
-            shares[sell_asset] <- shares[sell_asset] - 1
-          }
-          
-          prc["cash"] <- portfolio_aum - (
-            shares[-length(shares)] %*% prc[-length(prc)]
-          )
-          weights     <- (shares * prc) / portfolio_aum
-          
-          buy_sell_shares_matrix[buy_asset, sell_asset] <- as.numeric(
-            exp_rtn %*% as.matrix(weights) - rfr
-          ) / sqrt(as.numeric((weights %*% exp_cov) %*% as.matrix(weights)))
-        }
-      }
-    }
-    
-    # If we got a better sharpe ratio in `buy_sell_matrix`, keep it & update!
-    if(max(buy_sell_shares_matrix) <= realized_sharpe) stop("yolo")
-    
-    asset_bought <- rownames(buy_sell_shares_matrix)[
-      which(
-        buy_sell_shares_matrix == max(buy_sell_shares_matrix),
-        arr.ind = TRUE
-      )[, "buy"]
-    ]
-    
-    asset_sold <- colnames(buy_sell_shares_matrix)[
-      which(
-        buy_sell_shares_matrix == max(buy_sell_shares_matrix),
-        arr.ind = TRUE
-      )[, "sell"]
-    ]
-    
-    if(asset_bought == "cash"){
-      realized_shares[asset_sold] <- realized_shares[asset_sold] - 1
-    } else if(asset_sold == "cash"){
-      realized_shares[asset_bought]  <- realized_shares[asset_bought] + 1
+    mp_pocket <- calc_mp_pocket(mp, exp_rtn, exp_vol, exp_cov)
+    if(mp_pocket$sharpe > mp$sharpe){
+      mp <- mp_pocket
     } else {
-      realized_shares[asset_bought]  <- realized_shares[asset_bought] + 1
-      realized_shares[asset_sold]    <- realized_shares[asset_sold] - 1
+      break()
     }
-    
-    prices["cash"] <- portfolio_aum - (
-      realized_shares[-length(realized_shares)] %*% prices[-length(prices)]
-    )
-    
-    realized_weights <- (realized_shares * prices) / portfolio_aum
-    realized_exp_rtn <- as.numeric(exp_rtn %*% as.matrix(realized_weights))
-    realized_exp_vol <- as.numeric(
-      sqrt(
-        as.numeric(
-          (realized_weights %*% exp_cov) %*% as.matrix(realized_weights)
-        )
-      )
-    )
-    realized_sharpe <- (realized_exp_rtn - rfr) / realized_exp_vol
-    
   }
   
   mp
