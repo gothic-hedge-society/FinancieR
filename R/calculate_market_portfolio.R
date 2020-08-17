@@ -132,7 +132,14 @@ calculate_market_portfolio <- function(
   # Make sure names & elements are in order to avoid disaster
   exp_vol      <- exp_vol[names(exp_rtn)]
   exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
-  allow_shorts <- any(grepl("^_s", names(exp_rtn)))
+  
+  # Boolean flag if shorting
+  allow_shorts <- any(grepl("^s_", names(exp_rtn))) && !is.null(prices) && 
+    !is.null(portfolio_aum) && !is.null(shortable_shares) && 
+    !is.null(initial_margin) && !is.null(maintenance_margin)
+  
+  # Boolean flag if shares mode
+  shares_mode <- !is.null(prices) && !is.null(portfolio_aum)
   
   if(allow_shorts){
     exp_rtn <- c(exp_rtn, "cash" = 0)
@@ -148,105 +155,29 @@ calculate_market_portfolio <- function(
       )
     )
   }
+  
   # create covariance matrix of returns
   exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
   
   # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
   # created by selecting from the assets provided.
-  mp <- best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr)
-  
-  # Step 2: Refine the rough portfolio found in step 1.
-  
-  while(TRUE){
-    
-    # Initialize loop vars
-    step   <- min(mp$weights[mp$weights != 0]) / 10
-    counts <- 0
-    
-    mp_refined <- refine_weights(mp, exp_rtn, exp_cov, rfr, step)
-    
-    # If we got a better sharpe ratio in `buy_sell_matrix`, keep it & update!
-    if(max(buy_sell_matrix) > portfolio_sharpe){
-      
-      add_to_asset    <- rownames(buy_sell_matrix)[
-        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[1]
-      ]
-      
-      take_from_asset <- colnames(buy_sell_matrix)[
-        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[2]
-      ]
-      
-      portfolio_weights[add_to_asset] <- portfolio_weights[
-        add_to_asset
-      ] + step
-      
-      portfolio_weights[take_from_asset] <- portfolio_weights[
-        take_from_asset
-      ] - step
-      
-      portfolio_sharpe <-  (
-        as.numeric(exp_rtn %*% as.matrix(portfolio_weights)) - rfr
-      ) / sqrt(
-        as.numeric(
-          (portfolio_weights %*% exp_cov) %*% as.matrix(portfolio_weights)
+  best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) %>%
+    # Step 2: Refine the rough portfolio found in step 1.
+    refine_weights(exp_rtn, exp_vol, exp_cov, rfr) %>% {
+      if(shares_mode){
+        refine_shares(., exp_rtn, exp_vol, exp_cov, rfr, prices, portfolio_aum)
+      } else {
+        .
+      }
+    } %>% {
+      # Step 3: Apply short parameters
+      if(allow_shorts){
+        refine_shorts(
+          ., exp_rtn, exp_vol, exp_cov, rfr, initial_margin, shortable_shares
         )
-      )
-      
-      
-    } else {
-      # drop `step` by a factor of 10, but only do this `count` number of times.
-      step <- min(portfolio_weights[portfolio_weights != 0]) / 10
-      counts <- counts + 1
-      
-      if(counts >= 10){
-        break()
+      } else {
+        .
       }
     }
-  }
-  
-  mp <- list(
-    "sharpe"        = portfolio_sharpe,
-    "weights"       = compactify(portfolio_weights),
-    "ex_return"     = as.numeric(exp_rtn %*% as.matrix(portfolio_weights)),
-    "ex_volatility" = sqrt(
-      as.numeric(
-        (portfolio_weights %*% exp_cov) %*% as.matrix(portfolio_weights)
-      )
-    )
-  )
-  
-  if(is.null(prices) || is.null(portfolio_aum)) return(mp)
-  
-  rm(
-    list = c(
-      "buy_sell_matrix", "candidate_portfolios", "add_to_asset", "counts", 
-      "take_from_asset", "step", "portfolio_sharpe", "portfolio_weights"
-    )
-  )
-  
-  mp$shares <- (portfolio$weights * portfolio_aum / prices) %>% {
-    .[which(. < 0)] <- ceiling(.[which(. < 0)])
-    .[which(. > 0)] <- floor(.[which(. > 0)])
-    compactify(.)
-  }
-  mp$prices        <- prices
-  mp$weights       <- mp$shares * prices / portfolio_aum
-  mp$ex_return     <- as.numeric(exp_rtn %*% as.matrix(mp$weights))
-  mp$ex_volatility <- sqrt(
-    as.numeric((mp$weights %*% exp_cov) %*% as.matrix(mp$weights))
-  )
-  mp$cash          <- portfolio_aum - (mp$shares %*% mp$prices)
-  
-  
-  while(TRUE){
-    mp_pocket <- calc_mp_pocket(mp, exp_rtn, exp_vol, exp_cov)
-    if(mp_pocket$sharpe > mp$sharpe){
-      mp <- mp_pocket
-    } else {
-      break()
-    }
-  }
-  
-  mp
   
 }

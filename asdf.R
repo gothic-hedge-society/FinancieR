@@ -27,8 +27,12 @@ prices        <- yahoo_adj_prices[sample(zoo::index(yahoo_adj_prices), 1)] %>% {
 }
 
 ####### Calculate market portfolios --------------------------------------------
-mp_by_shares              <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, 
-  prices        = prices, 
-  portfolio_aum = portfolio_aum 
+# mp_by_shares              <- calculate_market_portfolio(
+#   exp_rtn, exp_vol, exp_cor,
+#   prices        = prices,
+#   portfolio_aum = portfolio_aum
+# )
+mp_by_wt_shorts           <- calculate_market_portfolio(
+  exp_rtn, exp_vol, exp_cor, rfr = 0.0000822
 )
+

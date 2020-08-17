@@ -26,24 +26,25 @@ prices        <- yahoo_adj_prices[sample(zoo::index(yahoo_adj_prices), 1)] %>% {
   stats::setNames(as.numeric(.), colnames(.)) 
 }
 
-####### Calculate market portfolios --------------------------------------------
+context("Calculate MP, Shares Mode, no shorts")
 mp_by_shares              <- calculate_market_portfolio(
   exp_rtn, exp_vol, exp_cor, 
   prices        = prices, 
   portfolio_aum = portfolio_aum 
 )
-mp_by_shares_shorts       <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, 
-  allow_shorts  = TRUE,
-  prices        = prices
-)
 
-####### Cash Balances ----------------------------------------------------------
-context("Cash Balances (shares mode only)")
+context("Cash Balance, Shares Mode, no shorts")
 test_that(
   "Cash balances for mp by shares, no shorting",
   expect_equal(cash_bal(mp_by_shares), portfolio_aum)
 )
+
+context("Calculate MP, Shares Mode, with shorts")
+mp_by_shares_shorts       <- calculate_market_portfolio(
+  exp_rtn, exp_vol, exp_cor, prices = prices, portfolio_aum = portfolio_aum 
+)
+
+context("Cash Balance, Shares Mode, with shorts")
 test_that(
   "Cash balances for mp by shares, with shorting",
   expect_equal(cash_bal(mp_by_shares_shorts), portfolio_aum)

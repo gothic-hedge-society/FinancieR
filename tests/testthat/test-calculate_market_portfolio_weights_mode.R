@@ -24,17 +24,11 @@ historical_rtn <- yahoo_adj_prices[
 
 ####### Calculate market portfolios --------------------------------------------
 mp_by_wt                  <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, 
-  rfr     = 0.0000822
-)
-mp_by_wt_shorts           <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, 
-  rfr          = 0.0000822, 
-  allow_shorts = TRUE
+  exp_rtn, exp_vol, exp_cor, rfr = 0.0000822
 )
 
 ###### Match Excel (historical Yahoo! calcs) -----------------------------------
-context("MP calcs match Excel (weights mode)")
+context("MP calcs match Excel (weights mode, longs)")
 test_that(
   paste0(
     "calculate_market_portfolio returns the known correct answer in 'Weights ",
@@ -55,6 +49,7 @@ test_that(
     expect_true(abs(mp_by_wt$sharpe - 0.0741772) <= 0.0001)
   }
 )
+context("MP calcs match Excel (weights mode, with shorting)")
 test_that(
   paste0(
     "calculate_market_portfolio returns the known correct answer in 'Weights ",

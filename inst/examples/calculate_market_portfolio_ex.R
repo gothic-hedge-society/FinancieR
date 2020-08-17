@@ -34,9 +34,7 @@ mp_by_wt <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
 mp_by_wt
 
 ### Calculate the market portfolio allowing both long & short positions:
-mp_by_wt_shorts <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, allow_shorts = TRUE
-)
+mp_by_wt_shorts <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
 mp_by_wt_shorts
 
 ### Repeat the above, assuming you have $250,000 to invest and that the stocks
@@ -65,7 +63,6 @@ mp_by_shares_shorts <- calculate_market_portfolio(
   exp_rtn,
   exp_vol,
   exp_cor,
-  allow_shorts  = TRUE,
   prices        = prices,
   portfolio_aum = portfolio_aum
 )
