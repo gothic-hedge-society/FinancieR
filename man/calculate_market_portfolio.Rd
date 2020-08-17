@@ -49,11 +49,6 @@ for which a market portfolio is to be calculated on a shares basis. See the
 \item{portfolio_aum}{Optional: numeric, length 1, giving the total amount of
 assets under management for which a market portfolio is to be calculated.
 In other words, \emph{portfolio_aum} = "total cash at risk".}
-
-\item{allow_shorts}{Defaults to FALSE; set to TRUE to allow shorting of all
-the assets. There are MANY ways to do this, but by default
-\emph{calculate_market_portfolio}() simply treats shorts as another asset
-whose expected return equals negative the expected return of going long.}
 }
 \value{
 If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum}

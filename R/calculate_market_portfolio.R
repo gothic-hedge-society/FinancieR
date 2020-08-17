@@ -28,11 +28,6 @@
 #'   basis matches the one used for you other inputs}, (i.e., if \emph{exp_rtn}
 #'   contains monthly returns, use monthly risk-free rate)!
 #'   
-#' @param allow_shorts Defaults to FALSE; set to TRUE to allow shorting of all
-#'   the assets. There are MANY ways to do this, but by default
-#'   \emph{calculate_market_portfolio}() simply treats shorts as another asset
-#'   whose expected return equals negative the expected return of going long. 
-#'   
 #' @param prices Optional: a named numeric vector for which each name is the
 #'   identifier of an asset and each element is the current price of that asset
 #'   for which a market portfolio is to be calculated on a shares basis. See the
