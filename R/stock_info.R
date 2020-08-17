@@ -47,7 +47,12 @@ stock_info <- function(stocks = stock_data, symbols = names(stocks)){
       function(stock_symbol){
         attributes(
           stock_data[[stock_symbol]]
-        )[setdiff(names(attributes(stock_data[[stock_symbol]])), "names")] %>%
+        )[
+          setdiff(
+            names(attributes(stock_data[[stock_symbol]])), 
+            c("names", "class")
+          )
+        ] %>%
           tibble::as_tibble_row() %>%
           dplyr::select(Symbol, Name, dplyr::everything())
       }

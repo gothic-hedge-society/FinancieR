@@ -5,7 +5,7 @@
 #' each asset.
 #' 
 #' @param exp_rtn Named numeric vector for which each element is the return
-#'   expected for the asset specified by the element's name. 
+#'   expected for the asset specified by the element's name.
 #'   
 #' @param exp_vol Named numeric vector for which each element is the volatility
 #'   expected for the asset specified by the element's name. 
@@ -39,8 +39,8 @@
 #'   "Returns" section for more info.
 #'   
 #' @param portfolio_aum Optional: numeric, length 1, giving the total amount of
-#'   assets under management for which a market portfolio is to be calculated on
-#'   a shares basis. See "Returns" section for more info.
+#'   assets under management for which a market portfolio is to be calculated.
+#'   In other words, \emph{portfolio_aum} = "total cash at risk".
 #'    
 #' @details 
 #' 
@@ -126,26 +126,22 @@ calculate_market_portfolio <- function(
   exp_rtn,
   exp_vol,
   exp_cor,
-  rfr           = 0.000027397,
-  allow_shorts  = FALSE,
-  prices        = NULL,
-  portfolio_aum = NULL
+  rfr                = 0.000027397,
+  prices             = NULL,
+  portfolio_aum      = NULL,
+  shortable_shares   = NULL,
+  initial_margin     = NULL,
+  maintenance_margin = NULL
 ){
   
   # Make sure names & elements are in order to avoid disaster
-  exp_vol <- exp_vol[names(exp_rtn)]
-  exp_cor <- exp_cor[names(exp_rtn), names(exp_rtn)]
+  exp_vol      <- exp_vol[names(exp_rtn)]
+  exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
+  allow_shorts <- any(grepl("^_s", names(exp_rtn)))
   
   if(allow_shorts){
-    
-    exp_rtn <- c(
-      exp_rtn, stats::setNames(exp_rtn * -1, paste0("s_", names(exp_rtn)))
-    )
-    
-    exp_vol <- c(
-      exp_vol, stats::setNames(exp_vol, paste0("s_", names(exp_vol)))
-    )
-    
+    exp_rtn <- c(exp_rtn, "cash" = 0)
+    exp_vol <- c(exp_vol, "cash" = 0)
     exp_cor <- rbind(
       cbind(
         exp_cor,
@@ -156,134 +152,23 @@ calculate_market_portfolio <- function(
         exp_cor
       )
     )
-    
   }
-  
   # create covariance matrix of returns
   exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
   
-  # initialize `portfolio_sharpe` to zero, which represents investing all
-  # capital into risk-free assets only.
-  portfolio_sharpe  <- 0
-  
-  # initialize `portfolio_weights` to 0 for all assets
-  portfolio_weights    <- stats::setNames(
-    rep(0, ncol(exp_cov)),
-    colnames(exp_cov)
-  )
-  
   # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
   # created by selecting from the assets provided.
-  
-  while(TRUE){
-    
-    # Take all of the assets that AREN'T included in portfolio_weights...
-    candidate_portfolios <- setdiff(
-      names(exp_rtn), 
-      names(portfolio_weights[portfolio_weights != 0])
-    ) %>%
-      vapply(
-        
-        # ...and for each one of those, add it to portfolio_weights, and weight
-        # everything equally.
-        function(asset){
-          
-          
-          # initialize `weights` to the higher-scoped `portfolio_weights`
-          weights <- portfolio_weights
-          
-          # make `weights` an equal-weighted portfolio consisting of the assets
-          # that are already in the portfolio, plus `asset`.
-          weights[c(names(weights[weights != 0]), asset)] <- 1 / (
-            length(which(weights != 0)) + 1
-          )
-          
-          # calculate expected return for the portfolio given by `weights`
-          expected_return <- as.numeric(exp_rtn %*% as.matrix(weights))
-          
-          # calculate expected volatility for the portfolio given by `weights`
-          expected_volatility <- sqrt(
-            as.numeric((weights %*% exp_cov) %*% as.matrix(weights))
-          )
-          
-          tibble::lst(
-            "sharpe"  = (expected_return - rfr) / expected_volatility,
-            "weights" = weights
-          )
-          
-        },
-        FUN.VALUE = list(numeric(1), numeric(length(portfolio_weights)))
-      )
-    
-    # If your best portfolio is better than the current record, store it.
-    if(portfolio_sharpe < max(unlist(candidate_portfolios["sharpe",]))){
-      
-      portfolio_weights <- candidate_portfolios[[
-        "weights",
-        which.max(unlist(candidate_portfolios["sharpe",]))
-      ]]
-      
-      portfolio_sharpe <- max(unlist(candidate_portfolios["sharpe",]))
-      
-    } else {
-      # If none of your portfolios beat your current one, then stop adding
-      # new assets, exit the while() and move on.
-      break()
-    }
-    
-  }
-  
-  # Initialize loop vars
-  step <- min(portfolio_weights[portfolio_weights != 0]) / 10
-  counts <- 0
+  mp <- best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr)
   
   # Step 2: Refine the rough portfolio found in step 1.
   
   while(TRUE){
     
-    # make `buy_sell_matrix`: a matrix whose row names are all the assets that
-    #   appear in the inputs, and whose column names are all the assets whose 
-    #   `portfolio_weights` are >= `step`. The values of `buy_sell_matrix` are 
-    #   the Sharpe ratios that result if you start with `portfolio_weights` and 
-    #   SELL `step` worth of the asset given buy the column index, and BUY 
-    #   `step` worth of the asset in the row index.
-    # Obviously buying and selling the same asset is not useful -- these cells 
-    #   are given the value -999 in `buy_sell_matrix`.
+    # Initialize loop vars
+    step   <- min(mp$weights[mp$weights != 0]) / 10
+    counts <- 0
     
-    buy_sell_matrix <- vapply(
-      # Step through the assets whose portfolio weights are >= to the amount
-      #   we'll be adding/subtracting (otherwise they'll get negative weights)
-      names(portfolio_weights[portfolio_weights >= step]),
-      function(take_from_asset){
-        
-        # initialize `weights` to the higher-scoped `portfolio_weights`
-        weights <- portfolio_weights
-        
-        # take weight `step` FROM an asset.
-        weights[take_from_asset] <- weights[take_from_asset] - step
-        
-        # create the column for `buy_sell_matrix`, and make sure it's ordered
-        #   in the same order as `portfolio_weights`.
-        c(
-          stats::setNames(-999, take_from_asset),
-          vapply(
-            setdiff(names(portfolio_weights), take_from_asset),
-            function(add_to_asset, wts = weights){
-              
-              wts[add_to_asset] <- wts[add_to_asset] + step
-              
-              as.numeric(exp_rtn %*% as.matrix(wts) - rfr) / sqrt(
-                as.numeric((wts %*% exp_cov) %*% as.matrix(wts))
-              )
-              
-            },
-            FUN.VALUE = numeric(1)
-          )
-        )[names(portfolio_weights)]
-        
-      },
-      FUN.VALUE = numeric(length(portfolio_weights))
-    )
+    mp_refined <- refine_weights(mp, exp_rtn, exp_cov, rfr, step)
     
     # If we got a better sharpe ratio in `buy_sell_matrix`, keep it & update!
     if(max(buy_sell_matrix) > portfolio_sharpe){

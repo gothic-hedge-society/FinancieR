@@ -114,6 +114,65 @@ test_that(
   )  
 )
 
+sf <- c("CB" = 0.004, "GD" = 0.0025, "IVV" = 0.0025) 
+gd_cb_ivv_returns_w_shorts <- calculate_returns(
+  assets         = stock_data[c("GD", "CB", "IVV")],
+  date_range_xts = "2020-08-05/2020-08-14",
+  short_fees     = sf
+)
+test_that(
+  "The fourth example in calculate_returns() documentation works.",
+  expect_equal(
+    round(sf - 1, digits = 4), 
+    round(
+      colMeans(
+        gd_cb_ivv_returns_w_shorts[
+          , grepl("^s_", colnames(gd_cb_ivv_returns_w_shorts))
+        ] / gd_cb_ivv_returns_w_shorts[
+          , !grepl("^s_", colnames(gd_cb_ivv_returns_w_shorts))
+        ]
+      ),
+      digits = 4
+    ) %>%
+      stats::setNames(., names(sf))
+  )
+)
+
+gd_cb_ivv_returns_w_shorts <- calculate_returns(
+  assets         = stock_data[c("GD", "CB", "IVV")],
+  date_range_xts = "2020-08-05/2020-08-14",
+  short_fees     = 0.0025
+)
+gd_cb_ivv_returns <- calculate_returns(
+  assets         = stock_data[c("GD", "CB", "IVV")],
+  date_range_xts = "2020-08-05/2020-08-14"
+)
+test_that(
+  "The fifth example in calculate_returns() documentation is correct.",
+  expect_equal(
+    round(
+      colMeans(
+        gd_cb_ivv_returns_w_shorts[
+          , grepl("^s_", colnames(gd_cb_ivv_returns_w_shorts))
+        ] / gd_cb_ivv_returns_w_shorts[
+          , !grepl("^s_", colnames(gd_cb_ivv_returns_w_shorts))
+        ]
+      ), 
+      digits = 4
+    ), 
+    round(
+      colMeans(
+        gd_cb_ivv_returns_w_shorts[
+          , grepl("^s_", colnames(gd_cb_ivv_returns_w_shorts))
+        ] / gd_cb_ivv_returns_w_shorts[
+          , !grepl("^s_", colnames(gd_cb_ivv_returns_w_shorts))
+        ]
+      ),
+      digits = 4
+    )
+  )
+)
+
 test_that(
   "calculate_returns() handles mergers",
   expect_identical(
@@ -123,5 +182,5 @@ test_that(
     ),
     testthis::read_testdata("PX_LIN_returns.rds")
   )
-  
 )
+
