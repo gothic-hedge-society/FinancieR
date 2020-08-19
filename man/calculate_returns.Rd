@@ -6,11 +6,12 @@
 \usage{
 calculate_returns(
   assets,
-  date_range_xts = "2012/",
+  date_range_xts = paste0("2012/", as.character(Sys.Date())),
   buy_at = "Close",
   sell_at = "Close",
   returns_method = "ln",
-  short_fees = NULL
+  short_fees = NULL,
+  silent = FALSE
 )
 }
 \arguments{
@@ -69,6 +70,11 @@ short fee expected for each asset. Use this option if the short fees for
 each asset is expected to be significantly different.
 
 See the "\strong{The Cost of Shorting}" section for more information.}
+
+\item{silent}{Boolean. If FALSE (Default), messages will be displayed for
+special cases that might produce unexpected behavior; e.g., if no data
+is available for the date range specified. If TRUE, these messages will
+not be displayed.}
 }
 \value{
 An xts object. Each element is the return observed on the date given

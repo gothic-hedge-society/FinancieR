@@ -173,6 +173,8 @@ test_that(
   )
 )
 
+
+context("M&A")
 test_that(
   "calculate_returns() handles mergers",
   expect_identical(
@@ -183,4 +185,69 @@ test_that(
     testthis::read_testdata("PX_LIN_returns.rds")
   )
 )
+test_that(
+  "calculate_returns() handles a missing acquiring co for given daterange",
+  expect_identical(
+    calculate_returns(
+      assets         = stock_data$PX,
+      date_range_xts = paste0(
+        as.Date("2018-01-09") - 365,
+        "/",
+        "2018-01-09"
+      )
+    ),
+    testthis::read_testdata("MnA_w_missing_data.rds")
+  )
+)
 
+context("Missing Data")
+test_that(
+  "calculate_returns() fails gracefully if missing data.",
+  {
+    expect_message(
+      calculate_returns(
+        assets         = stock_data,
+        date_range_xts = paste0(
+          as.Date("2018-01-09") - 12,
+          "/",
+          "2018-01-09"
+        )
+      )
+    )
+    expect_silent(
+      calculate_returns(
+        assets         = stock_data,
+        date_range_xts = paste0(
+          as.Date("2018-01-09") - 12,
+          "/",
+          "2018-01-09"
+        ),
+        silent         = TRUE
+      )
+    )
+    expect_length(
+      colnames(
+        calculate_returns(
+          assets         = stock_data,
+          date_range_xts = paste0(
+            as.Date("2018-01-09") - 12,
+            "/",
+            "2018-01-09"
+          ),
+          silent         = TRUE
+        )
+      ),
+      9
+    )
+    expect_null(
+      calculate_returns(
+        assets         = stock_data$LIN,
+        date_range_xts = paste0(
+          as.Date("2018-01-09") - 365,
+          "/",
+          "2018-01-09"
+        )
+      )
+    )
+  }
+)

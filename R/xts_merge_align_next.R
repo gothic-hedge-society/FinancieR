@@ -60,6 +60,8 @@ xts_merge_align_next <- function(xts1, xts2, agg_function, na.fill){
       )
     }
 
+  if(nrow(agg_range) == 0) return(NULL)
+
   for(i in 1:nrow(agg_range)){
     for(xts2_col in colnames(xts2)){
       zoo::coredata(merged_xts[agg_range$to[i], xts2_col]) <- do.call(

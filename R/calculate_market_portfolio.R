@@ -134,9 +134,7 @@ calculate_market_portfolio <- function(
   exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
   
   # Boolean flag if shorting
-  allow_shorts <- any(grepl("^s_", names(exp_rtn))) && !is.null(prices) && 
-    !is.null(portfolio_aum) && !is.null(shortable_shares) && 
-    !is.null(initial_margin) && !is.null(maintenance_margin)
+  allow_shorts <- any(grepl("^s_", names(exp_rtn))) 
   
   # Boolean flag if shares mode
   shares_mode <- !is.null(prices) && !is.null(portfolio_aum)

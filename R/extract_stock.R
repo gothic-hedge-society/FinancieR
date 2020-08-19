@@ -36,6 +36,11 @@ parameter_j <- function(){
 #'
 #' @eval parameter_j()
 #'
+#' @param silent Boolean. If FALSE (Default), messages will be displayed for
+#'   special cases that might produce unexpected behavior; e.g., if no data
+#'   is available for the date range specified. If TRUE, these messages will
+#'   not be displayed.
+#'
 #' @details The rules are:
 #' \enumerate{
 #'  \item If a dividend took place during the specified date range, then the
@@ -55,13 +60,16 @@ parameter_j <- function(){
 #'    \emph{number of shares held after the MnA}.
 #' }
 #'
+#' @return an xts object, or NULL if no data is available for the specified
+#'   asset within the specified date range.
+#'
 #' @example inst/examples/extract_stock_ex.R
 #'
 #' @aliases extract_stock
 #'
 #' @export
 #'
-`[.stock` <- function(x, i, j = NULL, ...) {
+`[.stock` <- function(x, i, j = NULL, ..., silent = FALSE){
 
   stock_extract_try <- tryCatch(
     {
@@ -70,8 +78,33 @@ parameter_j <- function(){
 
       stock_block <- stock_blockify(x, i, j)
 
-      if(any(names(x) == "MnA")){
+      if(is.null(stock_block)){
+        if(silent){
+          return(NULL)
+        } else {
+          usethis::ui_oops(
+            paste0(
+              "No data found for ",
+              attr(x, "Symbol"),
+              " during date range ",
+              i,
+              "."
+            )
+          )
+          for(mna_row in 1:nrow(x$MnA)){
+            usethis::ui_info(
+              paste0(
+                crayon::bold(x$MnA$type[mna_row]), " event found for ",
+                crayon::bold(attr(x, "Symbol")),   " on ",
+                zoo::index(x$MnA[mna_row,]),       "."
+              )
+            )
+          }
+          return(NULL)
+        }
+      }
 
+      if(any(names(x) == "MnA")){
 
         needed_dates <- trading_dates() %>% {
           zoo::index(xts::xts(rep("", length(.)), order.by = as.Date(.))[i])
@@ -87,10 +120,6 @@ parameter_j <- function(){
           )
         ){
 
-          storage.mode(stock_block) <- "character"
-          stock_block$symbol        <- as.character(x$MnA$company)
-          stock_block$multiplier    <- as.character(1)
-
           stock_block_2 <- stock_blockify(
             x = stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
             i = paste0(
@@ -101,22 +130,32 @@ parameter_j <- function(){
             j = j
           )
 
-          storage.mode(stock_block_2) <- "character"
-          stock_block_2$symbol <- attr(
-            stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
-            "Symbol"
-          )
-          stock_block_2$multiplier    <- as.character(1)
+          if(!is.null(stock_block_2)){
+            storage.mode(stock_block) <- "character"
+            stock_block$symbol        <- as.character(x$MnA$company)
+            stock_block$multiplier    <- as.character(1)
 
-          stock_block <- xts::rbind.xts(stock_block, stock_block_2) %>% {
-            .[!duplicated(zoo::index(.), fromLast = TRUE),]
+            storage.mode(stock_block_2) <- "character"
+            stock_block_2$symbol <- attr(
+              stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
+              "Symbol"
+            )
+            stock_block_2$multiplier    <- as.character(1)
+
+            stock_block <- xts::rbind.xts(stock_block, stock_block_2) %>% {
+              .[!duplicated(zoo::index(.), fromLast = TRUE),]
+            }
+
+            stock_block[
+              zoo::index(xts::last(x$MnA)), "multiplier"
+            ] <- as.character(xts::last(x$MnA)$multiple)
+
           }
 
-          stock_block[
-            zoo::index(xts::last(x$MnA)), "multiplier"
-          ] <- as.character(xts::last(x$MnA)$multiple)
+          stock_block
 
         }
+
       }
 
       stock_block

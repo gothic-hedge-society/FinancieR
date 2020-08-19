@@ -41,6 +41,8 @@ stock_blockify <- function(x, i, j){
       ]
     }
 
+  if(isTRUE(length(stock) == 0)) return(NULL)
+
   stock_block <- stock$prices
 
   # Handle divs

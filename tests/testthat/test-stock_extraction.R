@@ -38,3 +38,25 @@ test_that(
   "Stock extract handles Apple's split in 2014",
   expect_identical(AAPL_split, testthis::read_testdata("AAPL_split.rds"))
 )
+test_that(
+  "Stock exctract fails gracefully if no data for that date range",
+  {
+    expect_message(
+      stock_data$LIN[
+        paste0(as.Date("2018-01-09") - 365, "/2018-01-09"), c("Close", "Close")
+      ]
+    )
+    expect_silent(
+      stock_data$LIN[
+        paste0(as.Date("2018-01-09") - 365, "/2018-01-09"),
+        c("Close", "Close"),
+        silent = TRUE
+      ]
+    )
+    expect_null(
+      stock_data$LIN[
+        paste0(as.Date("2018-01-09") - 365, "/2018-01-09"), c("Close", "Close")
+      ]
+    )
+  }
+)

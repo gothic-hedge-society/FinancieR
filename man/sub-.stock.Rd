@@ -5,7 +5,7 @@
 \alias{extract_stock}
 \title{Using \code{[} on Objects of Class "stock"}
 \usage{
-\method{[}{stock}(x, i, j = NULL, ...)
+\method{[}{stock}(x, i, j = NULL, ..., silent = FALSE)
 }
 \arguments{
 \item{x}{an \code{\link[xts]{xts}} subsetting string following the same rules
@@ -18,6 +18,15 @@ data for the selected stock will be returned.}
 \item{j}{Character vector specifying column names to be included in the output. Available column names are:
 
 "DividendAmount", "RecordDate", "DeclaredDate", "Type", "PaymentFrequency", "Open", "High", "Low", "Close", "TWAP", "VWAP", "Volume", "PreviousCloseDate", "PreviousClose", "Denominator", "Numerator", "ExDate"}
+
+\item{silent}{Boolean. If FALSE (Default), messages will be displayed for
+special cases that might produce unexpected behavior; e.g., if no data
+is available for the date range specified. If TRUE, these messages will
+not be displayed.}
+}
+\value{
+an xts object, or NULL if no data is available for the specified
+asset within the specified date range.
 }
 \description{
 You can quickly retrieve price, dividend, split, and MnA data useing the \code{[}

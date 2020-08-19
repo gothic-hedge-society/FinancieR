@@ -57,6 +57,8 @@
 #'    each asset is expected to be significantly different.
 #'    
 #'    See the "\strong{The Cost of Shorting}" section for more information.
+#'    
+#' @inheritParams [.stock
 #'  
 #' @section The Cost of Shorting:
 #'  You would only short an asset if the return you expect for buying that asset
@@ -130,11 +132,12 @@
 #'
 calculate_returns <- function(
   assets,
-  date_range_xts = "2012/",
+  date_range_xts = paste0("2012/", as.character(Sys.Date())),
   buy_at         = "Close",
   sell_at        = "Close",
   returns_method = "ln",
-  short_fees     = NULL
+  short_fees     = NULL,
+  silent         = FALSE
 ){
   
   # Need xts namespace
@@ -156,15 +159,53 @@ calculate_returns <- function(
       function(asset){
         
         if(any(names(asset) == "MnA")){
-          asset      <- asset[date_range_xts, c(buy_at, sell_at)]
-          asset_name <- paste(
-            unique(as.character(asset$symbol)), collapse = "-"
-          )
-          asset      <- asset[, find_numeric_columns(asset)] 
+          
+          asset_name <- attr(asset, "Symbol")
+          asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
+          
+          if(!is.null(asset)){
+            if(any(colnames(asset) == "symbol")){
+              asset_name <- paste(
+                unique(as.character(asset$symbol)), collapse = "-"
+              )              
+            }
+            
+            asset <- asset[, find_numeric_columns(asset), silent = TRUE]
+            
+          } else {
+            
+            if(!silent){
+              usethis::ui_info(
+                paste0(
+                  "No data available for ", crayon::bold(asset_name),
+                  " during time range ",    crayon::bold(date_range_xts),
+                  "."
+                )
+              )
+            }
+            
+            return(NULL)
+            
+          }
+          
         } else {
           asset_name <- attr(asset, "Symbol")
-          asset      <- asset[date_range_xts, c(buy_at, sell_at)]
+          asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
         }
+        
+        if(is.null(asset)){
+          if(!silent){
+            usethis::ui_info(
+              paste0(
+                "No data available for ", crayon::bold(asset_name),
+                " during time range ",    crayon::bold(date_range_xts),
+                "."
+              )
+            )
+          } 
+          return(NULL)
+        } 
+        
         storage.mode(asset) <- "numeric"
         
         buy_price  <- xts::lag.xts(asset[, buy_at], k = 1, na.pad = FALSE)
@@ -191,27 +232,30 @@ calculate_returns <- function(
           "multiple" = sell_price / buy_price
         ) %>% {
           colnames(.) <- asset_name
-          ## add in shorts here.
           .
         }
         
       }
     ) %>%
-    purrr::reduce(xts::merge.xts) %>% {
-      if(!is.null(short_fees)){
-        shorts <- .
-        if(length(short_fees) == 1){
-          shorts <- short_fees - shorts
-        } else {
-          for(short_fee in names(short_fees)){
-            shorts[,short_fee] <- shorts[,short_fee] * 
-              (short_fees[short_fee] - 1)
+    purrr::compact() %>% {
+      if(length(.) > 0){
+        purrr::reduce(., xts::merge.xts) %>% {
+          if(!is.null(short_fees)){
+            shorts <- .
+            if(length(short_fees) == 1){
+              shorts <- short_fees - shorts
+            } else {
+              for(short_fee in names(short_fees)){
+                shorts[,short_fee] <- shorts[,short_fee] * 
+                  (short_fees[short_fee] - 1)
+              }
+            }
+            colnames(shorts) <- paste0("s_", colnames(.))
+            . <- xts::cbind.xts(., shorts)
           }
-        }
-        colnames(shorts) <- paste0("s_", colnames(.))
-        . <- xts::cbind.xts(., shorts)
+          .
+        }   
       }
-      .
     }
   
 }
