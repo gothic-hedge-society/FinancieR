@@ -161,15 +161,6 @@ refine_weights <- function(mkt_p, rtn, vol, cov_mtx, rfr){
 
 refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
   
-  # mkt_p   <<- mkt_p
-  # rtn     <<- rtn
-  # vol     <<- vol
-  # cov_mtx <<- cov_mtx
-  # rfr     <<- rfr
-  # prc     <<- prc
-  # aum     <<- aum
-  # stop("wadup")
-  
   mkt_p$shares  <- floor(mkt_p$weights * aum / prc) 
   mkt_p$prices  <- prc
   mkt_p$weights <- mkt_p$shares * prc / aum
