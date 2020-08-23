@@ -131,7 +131,6 @@ each asset.</p>
   <span class='no'>exp_vol</span>,
   <span class='no'>exp_cor</span>,
   <span class='kw'>rfr</span> <span class='kw'>=</span> <span class='fl'>2.7397e-05</span>,
-  <span class='kw'>allow_shorts</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>prices</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>portfolio_aum</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
 )</pre>
@@ -142,7 +141,7 @@ each asset.</p>
     <tr>
       <th>exp_rtn</th>
       <td><p>Named numeric vector for which each element is the return
-expected for the asset specified by the element's name.</p></td>
+expected for the next period for the asset specified by the element's name.</p></td>
     </tr>
     <tr>
       <th>exp_vol</th>
@@ -172,13 +171,6 @@ basis matches the one used for you other inputs</strong>, (i.e., if <em>exp_rtn<
 contains monthly returns, use monthly risk-free rate)!</p></td>
     </tr>
     <tr>
-      <th>allow_shorts</th>
-      <td><p>Defaults to FALSE; set to TRUE to allow shorting of all
-the assets. There are MANY ways to do this, but by default
-<em>calculate_market_portfolio</em>() simply treats shorts as another asset
-whose expected return equals negative the expected return of going long.</p></td>
-    </tr>
-    <tr>
       <th>prices</th>
       <td><p>Optional: a named numeric vector for which each name is the
 identifier of an asset and each element is the current price of that asset
@@ -188,8 +180,8 @@ for which a market portfolio is to be calculated on a shares basis. See the
     <tr>
       <th>portfolio_aum</th>
       <td><p>Optional: numeric, length 1, giving the total amount of
-assets under management for which a market portfolio is to be calculated on
-a shares basis. See "Returns" section for more info.</p></td>
+assets under management for which a market portfolio is to be calculated.
+In other words, <em>portfolio_aum</em> = "total cash at risk".</p></td>
     </tr>
     </table>
 
@@ -264,22 +256,68 @@ Because shares can only be bought in integer values, and because the sum of
 the capital allocated to each asset (including "cash") must equal
 <em>portfolio_aum</em>, the number of values available for the <em>shares</em>
 vector is countably finite and it is possible to find an exact solution.</p>
+    <h2 class="hasAnchor" id="the-cost-of-shorting"><a class="anchor" href="#the-cost-of-shorting"></a>The Cost of Shorting</h2>
+
+    
+
+<p>You would only short an asset if the return you expect for buying that asset
+is negative. You may think that the expected return for shorting an asset is
+simply the return you expect for longing the asset times -1. In reality, the
+return you'll get from a short sale will be a fraction of the asset times -1
+because your broker charges fees on short position in exchange for providing
+the shorting service. In addition, the capital gains from short selling may
+taxed at a different rate than those realized on your long positions.</p>
+<p>The key additional costs of shorting are:</p>
+<dl'>
+<dt>Dividends</dt><dd><p>You don't earn dividends on a short position. In fact, it's the
+opposite: if you're short a stock on a dividend's ex-date, then you must
+actually <em>pay</em> the dividend to the owner of the stock.
+<em><a href='calculate_historical_returns.html'>calculate_historical_returns</a></em>() takes this into account
+itself when shorting is included.</p></dd>
+<dt>Short Fees</dt><dd><p>Your brokerage will charge a fee on a short position for every day the
+position is open. This fee is based on the availability of assets for
+shorting, and varies from asset to asset and through time. Usually the
+fee is calculated on each trading day and debited from the trading
+account on at the beginning of each month.
+<em><a href='calculate_historical_returns.html'>calculate_historical_returns</a></em>() takes this into account
+when the <em>short_fees</em> parameter is specified.</p></dd>
+<dt>Taxes</dt><dd><p>Capital gains taxes on your short sales can often be taxed at a higher
+rate than what you might expect for long sales. If <strong>uncovered</strong>,
+the short position will always be taxed as a short-term capital gain
+because the holding period is considered by the IRS to begin on the day
+when the short position was closed out (bought to cover). If
+<strong>covered</strong>, then the holding period is considered to be the
+holding period of the <em>substantially different securities</em> that can
+be converted to the stock itself. Taxes must be taken into account in
+the <em>exp_rtn</em> parameter as passed to
+<em>calculate_market_portfolio</em>.<pre> Taxes will depend on your situation: whether you expect a short-term or
+ long-term investment, your income bracket, whether or not you're an
+ institution, etc. You must figure that out for yourself, and you might
+ find that, once everything is taken into account, it's just not worth it
+ to short assets in a lot of situations. Stay smart!
+</pre></p></dd>
+
+</dl>
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Let's pick an example date for which to create an MP:</span>
 <span class='no'>mp_date</span> <span class='kw'>&lt;-</span> <span class='st'>"2018-01-09"</span>
 <span class='co'># Feel free to change this date to any other date for which you have data.</span>
 
-<span class='co'># Use calculate_returns() to get the daily returns observed for the 365 days</span>
+<span class='co'># Use calculate_historical_returns() to get the daily returns observed for the 365 days</span>
 <span class='co'># ending on mp_date:</span>
-<span class='no'>historical_rtn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='calculate_returns.html'>calculate_returns</a></span>(
+<span class='no'>historical_rtn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='calculate_historical_returns.html'>calculate_historical_returns</a></span>(
   <span class='kw'>assets</span>         <span class='kw'>=</span> <span class='no'>stock_data</span>,
   <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(
     <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='no'>mp_date</span>) - <span class='fl'>365</span>,
     <span class='st'>"/"</span>,
     <span class='no'>mp_date</span>
   )
-)
+)</div><div class='output co'>#&gt; <span class='message'><span style='color: #BBBB00;'>ℹ</span><span> No data available for </span><span style='font-weight: bold;'>LIN</span><span> during time range </span><span style='font-weight: bold;'>2017-01-09/2018-01-09</span><span>.</span></div><div class='input'>
+<span class='co'># Note that a warning message is printed: Linde plc (NYSE: LIN) was the result</span>
+<span class='co'>#   of a merger between Praxair (NYSE: PX) and Linde AG (FWB: LINU and FWB: LIN)</span>
+<span class='co'>#   and therefore did not exist during the time range specified.</span>
 
 <span class='co'># We'll assume that the return we expect over the next year is the annualized </span>
 <span class='co'># GMMR of the daily rates of return in historical_rtn:</span>
@@ -300,77 +338,24 @@ vector is countably finite and it is possible to find an exact solution.</p>
 <span class='co'># Calculate the market portfolio:</span>
 <span class='no'>mp_by_wt</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(<span class='no'>exp_rtn</span>, <span class='no'>exp_vol</span>, <span class='no'>exp_cor</span>)
 <span class='no'>mp_by_wt</span></div><div class='output co'>#&gt; $sharpe
-#&gt; [1] 0.3321399
+#&gt; [1] 0.2202067
 #&gt; 
 #&gt; $weights
-#&gt;        AAPL        ABBV         ADM         AFL         AOS         ATO 
-#&gt; 0.062692308 0.105153846 0.000000000 0.100692308 0.000000000 0.000000000 
-#&gt;          CB          CL         COP        CTAS         CVX         EMR 
-#&gt; 0.000000000 0.000000000 0.000000000 0.002769231 0.028461538 0.000000000 
-#&gt;         ESS         FRT          GD         HRL         IVV         JNJ 
-#&gt; 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.024461538 
-#&gt;         KMB         LEG         MCD         MMM        MSFT         NSC 
-#&gt; 0.000000000 0.000000000 0.183923077 0.136615385 0.000000000 0.000000000 
-#&gt;         PEP         PNR         PSX         SHW           T         TFC 
-#&gt; 0.060153846 0.000000000 0.000000000 0.055230769 0.000000000 0.000000000 
-#&gt;        TROW         TXN         VFC         WBA         WMT 
-#&gt; 0.066153846 0.028461538 0.055923077 0.000000000 0.089307692 
+#&gt;   AAPL     CB    IVV    PEP     PG     PX    TXN 
+#&gt; 0.0912 0.0072 0.3884 0.2068 0.0100 0.1772 0.1192 
 #&gt; 
-#&gt; $ex_return
-#&gt; [1] 0.001405307
+#&gt; $exp_rtn
+#&gt; [1] 0.001035
 #&gt; 
-#&gt; $ex_volatility
-#&gt; [1] 0.004148584
-#&gt; </div><div class='input'>
-<span class='co'>### Calculate the market portfolio allowing both long &amp; short positions:</span>
-<span class='no'>mp_by_wt_shorts</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(
-  <span class='no'>exp_rtn</span>, <span class='no'>exp_vol</span>, <span class='no'>exp_cor</span>, <span class='kw'>allow_shorts</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
-)
-<span class='no'>mp_by_wt_shorts</span></div><div class='output co'>#&gt; $sharpe
-#&gt; [1] 0.401824
-#&gt; 
-#&gt; $weights
-#&gt;        AAPL        ABBV         ADM         AFL         AOS         ATO 
-#&gt; 0.037157895 0.047894737 0.000000000 0.072105263 0.006315789 0.000000000 
-#&gt;          CB          CL         COP        CTAS         CVX         EMR 
-#&gt; 0.007368421 0.000000000 0.002631579 0.025789474 0.032947368 0.023473684 
-#&gt;         ESS         FRT          GD         HRL         IVV         JNJ 
-#&gt; 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.017684211 
-#&gt;         KMB         LEG         MCD         MMM        MSFT         NSC 
-#&gt; 0.000000000 0.000000000 0.074947368 0.061263158 0.000000000 0.000000000 
-#&gt;         PEP         PNR         PSX         SHW           T         TFC 
-#&gt; 0.063684211 0.000000000 0.000000000 0.043368421 0.000000000 0.000000000 
-#&gt;        TROW         TXN         VFC         WBA         WMT      s_AAPL 
-#&gt; 0.043157895 0.012105263 0.036631579 0.000000000 0.048947368 0.000000000 
-#&gt;      s_ABBV       s_ADM       s_AFL       s_AOS       s_ATO        s_CB 
-#&gt; 0.000000000 0.032421053 0.000000000 0.000000000 0.010947368 0.000000000 
-#&gt;        s_CL       s_COP      s_CTAS       s_CVX       s_EMR       s_ESS 
-#&gt; 0.002105263 0.000000000 0.000000000 0.000000000 0.000000000 0.036315789 
-#&gt;       s_FRT        s_GD       s_HRL       s_IVV       s_JNJ       s_KMB 
-#&gt; 0.028736842 0.032631579 0.016315789 0.024631579 0.000000000 0.011578947 
-#&gt;       s_LEG       s_MCD       s_MMM      s_MSFT       s_NSC       s_PEP 
-#&gt; 0.034736842 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 
-#&gt;       s_PNR       s_PSX       s_SHW         s_T       s_TFC      s_TROW 
-#&gt; 0.030000000 0.005263158 0.000000000 0.005789474 0.036631579 0.000000000 
-#&gt;       s_TXN       s_VFC       s_WBA       s_WMT 
-#&gt; 0.000000000 0.000000000 0.034421053 0.000000000 
-#&gt; 
-#&gt; $ex_return
-#&gt; [1] 0.0007847404
-#&gt; 
-#&gt; $ex_volatility
-#&gt; [1] 0.001884764
+#&gt; $exp_vol
+#&gt; [1] 0.00457569
 #&gt; </div><div class='input'>
 <span class='co'>### Repeat the above, assuming you have $250,000 to invest and that the stocks</span>
-<span class='co'>### may be bought at their closing prices on mp_date:</span>
-
+<span class='co'>### may be bought at their closing prices on mp_date. </span>
 <span class='no'>prices</span> <span class='kw'>&lt;-</span> <span class='no'>stock_data</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>vapply</a></span>(
-    <span class='kw'>function</span>(<span class='no'>stock</span>){
-      <span class='no'>stock</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='no'>mp_date</span>]
-    },
-    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>numeric</a></span>(<span class='fl'>1</span>)
-  )
+  <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='kw'>function</span>(<span class='no'>stock</span>){<span class='no'>stock</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='no'>mp_date</span>]}) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span>() <span class='kw'>%&gt;%</span>
+  <span class='kw pkg'>purrr</span><span class='kw ns'>::</span><span class='fu'><a href='https://purrr.tidyverse.org/reference/keep.html'>compact</a></span>()
 <span class='no'>portfolio_aum</span> <span class='kw'>&lt;-</span> <span class='fl'>250000</span>
 
 <span class='no'>mp_by_shares</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(
@@ -379,124 +364,7 @@ vector is countably finite and it is possible to find an exact solution.</p>
   <span class='no'>exp_cor</span>,
   <span class='kw'>prices</span>        <span class='kw'>=</span> <span class='no'>prices</span>,
   <span class='kw'>portfolio_aum</span> <span class='kw'>=</span> <span class='no'>portfolio_aum</span>
-)
-<span class='no'>mp_by_shares</span></div><div class='output co'>#&gt; $sharpe
-#&gt; [1] 0.3321391
-#&gt; 
-#&gt; $shares
-#&gt; AAPL ABBV  ADM  AFL  AOS  ATO   CB   CL  COP CTAS  CVX  EMR  ESS  FRT   GD  HRL 
-#&gt;   90  261    0  280    0    0    0    0    0    4   55    0    0    0    0    0 
-#&gt;  IVV  JNJ  KMB  LEG  MCD  MMM MSFT  NSC  PEP  PNR  PSX  SHW    T  TFC TROW  TXN 
-#&gt;    0   42    0    0  264  141    0    0  127    0    0   32    0    0  147   64 
-#&gt;  VFC  WBA  WMT 
-#&gt;  183    0  222 
-#&gt; 
-#&gt; $cash
-#&gt; [1] 1101.2
-#&gt; 
-#&gt; $weights
-#&gt;       AAPL       ABBV        ADM        AFL        AOS        ATO         CB 
-#&gt; 0.06275880 0.10465056 0.00000000 0.10080000 0.00000000 0.00000000 0.00000000 
-#&gt;         CL        COP       CTAS        CVX        EMR        ESS        FRT 
-#&gt; 0.00000000 0.00000000 0.00257952 0.02812480 0.00000000 0.00000000 0.00000000 
-#&gt;         GD        HRL        IVV        JNJ        KMB        LEG        MCD 
-#&gt; 0.00000000 0.00000000 0.00000000 0.02421552 0.00000000 0.00000000 0.18325824 
-#&gt;        MMM       MSFT        NSC        PEP        PNR        PSX        SHW 
-#&gt; 0.13608192 0.00000000 0.00000000 0.05998464 0.00000000 0.00000000 0.05429888 
-#&gt;          T        TFC       TROW        TXN        VFC        WBA        WMT 
-#&gt; 0.00000000 0.00000000 0.06570900 0.02825984 0.05572716 0.00000000 0.08914632 
-#&gt; 
-#&gt; $ex_return
-#&gt; [1] 0.001399086
-#&gt; 
-#&gt; $ex_volatility
-#&gt; [1] 0.004129863
-#&gt; 
-#&gt; $prices
-#&gt;   AAPL   ABBV    ADM    AFL    AOS    ATO     CB     CL    COP   CTAS    CVX 
-#&gt; 174.33 100.24  40.22  90.00  63.24  82.59 145.85  75.64  57.93 161.22 127.84 
-#&gt;    EMR    ESS    FRT     GD    HRL    IVV    JNJ    KMB    LEG    MCD    MMM 
-#&gt;  72.32 236.27 125.44 205.88  36.40 276.57 144.14 116.80  47.95 173.54 241.28 
-#&gt;   MSFT    NSC    PEP    PNR    PSX    SHW      T    TFC   TROW    TXN    VFC 
-#&gt;  88.22 153.60 118.08  72.88 101.72 424.21  37.49  52.09 111.75 110.39  76.13 
-#&gt;    WBA    WMT 
-#&gt;  73.42 100.39 
-#&gt; </div><div class='input'>
-<span class='co'>### Allow shorting:</span>
-<span class='no'>mp_by_shares_shorts</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(
-  <span class='no'>exp_rtn</span>,
-  <span class='no'>exp_vol</span>,
-  <span class='no'>exp_cor</span>,
-  <span class='kw'>allow_shorts</span>  <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>prices</span>        <span class='kw'>=</span> <span class='no'>prices</span>,
-  <span class='kw'>portfolio_aum</span> <span class='kw'>=</span> <span class='no'>portfolio_aum</span>
-)
-<span class='no'>mp_by_shares_shorts</span></div><div class='output co'>#&gt; $sharpe
-#&gt; [1] 0.401821
-#&gt; 
-#&gt; $shares
-#&gt;   AAPL   ABBV    ADM    AFL    AOS    ATO     CB     CL    COP   CTAS    CVX 
-#&gt;     53    119      0    200     24      0     12      0     11     40     64 
-#&gt;    EMR    ESS    FRT     GD    HRL    IVV    JNJ    KMB    LEG    MCD    MMM 
-#&gt;     81      0      0      0      0      0     30      0      0    107     63 
-#&gt;   MSFT    NSC    PEP    PNR    PSX    SHW      T    TFC   TROW    TXN    VFC 
-#&gt;      0      0    134      0      0     25      0      0     96     27    120 
-#&gt;    WBA    WMT s_AAPL s_ABBV  s_ADM  s_AFL  s_AOS  s_ATO   s_CB   s_CL  s_COP 
-#&gt;      0    121      0      0    201      0      0     33      0      6      0 
-#&gt; s_CTAS  s_CVX  s_EMR  s_ESS  s_FRT   s_GD  s_HRL  s_IVV  s_JNJ  s_KMB  s_LEG 
-#&gt;      0      0      0     38     57     39    112     21      0     25    180 
-#&gt;  s_MCD  s_MMM s_MSFT  s_NSC  s_PEP  s_PNR  s_PSX  s_SHW    s_T  s_TFC s_TROW 
-#&gt;      0      0      0      0      0    103     13      0     39    175      0 
-#&gt;  s_TXN  s_VFC  s_WBA  s_WMT 
-#&gt;      0      0    116      0 
-#&gt; 
-#&gt; $cash
-#&gt; [1] 2144.83
-#&gt; 
-#&gt; $weights
-#&gt;       AAPL       ABBV        ADM        AFL        AOS        ATO         CB 
-#&gt; 0.03695796 0.04771424 0.00000000 0.07200000 0.00607104 0.00000000 0.00700080 
-#&gt;         CL        COP       CTAS        CVX        EMR        ESS        FRT 
-#&gt; 0.00000000 0.00254892 0.02579520 0.03272704 0.02343168 0.00000000 0.00000000 
-#&gt;         GD        HRL        IVV        JNJ        KMB        LEG        MCD 
-#&gt; 0.00000000 0.00000000 0.00000000 0.01729680 0.00000000 0.00000000 0.07427512 
-#&gt;        MMM       MSFT        NSC        PEP        PNR        PSX        SHW 
-#&gt; 0.06080256 0.00000000 0.00000000 0.06329088 0.00000000 0.00000000 0.04242100 
-#&gt;          T        TFC       TROW        TXN        VFC        WBA        WMT 
-#&gt; 0.00000000 0.00000000 0.04291200 0.01192212 0.03654240 0.00000000 0.04858876 
-#&gt;     s_AAPL     s_ABBV      s_ADM      s_AFL      s_AOS      s_ATO       s_CB 
-#&gt; 0.00000000 0.00000000 0.03233688 0.00000000 0.00000000 0.01090188 0.00000000 
-#&gt;       s_CL      s_COP     s_CTAS      s_CVX      s_EMR      s_ESS      s_FRT 
-#&gt; 0.00181536 0.00000000 0.00000000 0.00000000 0.00000000 0.03591304 0.02860032 
-#&gt;       s_GD      s_HRL      s_IVV      s_JNJ      s_KMB      s_LEG      s_MCD 
-#&gt; 0.03211728 0.01630720 0.02323188 0.00000000 0.01168000 0.03452400 0.00000000 
-#&gt;      s_MMM     s_MSFT      s_NSC      s_PEP      s_PNR      s_PSX      s_SHW 
-#&gt; 0.00000000 0.00000000 0.00000000 0.00000000 0.03002656 0.00528944 0.00000000 
-#&gt;        s_T      s_TFC     s_TROW      s_TXN      s_VFC      s_WBA      s_WMT 
-#&gt; 0.00584844 0.03646300 0.00000000 0.00000000 0.00000000 0.03406688 0.00000000 
-#&gt; 
-#&gt; $ex_return
-#&gt; [1] 0.0007799149
-#&gt; 
-#&gt; $ex_volatility
-#&gt; [1] 0.001872769
-#&gt; 
-#&gt; $prices
-#&gt;   AAPL   ABBV    ADM    AFL    AOS    ATO     CB     CL    COP   CTAS    CVX 
-#&gt; 174.33 100.24  40.22  90.00  63.24  82.59 145.85  75.64  57.93 161.22 127.84 
-#&gt;    EMR    ESS    FRT     GD    HRL    IVV    JNJ    KMB    LEG    MCD    MMM 
-#&gt;  72.32 236.27 125.44 205.88  36.40 276.57 144.14 116.80  47.95 173.54 241.28 
-#&gt;   MSFT    NSC    PEP    PNR    PSX    SHW      T    TFC   TROW    TXN    VFC 
-#&gt;  88.22 153.60 118.08  72.88 101.72 424.21  37.49  52.09 111.75 110.39  76.13 
-#&gt;    WBA    WMT s_AAPL s_ABBV  s_ADM  s_AFL  s_AOS  s_ATO   s_CB   s_CL  s_COP 
-#&gt;  73.42 100.39 174.33 100.24  40.22  90.00  63.24  82.59 145.85  75.64  57.93 
-#&gt; s_CTAS  s_CVX  s_EMR  s_ESS  s_FRT   s_GD  s_HRL  s_IVV  s_JNJ  s_KMB  s_LEG 
-#&gt; 161.22 127.84  72.32 236.27 125.44 205.88  36.40 276.57 144.14 116.80  47.95 
-#&gt;  s_MCD  s_MMM s_MSFT  s_NSC  s_PEP  s_PNR  s_PSX  s_SHW    s_T  s_TFC s_TROW 
-#&gt; 173.54 241.28  88.22 153.60 118.08  72.88 101.72 424.21  37.49  52.09 111.75 
-#&gt;  s_TXN  s_VFC  s_WBA  s_WMT 
-#&gt; 110.39  76.13  73.42 100.39 
-#&gt; </div></pre>
+)</div><div class='output co'>#&gt; <span class='warning'>Warning: number of items to replace is not a multiple of replacement length</span></div><div class='output co'>#&gt; <span class='error'>Error: object 'exp_rtn' not found</span></div><div class='input'><span class='no'>mp_by_shares</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'mp_by_shares' not found</span></div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

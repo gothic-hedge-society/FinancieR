@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • FinancieR</title>
+<title>Daily Yield Curve Rates — daily_treasury_yields • FinancieR</title>
 
 
 <!-- jquery -->
@@ -41,7 +41,9 @@
   <link href="../extra.css" rel="stylesheet">
   <script src="../extra.js"></script>
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Daily Yield Curve Rates — daily_treasury_yields" />
+<meta property="og:description" content="Daily rates downloaded from the US Department of the Treasury.
+https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yield" />
 
 
 
@@ -60,7 +62,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -110,134 +112,28 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Daily Yield Curve Rates</h1>
+    <small class="dont-index">Source: <a href='https://github.com/gothic-hedge-society/FinancieR/blob/master/R/data.R'><code>R/data.R</code></a></small>
+    <div class="hidden name"><code>daily_treasury_yields.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Daily rates downloaded from the US Department of the Treasury.
+<a href='https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yield'>https://www.treasury.gov/resource-center/data-chart-center/interest-rates/Pages/TextView.aspx?data=yield</a></p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='no'>daily_treasury_yields</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-package" class="hasAnchor"><a href="#section-package" class="anchor"></a>Package</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="FinancieR.html">FinancieR</a></code> </p>
-        </td>
-        <td><p><code>FinancieR</code> package</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-functions" class="hasAnchor"><a href="#section-functions" class="anchor"></a>Functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="calculate_historical_returns.html">calculate_historical_returns()</a></code> </p>
-        </td>
-        <td><p>Calculate Historical Time-series Returns</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="gmrr.html">gmrr()</a></code> </p>
-        </td>
-        <td><p>gmmr</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="calculate_market_portfolio.html">calculate_market_portfolio()</a></code> </p>
-        </td>
-        <td><p>Calculate Market Portfolio</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="sub-.stock.html">`[`(<i>&lt;stock&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Using <code>[</code> on Objects of Class "stock"</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="xts_merge_align_next.html">xts_merge_align_next()</a></code> </p>
-        </td>
-        <td><p>Merge 2 XTS Tables According to Next Non-Missing Value</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-sample-data" class="hasAnchor"><a href="#section-sample-data" class="anchor"></a>Sample Data</h2>
-          <p class="section-desc"><p>For examples, testing, and development</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="currency_identifiers.html">currency_identifiers</a></code> </p>
-        </td>
-        <td><p>Currency Identifiers</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="daily_treasury_yields.html">daily_treasury_yields</a></code> </p>
-        </td>
-        <td><p>Daily Yield Curve Rates</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="stock_data.html">stock_data</a></code> </p>
-        </td>
-        <td><p>Stock Data</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="stock_info.html">stock_info()</a></code> </p>
-        </td>
-        <td><p>Stock Info</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="stock_exchange_hours.html">stock_exchange_hours</a></code> </p>
-        </td>
-        <td><p>Exchange Hours</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="trading_dates.html">trading_dates()</a></code> </p>
-        </td>
-        <td><p>Trading Dates</p></td>
-      </tr>
-    </tbody>
-    </table>
+
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>An xts object containing daily yield curve rates for the following
+time periods, which appear as column names in the xts:
+1 Mo, 2 Mo, 3 Mo, 6 Mo, 1 Yr, 2 Yr, 3 Yr, 5 Yr, 7 Yr, 10 Yr, 20 Yr, 30 Yr</p>
+
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>

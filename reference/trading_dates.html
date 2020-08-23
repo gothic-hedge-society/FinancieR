@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • FinancieR</title>
+<title>Trading Dates — trading_dates • FinancieR</title>
 
 
 <!-- jquery -->
@@ -41,7 +41,9 @@
   <link href="../extra.css" rel="stylesheet">
   <script src="../extra.js"></script>
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Trading Dates — trading_dates" />
+<meta property="og:description" content="Returns a date vector containing all the dates for which a historical stock
+price was reported by any stock in stock_data." />
 
 
 
@@ -60,7 +62,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -110,134 +112,26 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Trading Dates</h1>
+    <small class="dont-index">Source: <a href='https://github.com/gothic-hedge-society/FinancieR/blob/master/R/trading_dates.R'><code>R/trading_dates.R</code></a></small>
+    <div class="hidden name"><code>trading_dates.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>Returns a date vector containing all the dates for which a historical stock
+price was reported by <strong>any</strong> stock in <em>stock_data</em>.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>trading_dates</span>()</pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-package" class="hasAnchor"><a href="#section-package" class="anchor"></a>Package</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="FinancieR.html">FinancieR</a></code> </p>
-        </td>
-        <td><p><code>FinancieR</code> package</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-functions" class="hasAnchor"><a href="#section-functions" class="anchor"></a>Functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="calculate_historical_returns.html">calculate_historical_returns()</a></code> </p>
-        </td>
-        <td><p>Calculate Historical Time-series Returns</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="gmrr.html">gmrr()</a></code> </p>
-        </td>
-        <td><p>gmmr</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="calculate_market_portfolio.html">calculate_market_portfolio()</a></code> </p>
-        </td>
-        <td><p>Calculate Market Portfolio</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="sub-.stock.html">`[`(<i>&lt;stock&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Using <code>[</code> on Objects of Class "stock"</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="xts_merge_align_next.html">xts_merge_align_next()</a></code> </p>
-        </td>
-        <td><p>Merge 2 XTS Tables According to Next Non-Missing Value</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-sample-data" class="hasAnchor"><a href="#section-sample-data" class="anchor"></a>Sample Data</h2>
-          <p class="section-desc"><p>For examples, testing, and development</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="currency_identifiers.html">currency_identifiers</a></code> </p>
-        </td>
-        <td><p>Currency Identifiers</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="daily_treasury_yields.html">daily_treasury_yields</a></code> </p>
-        </td>
-        <td><p>Daily Yield Curve Rates</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="stock_data.html">stock_data</a></code> </p>
-        </td>
-        <td><p>Stock Data</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="stock_info.html">stock_info()</a></code> </p>
-        </td>
-        <td><p>Stock Info</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="stock_exchange_hours.html">stock_exchange_hours</a></code> </p>
-        </td>
-        <td><p>Exchange Hours</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="trading_dates.html">trading_dates()</a></code> </p>
-        </td>
-        <td><p>Trading Dates</p></td>
-      </tr>
-    </tbody>
-    </table>
+
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>date vector, ordered from oldest to most recent.</p>
+
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>

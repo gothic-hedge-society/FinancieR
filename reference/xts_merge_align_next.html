@@ -42,17 +42,19 @@
   <script src="../extra.js"></script>
 
 <meta property="og:title" content="Merge 2 XTS Tables According to Next Non-Missing Value — xts_merge_align_next" />
-<meta property="og:description" content="For two XTS objects xts1 and xts2, let A
-be any datetime index that appears in index(xts2), falls between
+<meta property="og:description" content="You will probably never need to call this function directly, but
+it's included just in case the need arises to perform a custom merge.
+For two XTS objects xts1 and xts2, let A be any
+datetime index that appears in index(xts2), falls between
 min(index(xts1)) and max(index(xts1)), but does not
 appear in index(xts1). Let B be the earliest-occurring
 datetime index in index(xts1) that occurs after A.
-xts_merge_align_next(xts1, xts2) will return the left-join
-merge of xts1 and xts2 with one additional operation: for
-any/all A and B that occur for the XTS pair, the values at
-at index B for the columns in the merged XTS coming from xts2
-equal the aggregated value (as specified; e.g., sum) of the values
-of the columns in xts2 in the range A:B." />
+xts_merge_align_next(xts1, xts2) will return the left-join merge of
+xts1 and xts2 with one additional operation: for any/all
+A and B that occur for the XTS pair, the values at at index
+B for the columns in the merged XTS coming from xts2 equal
+the aggregated value (as specified; e.g., sum) of the values of the
+columns in xts2 in the range A:B." />
 
 
 
@@ -129,17 +131,19 @@ of the columns in xts2 in the range A:B." />
     </div>
 
     <div class="ref-description">
-    <p>For two XTS objects <code>xts1</code> and <code>xts2</code>, let <code>A</code>
-be any datetime index that appears in <code>index(xts2)</code>, falls between
+    <p>You will probably never need to call this function directly, but
+it's included just in case the need arises to perform a custom merge.</p>
+<p>For two XTS objects <code>xts1</code> and <code>xts2</code>, let <code>A</code> be any
+datetime index that appears in <code>index(xts2)</code>, falls between
 <code><a href='https://rdrr.io/r/base/Extremes.html'>min(index(xts1))</a></code> and <code><a href='https://rdrr.io/r/base/Extremes.html'>max(index(xts1))</a></code>, but does <b>not</b>
 appear in <code>index(xts1)</code>. Let <code>B</code> be the earliest-occurring
 datetime index in <code>index(xts1)</code> that occurs <b>after</b> <code>A</code>.</p>
-<p><code>xts_merge_align_next(xts1, xts2)</code> will return the left-join
-merge of <code>xts1</code> and <code>xts2</code> with one additional operation: for
-any/all <code>A</code> and <code>B</code> that occur for the XTS pair, the values at
-at index <code>B</code> for the columns in the merged XTS coming from <code>xts2</code>
-equal the aggregated value (as specified; e.g., <code>sum</code>) of the values
-of the columns in <code>xts2</code> in the range <code>A:B</code>.</p>
+<p><code>xts_merge_align_next(xts1, xts2)</code> will return the left-join merge of
+<code>xts1</code> and <code>xts2</code> with one additional operation: for any/all
+<code>A</code> and <code>B</code> that occur for the XTS pair, the values at at index
+<code>B</code> for the columns in the merged XTS coming from <code>xts2</code> equal
+the aggregated value (as specified; e.g., <code>sum</code>) of the values of the
+columns in <code>xts2</code> in the range <code>A:B</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>xts_merge_align_next</span>(<span class='no'>xts1</span>, <span class='no'>xts2</span>, <span class='no'>agg_function</span>, <span class='no'>na.fill</span>)</pre>
