@@ -9,14 +9,13 @@ calculate_market_portfolio(
   exp_vol,
   exp_cor,
   rfr = 2.7397e-05,
-  allow_shorts = FALSE,
   prices = NULL,
   portfolio_aum = NULL
 )
 }
 \arguments{
 \item{exp_rtn}{Named numeric vector for which each element is the return
-expected for the asset specified by the element's name.}
+expected for the next period for the asset specified by the element's name.}
 
 \item{exp_vol}{Named numeric vector for which each element is the volatility
 expected for the asset specified by the element's name.}
@@ -39,19 +38,14 @@ If you specify a different value for \emph{rfr}, \strong{make sure its time
 basis matches the one used for you other inputs}, (i.e., if \emph{exp_rtn}
 contains monthly returns, use monthly risk-free rate)!}
 
-\item{allow_shorts}{Defaults to FALSE; set to TRUE to allow shorting of all
-the assets. There are MANY ways to do this, but by default
-\emph{calculate_market_portfolio}() simply treats shorts as another asset
-whose expected return equals negative the expected return of going long.}
-
 \item{prices}{Optional: a named numeric vector for which each name is the
 identifier of an asset and each element is the current price of that asset
 for which a market portfolio is to be calculated on a shares basis. See the
 "Returns" section for more info.}
 
 \item{portfolio_aum}{Optional: numeric, length 1, giving the total amount of
-assets under management for which a market portfolio is to be calculated on
-a shares basis. See "Returns" section for more info.}
+assets under management for which a market portfolio is to be calculated.
+In other words, \emph{portfolio_aum} = "total cash at risk".}
 }
 \value{
 If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum}
@@ -133,14 +127,64 @@ the capital allocated to each asset (including "cash") must equal
 \emph{portfolio_aum}, the number of values available for the \emph{shares}
 vector is countably finite and it is possible to find an exact solution.
 }
+\section{The Cost of Shorting}{
+
+You would only short an asset if the return you expect for buying that asset
+is negative. You may think that the expected return for shorting an asset is
+simply the return you expect for longing the asset times -1. In reality, the
+return you'll get from a short sale will be a fraction of the asset times -1
+because your broker charges fees on short position in exchange for providing
+the shorting service. In addition, the capital gains from short selling may
+taxed at a different rate than those realized on your long positions.
+
+The key additional costs of shorting are:
+
+\describe{
+\item{Dividends}{
+You don't earn dividends on a short position. In fact, it's the
+opposite: if you're short a stock on a dividend's ex-date, then you must
+actually \emph{pay} the dividend to the owner of the stock.
+\emph{\link{calculate_historical_returns}}() takes this into account
+itself when shorting is included.
+}
+\item{Short Fees}{
+Your brokerage will charge a fee on a short position for every day the
+position is open. This fee is based on the availability of assets for
+shorting, and varies from asset to asset and through time. Usually the
+fee is calculated on each trading day and debited from the trading
+account on at the beginning of each month.
+\emph{\link{calculate_historical_returns}}() takes this into account
+when the \emph{short_fees} parameter is specified.
+}
+\item{Taxes}{
+Capital gains taxes on your short sales can often be taxed at a higher
+rate than what you might expect for long sales. If \strong{uncovered},
+the short position will always be taxed as a short-term capital gain
+because the holding period is considered by the IRS to begin on the day
+when the short position was closed out (bought to cover). If
+\strong{covered}, then the holding period is considered to be the
+holding period of the \emph{substantially different securities} that can
+be converted to the stock itself. Taxes must be taken into account in
+the \emph{exp_rtn} parameter as passed to
+\emph{calculate_market_portfolio}.\preformatted{ Taxes will depend on your situation: whether you expect a short-term or
+ long-term investment, your income bracket, whether or not you're an
+ institution, etc. You must figure that out for yourself, and you might
+ find that, once everything is taken into account, it's just not worth it
+ to short assets in a lot of situations. Stay smart!
+}
+
+}
+}
+}
+
 \examples{
 # Let's pick an example date for which to create an MP:
 mp_date <- "2018-01-09"
 # Feel free to change this date to any other date for which you have data.
 
-# Use calculate_returns() to get the daily returns observed for the 365 days
+# Use calculate_historical_returns() to get the daily returns observed for the 365 days
 # ending on mp_date:
-historical_rtn <- calculate_returns(
+historical_rtn <- calculate_historical_returns(
   assets         = stock_data,
   date_range_xts = paste0(
     as.Date(mp_date) - 365,
@@ -148,6 +192,10 @@ historical_rtn <- calculate_returns(
     mp_date
   )
 )
+
+# Note that a warning message is printed: Linde plc (NYSE: LIN) was the result
+#   of a merger between Praxair (NYSE: PX) and Linde AG (FWB: LINU and FWB: LIN)
+#   and therefore did not exist during the time range specified.
 
 # We'll assume that the return we expect over the next year is the annualized 
 # GMMR of the daily rates of return in historical_rtn:
@@ -169,22 +217,12 @@ exp_cor <- stats::cor(historical_rtn, use = "pairwise.complete.obs")
 mp_by_wt <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
 mp_by_wt
 
-### Calculate the market portfolio allowing both long & short positions:
-mp_by_wt_shorts <- calculate_market_portfolio(
-  exp_rtn, exp_vol, exp_cor, allow_shorts = TRUE
-)
-mp_by_wt_shorts
-
 ### Repeat the above, assuming you have $250,000 to invest and that the stocks
-### may be bought at their closing prices on mp_date:
-
+### may be bought at their closing prices on mp_date. 
 prices <- stock_data \%>\%
-  vapply(
-    function(stock){
-      stock$prices$Close[mp_date]
-    },
-    numeric(1)
-  )
+  lapply(function(stock){stock$prices$Close[mp_date]}) \%>\%
+  unlist() \%>\%
+  purrr::compact()
 portfolio_aum <- 250000
 
 mp_by_shares <- calculate_market_portfolio(
@@ -195,15 +233,4 @@ mp_by_shares <- calculate_market_portfolio(
   portfolio_aum = portfolio_aum
 )
 mp_by_shares
-
-### Allow shorting:
-mp_by_shares_shorts <- calculate_market_portfolio(
-  exp_rtn,
-  exp_vol,
-  exp_cor,
-  allow_shorts  = TRUE,
-  prices        = prices,
-  portfolio_aum = portfolio_aum
-)
-mp_by_shares_shorts
 }

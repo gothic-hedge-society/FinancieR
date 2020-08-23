@@ -3,9 +3,9 @@
 #' Calculate the Sharpe-optimal market portfolio available for a set of assets
 #' given the expected returns, volatilities, and correlations of returns for
 #' each asset.
-#' 
+#'  
 #' @param exp_rtn Named numeric vector for which each element is the return
-#'   expected for the asset specified by the element's name. 
+#'   expected for the next period for the asset specified by the element's name.
 #'   
 #' @param exp_vol Named numeric vector for which each element is the volatility
 #'   expected for the asset specified by the element's name. 
@@ -28,19 +28,62 @@
 #'   basis matches the one used for you other inputs}, (i.e., if \emph{exp_rtn}
 #'   contains monthly returns, use monthly risk-free rate)!
 #'   
-#' @param allow_shorts Defaults to FALSE; set to TRUE to allow shorting of all
-#'   the assets. There are MANY ways to do this, but by default
-#'   \emph{calculate_market_portfolio}() simply treats shorts as another asset
-#'   whose expected return equals negative the expected return of going long. 
-#'   
 #' @param prices Optional: a named numeric vector for which each name is the
 #'   identifier of an asset and each element is the current price of that asset
 #'   for which a market portfolio is to be calculated on a shares basis. See the
 #'   "Returns" section for more info.
 #'   
 #' @param portfolio_aum Optional: numeric, length 1, giving the total amount of
-#'   assets under management for which a market portfolio is to be calculated on
-#'   a shares basis. See "Returns" section for more info.
+#'   assets under management for which a market portfolio is to be calculated.
+#'   In other words, \emph{portfolio_aum} = "total cash at risk".
+#'   
+#' @section The Cost of Shorting:
+#'  You would only short an asset if the return you expect for buying that asset
+#'  is negative. You may think that the expected return for shorting an asset is
+#'  simply the return you expect for longing the asset times -1. In reality, the
+#'  return you'll get from a short sale will be a fraction of the asset times -1
+#'  because your broker charges fees on short position in exchange for providing
+#'  the shorting service. In addition, the capital gains from short selling may
+#'  taxed at a different rate than those realized on your long positions.
+#'  
+#'  The key additional costs of shorting are:
+#'  
+#'  \describe{
+#'   \item{Dividends}{
+#'      You don't earn dividends on a short position. In fact, it's the
+#'      opposite: if you're short a stock on a dividend's ex-date, then you must
+#'      actually \emph{pay} the dividend to the owner of the stock.
+#'      \emph{\link{calculate_historical_returns}}() takes this into account
+#'      itself when shorting is included.
+#'    }
+#'    \item{Short Fees}{
+#'      Your brokerage will charge a fee on a short position for every day the
+#'      position is open. This fee is based on the availability of assets for
+#'      shorting, and varies from asset to asset and through time. Usually the
+#'      fee is calculated on each trading day and debited from the trading
+#'      account on at the beginning of each month.
+#'      \emph{\link{calculate_historical_returns}}() takes this into account
+#'      when the \emph{short_fees} parameter is specified.
+#'    }
+#'    \item{Taxes}{
+#'      Capital gains taxes on your short sales can often be taxed at a higher
+#'      rate than what you might expect for long sales. If \strong{uncovered},
+#'      the short position will always be taxed as a short-term capital gain
+#'      because the holding period is considered by the IRS to begin on the day
+#'      when the short position was closed out (bought to cover). If
+#'      \strong{covered}, then the holding period is considered to be the
+#'      holding period of the \emph{substantially different securities} that can
+#'      be converted to the stock itself. Taxes must be taken into account in
+#'      the \emph{exp_rtn} parameter as passed to
+#'      \emph{calculate_market_portfolio}.
+#'      
+#'      Taxes will depend on your situation: whether you expect a short-term or
+#'      long-term investment, your income bracket, whether or not you're an
+#'      institution, etc. You must figure that out for yourself, and you might
+#'      find that, once everything is taken into account, it's just not worth it
+#'      to short assets in a lot of situations. Stay smart!
+#'    }
+#'  }
 #'    
 #' @details 
 #' 
@@ -126,362 +169,66 @@ calculate_market_portfolio <- function(
   exp_rtn,
   exp_vol,
   exp_cor,
-  rfr           = 0.000027397,
-  allow_shorts  = FALSE,
-  prices        = NULL,
-  portfolio_aum = NULL
+  rfr                = 0.000027397,
+  prices             = NULL,
+  portfolio_aum      = NULL
+  # ,
+  # shortable_shares   = NULL,
+  # initial_margin     = NULL,
+  # maintenance_margin = NULL
 ){
   
   # Make sure names & elements are in order to avoid disaster
-  exp_vol <- exp_vol[names(exp_rtn)]
-  exp_cor <- exp_cor[names(exp_rtn), names(exp_rtn)]
+  exp_vol      <- exp_vol[names(exp_rtn)]
+  exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
   
-  if(allow_shorts){
-    
-    exp_rtn <- c(
-      exp_rtn, stats::setNames(exp_rtn * -1, paste0("s_", names(exp_rtn)))
-    )
-    
-    exp_vol <- c(
-      exp_vol, stats::setNames(exp_vol, paste0("s_", names(exp_vol)))
-    )
-    
-    exp_cor <- rbind(
-      cbind(
-        exp_cor,
-        magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
-      ),
-      cbind(
-        magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
-        exp_cor
-      )
-    )
-    
-    if(!is.null(prices)){
-      prices <- c(
-        prices, stats::setNames(prices, paste0("s_", names(prices)))
-      )
-    }
-    
-  }
+  # # Boolean flag if shorting
+  # allow_shorts <- any(grepl("^s_", names(exp_rtn))) 
+  
+  # Boolean flag if shares mode
+  shares_mode <- !is.null(prices) && !is.null(portfolio_aum)
+  
+  # if(allow_shorts){
+  #   exp_rtn <- c(exp_rtn, "cash" = 0)
+  #   exp_vol <- c(exp_vol, "cash" = 0)
+  #   exp_cor <- rbind(
+  #     cbind(
+  #       exp_cor,
+  #       magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
+  #     ),
+  #     cbind(
+  #       magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
+  #       exp_cor
+  #     )
+  #   )
+  # }
   
   # create covariance matrix of returns
   exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
   
-  # initialize `portfolio_sharpe` to zero, which represents investing all
-  # capital into risk-free assets only.
-  portfolio_sharpe  <- 0
-  
-  # initialize `portfolio_weights` to 0 for all assets
-  portfolio_weights    <- stats::setNames(
-    rep(0, ncol(exp_cov)),
-    colnames(exp_cov)
-  )
-  
   # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
   # created by selecting from the assets provided.
-  
-  while(TRUE){
-    
-    # Take all of the assets that AREN'T included in portfolio_weights...
-    candidate_portfolios <- setdiff(
-      names(exp_rtn), 
-      names(portfolio_weights[portfolio_weights != 0])
-    ) %>%
-      vapply(
-        
-        # ...and for each one of those, add it to portfolio_weights, and weight
-        # everything equally.
-        function(asset){
-          
-          
-          # initialize `weights` to the higher-scoped `portfolio_weights`
-          weights <- portfolio_weights
-          
-          # make `weights` an equal-weighted portfolio consisting of the assets
-          # that are already in the portfolio, plus `asset`.
-          weights[c(names(weights[weights != 0]), asset)] <- 1 / (
-            length(which(weights != 0)) + 1
-          )
-          
-          # calculate expected return for the portfolio given by `weights`
-          expected_return <- as.numeric(exp_rtn %*% as.matrix(weights))
-          
-          # calculate expected volatility for the portfolio given by `weights`
-          expected_volatility <- sqrt(
-            as.numeric((weights %*% exp_cov) %*% as.matrix(weights))
-          )
-          
-          tibble::lst(
-            "sharpe"  = (expected_return - rfr) / expected_volatility,
-            "weights" = weights
-          )
-          
-        },
-        FUN.VALUE = list(numeric(1), numeric(length(portfolio_weights)))
-      )
-    
-    # If your best portfolio is better than the current record, store it.
-    if(portfolio_sharpe < max(unlist(candidate_portfolios["sharpe",]))){
-      
-      portfolio_weights <- candidate_portfolios[[
-        "weights",
-        which.max(unlist(candidate_portfolios["sharpe",]))
-      ]]
-      
-      portfolio_sharpe <- max(unlist(candidate_portfolios["sharpe",]))
-      
-    } else {
-      # If none of your portfolios beat your current one, then stop adding
-      # new assets, exit the while() and move on.
-      break()
-    }
-    
-  }
-  
-  # Initialize loop vars
-  step <- min(portfolio_weights[portfolio_weights != 0]) / 10
-  counts <- 0
-  
-  # Step 2: Refine the rough portfolio found in step 1.
-  
-  while(TRUE){
-    
-    # make `buy_sell_matrix`: a matrix whose row names are all the assets that
-    #   appear in the inputs, and whose column names are all the assets whose 
-    #   `portfolio_weights` are >= `step`. The values of `buy_sell_matrix` are 
-    #   the Sharpe ratios that result if you start with `portfolio_weights` and 
-    #   SELL `step` worth of the asset given buy the column index, and BUY 
-    #   `step` worth of the asset in the row index.
-    # Obviously buying and selling the same asset is not useful -- these cells 
-    #   are given the value -999 in `buy_sell_matrix`.
-    
-    buy_sell_matrix <- vapply(
-      # Step through the assets whose portfolio weights are >= to the amount
-      #   we'll be adding/subtracting (otherwise they'll get negative weights)
-      names(portfolio_weights[portfolio_weights >= step]),
-      function(take_from_asset){
-        
-        # initialize `weights` to the higher-scoped `portfolio_weights`
-        weights <- portfolio_weights
-        
-        # take weight `step` FROM an asset.
-        weights[take_from_asset] <- weights[take_from_asset] - step
-        
-        # create the column for `buy_sell_matrix`, and make sure it's ordered
-        #   in the same order as `portfolio_weights`.
-        c(
-          stats::setNames(-999, take_from_asset),
-          vapply(
-            setdiff(names(portfolio_weights), take_from_asset),
-            function(add_to_asset, wts = weights){
-              
-              wts[add_to_asset] <- wts[add_to_asset] + step
-              
-              as.numeric(exp_rtn %*% as.matrix(wts) - rfr) / sqrt(
-                as.numeric((wts %*% exp_cov) %*% as.matrix(wts))
-              )
-              
-            },
-            FUN.VALUE = numeric(1)
-          )
-        )[names(portfolio_weights)]
-        
-      },
-      FUN.VALUE = numeric(length(portfolio_weights))
-    )
-    
-    # If we got a better sharpe ratio in `buy_sell_matrix`, keep it & update!
-    if(max(buy_sell_matrix) > portfolio_sharpe){
-      
-      add_to_asset    <- rownames(buy_sell_matrix)[
-        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[1]
-      ]
-      
-      take_from_asset <- colnames(buy_sell_matrix)[
-        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[2]
-      ]
-      
-      portfolio_weights[add_to_asset] <- portfolio_weights[
-        add_to_asset
-      ] + step
-      
-      portfolio_weights[take_from_asset] <- portfolio_weights[
-        take_from_asset
-      ] - step
-      
-      portfolio_sharpe <-  (
-        as.numeric(exp_rtn %*% as.matrix(portfolio_weights)) - rfr
-      ) / sqrt(
-        as.numeric(
-          (portfolio_weights %*% exp_cov) %*% as.matrix(portfolio_weights)
+  best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) %>%
+    # Step 2: Refine the rough portfolio found in step 1.
+    refine_weights(exp_rtn, exp_vol, exp_cov, rfr) %>% {
+      if(shares_mode){
+        refine_shares_no_shorts(
+          ., exp_rtn, exp_vol, exp_cov, rfr, prices, portfolio_aum
         )
-      )
-      
-      
-    } else {
-      # drop `step` by a factor of 10, but only do this `count` number of times.
-      step <- min(portfolio_weights[portfolio_weights != 0]) / 10
-      counts <- counts + 1
-      
-      if(counts >= 10){
-        break()
+      } else {
+        .$weights <- .$weights[which(.$weights > 0)]
+        .
       }
-    }
-  }
-  
-  mp <- list(
-    "sharpe"        = portfolio_sharpe,
-    "weights"       = portfolio_weights,
-    "ex_return"     = as.numeric(exp_rtn %*% as.matrix(portfolio_weights)),
-    "ex_volatility" = sqrt(
-      as.numeric(
-        (portfolio_weights %*% exp_cov) %*% as.matrix(portfolio_weights)
-      )
-    )
-  )
-  
-  if(is.null(prices) || is.null(portfolio_aum)) return(mp)
-  
-  rm(
-    list = c(
-      "buy_sell_matrix", "candidate_portfolios", "add_to_asset", "counts", 
-      "take_from_asset", "step", "portfolio_sharpe", "portfolio_weights"
-    )
-  )
-  
-  prices  <- c(
-    prices,  
-    "cash" = portfolio_aum - (
-      floor((mp$weights * portfolio_aum) / prices) %*% as.matrix(prices)
-    )
-  )
-  
-  realized_shares <- c(
-    floor((mp$weights * portfolio_aum) / prices[-length(prices)]),
-    "cash" = 1
-  )
-  
-  exp_rtn <- c(exp_rtn, "cash" = rfr)
-  exp_vol <- c(exp_vol, "cash" = 0)
-  exp_cov <- exp_cov %>%
-    cbind("cash" = 0) %>%
-    rbind("cash" = 0)
-  
-  realized_weights <- realized_shares * prices / portfolio_aum
-  realized_exp_rtn <- as.numeric(exp_rtn %*% as.matrix(realized_weights))
-  realized_exp_vol <- as.numeric(
-    sqrt(
-      as.numeric(
-        (realized_weights %*% exp_cov) %*% as.matrix(realized_weights)
-      )
-    )
-  )
-  realized_sharpe <- (realized_exp_rtn - rfr) / realized_exp_vol
-  
-  while(TRUE){
-    
-    buy_sell_shares_matrix <- matrix(
-      0,
-      ncol     = length(realized_shares),
-      nrow     = length(realized_shares),
-      dimnames = list(
-        "buy"  = names(realized_shares),
-        "sell" = names(realized_shares)
-      )
-    )
-    
-    for(sell_asset in colnames(buy_sell_shares_matrix)){
-      for(buy_asset in rownames(buy_sell_shares_matrix)){
-        if(
-          buy_asset == sell_asset | (
-            prices[buy_asset] > prices[sell_asset]
-          ) | realized_shares[sell_asset] == 0
-        ){
-          buy_sell_shares_matrix[buy_asset, sell_asset] <- -1
-        } else {
-          
-          shares <- realized_shares
-          prc    <- prices
-          
-          if(buy_asset == "cash"){
-            shares[sell_asset] <- shares[sell_asset] - 1
-          } else if(sell_asset == "cash"){
-            shares[buy_asset]  <- shares[buy_asset] + 1
-          } else {
-            shares[buy_asset]  <- shares[buy_asset] + 1
-            shares[sell_asset] <- shares[sell_asset] - 1
-          }
-          
-          prc["cash"] <- portfolio_aum - (
-            shares[-length(shares)] %*% prc[-length(prc)]
-          )
-          weights     <- (shares * prc) / portfolio_aum
-          
-          buy_sell_shares_matrix[buy_asset, sell_asset] <- as.numeric(
-            exp_rtn %*% as.matrix(weights) - rfr
-          ) / sqrt(as.numeric((weights %*% exp_cov) %*% as.matrix(weights)))
-          
-        }
-      }
-    }
-    
-    # If we got a better sharpe ratio in `buy_sell_matrix`, keep it & update!
-    if(max(buy_sell_shares_matrix) <= realized_sharpe) break()
-    
-    asset_bought <- rownames(buy_sell_shares_matrix)[
-      which(
-        buy_sell_shares_matrix == max(buy_sell_shares_matrix),
-        arr.ind = TRUE
-      )[, "buy"]
-    ]
-    
-    asset_sold <- colnames(buy_sell_shares_matrix)[
-      which(
-        buy_sell_shares_matrix == max(buy_sell_shares_matrix),
-        arr.ind = TRUE
-      )[, "sell"]
-    ]
-    
-    if(asset_bought == "cash"){
-      realized_shares[asset_sold] <- realized_shares[asset_sold] - 1
-    } else if(asset_sold == "cash"){
-      realized_shares[asset_bought]  <- realized_shares[asset_bought] + 1
-    } else {
-      realized_shares[asset_bought]  <- realized_shares[asset_bought] + 1
-      realized_shares[asset_sold]    <- realized_shares[asset_sold] - 1
-    }
-    
-    prices["cash"] <- portfolio_aum - (
-      realized_shares[-length(realized_shares)] %*% prices[-length(prices)]
-    )
-    
-    realized_weights <- (realized_shares * prices) / portfolio_aum
-    realized_exp_rtn <- as.numeric(exp_rtn %*% as.matrix(realized_weights))
-    realized_exp_vol <- as.numeric(
-      sqrt(
-        as.numeric(
-          (realized_weights %*% exp_cov) %*% as.matrix(realized_weights)
-        )
-      )
-    )
-    realized_sharpe <- (realized_exp_rtn - rfr) / realized_exp_vol
-    
-  }
-  
-  mp_shares <- list(
-    "sharpe"        = realized_sharpe,
-    "shares"        = realized_shares[-length(shares)] %>% {
-      storage.mode(.) <- "integer"
-      .
-    },
-    "cash"          = as.numeric(prices[length(prices)]),
-    "weights"       = realized_weights[-length(weights)],
-    "ex_return"     = realized_exp_rtn,
-    "ex_volatility" = realized_exp_vol,
-    "prices"        = prices[-length(prices)]
-  )
-  
-  mp_shares
+    } 
+  # %>% {
+  #     # Step 3: Apply short parameters
+  #     if(allow_shorts){
+  #       refine_shorts(
+  #         ., exp_rtn, exp_vol, exp_cov, rfr, initial_margin, shortable_shares
+  #       )
+  #     } else {
+  #       .
+  #     }
+  #   }
   
 }

@@ -12,15 +12,18 @@ reference:
 
 - title: Functions
   contents:
-  - calculate_returns
+  - calculate_historical_returns
   - gmrr
   - calculate_market_portfolio
+  - extract_stock
   - xts_merge_align_next
 
 - title: Sample Data
   desc: For examples, testing, and development
   contents:
   - currency_identifiers
-  - daily_treasury_yield_curve_rates
+  - daily_treasury_yields
   - stock_data
+  - stock_info
   - stock_exchange_hours
+  - trading_dates

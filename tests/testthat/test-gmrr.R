@@ -1,4 +1,4 @@
-context("Accuracy")
+context("GMRR Works")
 
 test_that(
   "GMRR returns the known correct answer when applied to yahoo sample data",
