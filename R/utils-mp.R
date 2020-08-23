@@ -60,13 +60,6 @@ best_equal_weighted_portfolio <- function(rtn, cov_mtx, rfr){
 
 refine_weights <- function(mkt_p, rtn, vol, cov_mtx, rfr){
   
-  # mkt_p   <<- mkt_p
-  # rtn     <<- rtn
-  # cov_mtx <<- cov_mtx
-  # rfr     <<- rfr
-  # stp     <<- stp
-  # stop("wadup")
-  
   # make `buy_sell_matrix`: a matrix whose row names are all the assets that
   #   appear in the inputs, and whose column names are all the assets whose 
   #   `mkt_p$weights` are >= `stp`. The values of `buy_sell_matrix` are 
@@ -152,40 +145,130 @@ refine_weights <- function(mkt_p, rtn, vol, cov_mtx, rfr){
     
   }
   
+  mkt_p$exp_rtn <- round(as.numeric(rtn %*% as.matrix(mkt_p$weights)), 8)
+  mkt_p$exp_vol <- round(
+    sqrt(
+      as.numeric((mkt_p$weights %*% cov_mtx) %*% as.matrix(mkt_p$weights))
+    ),
+    8
+  )
+  mkt_p$weights <- round(mkt_p$weights, 8)
+  mkt_p$sharpe  <- round(mkt_p$sharpe, 8)
+  
+  mkt_p 
+  
+}
+
+refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
+  
+  # mkt_p   <<- mkt_p
+  # rtn     <<- rtn
+  # vol     <<- vol
+  # cov_mtx <<- cov_mtx
+  # rfr     <<- rfr
+  # prc     <<- prc
+  # aum     <<- aum
+  # stop("wadup")
+  
+  mkt_p$shares  <- floor(mkt_p$weights * aum / prc) 
+  mkt_p$prices  <- prc
+  mkt_p$weights <- mkt_p$shares * prc / aum
   mkt_p$exp_rtn <- as.numeric(rtn %*% as.matrix(mkt_p$weights))
   mkt_p$exp_vol <- sqrt(
     as.numeric((mkt_p$weights %*% cov_mtx) %*% as.matrix(mkt_p$weights))
   )
-  mkt_p$weights <- round(mkt_p$weights[which(mkt_p$weights != 0)], 9) %>% {
-    .[which(. != 0)]
+  mkt_p$cash    <- as.numeric(aum - (mkt_p$shares %*% mkt_p$prices))
+  
+  pocket_sharpe <- mkt_p$sharpe
+  
+  while(TRUE){
+    
+    # Every iteration of this loop tries to find a better Sharpe that can be 
+    #   created by selling one asset and buying another. When that can't be 
+    #   done, exit the while loop.
+    
+    shares <- mkt_p$shares
+    
+    for(asset_to_sell in names(mkt_p$shares[mkt_p$shares >= 1])){
+      
+      for(asset_to_buy in setdiff(names(shares), asset_to_sell)){
+        
+        # Only sell the max needed to buy 1 share of asset_to_buy.
+        shares_to_sell    <- as.numeric(
+          ceiling(prc[asset_to_buy] / prc[asset_to_sell])
+        )
+        
+        # If we don't have that many shares, next.
+        if(shares_to_sell > mkt_p$shares[asset_to_sell]){next()}
+        
+        # Maximum possible amount of shares that can be bought given that we're
+        #   selling shares_to_sell amount of asset_to_sell, plus cash.
+        max_shares_to_buy <- as.numeric(
+          floor(
+            sum(shares_to_sell * prc[asset_to_sell], mkt_p$cash) / 
+              prc[asset_to_buy]
+          )
+        )
+        
+        # Number of shares of asset_to_buy that will be bought
+        number_of_shares_to_buy <- 0
+        
+        candidate_sharpe <- 0:max_shares_to_buy %>% 
+          vapply(
+            function(buy_shares){
+              shares[asset_to_buy] <- as.numeric(
+                shares[asset_to_buy] + buy_shares
+              )
+              shares[asset_to_sell] <- shares[asset_to_sell] - shares_to_sell
+              wts                   <- shares * prc / aum
+              as.numeric(rtn %*% as.matrix(wts) - rfr) / sqrt(
+                as.numeric((wts %*% cov_mtx) %*% as.matrix(wts))
+              )
+            },
+            FUN.VALUE = numeric(1),
+            USE.NAMES = FALSE
+          ) %>% {
+            max_sharpe               <- max(.)
+            number_of_shares_to_buy <<- which(. == max_sharpe)
+            round(max_sharpe, 8)
+          }
+        
+        if(candidate_sharpe > mkt_p$sharpe){
+          mkt_p$shares[asset_to_sell]  <- mkt_p$shares[asset_to_sell] - 
+            shares_to_sell
+          mkt_p$weights[asset_to_sell] <- round(mkt_p$shares * prc / aum, 8)
+          mkt_p$sharpe                 <- candidate_sharpe
+          mkt_p$ex_return              <- round(
+            as.numeric(
+              exp_rtn %*% as.matrix(mkt_p$weights)
+            ),
+            8
+          )
+          mkt_p$ex_volatility          <- round(
+            sqrt(
+              as.numeric(
+                (mkt_p$weights %*% exp_cov) %*% as.matrix(mkt_p$weights)
+              )
+            ),
+            8
+          )
+          mkt_p$cash                   <- round(
+            aum - (mkt_p$shares %*% mkt_p$prices), 
+            2
+          )
+        }
+        
+      }
+      
+    }
+    
+    if(mkt_p$sharpe == pocket_sharpe){
+      break()
+    } else {
+      pocket_sharpe <- mkt_p$sharpe
+    }
+    
   }
-  
-  mkt_p
-  
-}
-
-refine_shares <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
-  mkt_p   <<- mkt_p
-  rtn     <<- rtn
-  vol     <<- vol
-  cov_mtx <<- cov_mtx 
-  rfr     <<- rfr 
-  prc     <<- prc 
-  aum     <<- aum
-  stop("you are here.")
-  
-  mkt_p$shares <- (mkt_p$weights * aum / prc) %>% {
-    .[which(. < 0)] <- ceiling(.[which(. < 0)])
-    .[which(. > 0)] <- floor(.[which(. > 0)])
-    .
-  }
-  mkt_p$prices       <- prc
-  mkt_$weights       <- mkt_p$shares * prc / aum
-  mp$exp_rtn       <- as.numeric(rtn %*% as.matrix(mk_p$weights))
-  mp$exp_vol   <- sqrt(
-    as.numeric((mkt_p$weights %*% cov_mtx) %*% as.matrix(mkt_p$weights))
-  )
-  mkt_p$cash          <- aum - (mkt_p$shares %*% mkt_p$prices)
   
   mkt_p
   
@@ -201,34 +284,13 @@ refine_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, i_mgn, shtbl_shrs){
   shtbl_shrs <<- shtbl_shrs
   stop("you are here.")
   
-  # calc_mp_pocket <- function(portfolio, rtn, vol, cov){
-  #   portfolio <<- portfolio
-  #   rtn       <<- rtn
-  #   vol       <<- vol
-  #   cov       <<- cov
-  #   stop("you are here.")
-  #   # mp$shares <- (portfolio$weights * portfolio_aum / prices) %>% {
-  #   #   .[which(. < 0)] <- ceiling(.[which(. < 0)])
-  #   #   .[which(. > 0)] <- floor(.[which(. > 0)])
-  #   # }
-  #   # mp$prices        <- prices
-  #   # mp$weights       <- mp$shares * prices / portfolio_aum
-  #   # mp$ex_return     <- as.numeric(exp_rtn %*% as.matrix(mp$weights))
-  #   # mp$ex_volatility <- sqrt(
-  #   #   as.numeric((mp$weights %*% exp_cov) %*% as.matrix(mp$weights))
-  #   # )
-  #   # mp$cash          <- portfolio_aum - (mp$shares %*% mp$prices)
-  # }
-  
   # while(TRUE){
   #   mp_pocket <- calc_mp_pocket(mp, exp_rtn, exp_vol, exp_cov)
-  
   #   if(mp_pocket$sharpe > mp$sharpe){
   #     mp <- mp_pocket
   #   } else {
   #     break()
   #   }
-  #   
   # }
   
 }

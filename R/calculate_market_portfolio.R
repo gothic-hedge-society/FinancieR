@@ -163,8 +163,11 @@ calculate_market_portfolio <- function(
     # Step 2: Refine the rough portfolio found in step 1.
     refine_weights(exp_rtn, exp_vol, exp_cov, rfr) %>% {
       if(shares_mode){
-        refine_shares(., exp_rtn, exp_vol, exp_cov, rfr, prices, portfolio_aum)
+        refine_shares_no_shorts(
+          ., exp_rtn, exp_vol, exp_cov, rfr, prices, portfolio_aum
+        )
       } else {
+        .$weights <- .$weights[which(.$weights > 0)]
         .
       }
     } %>% {

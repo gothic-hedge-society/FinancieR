@@ -36,7 +36,12 @@ mp_by_shares              <- calculate_market_portfolio(
 context("Cash Balance, Shares Mode, no shorts")
 test_that(
   "Cash balances for mp by shares, no shorting",
-  expect_equal(cash_bal(mp_by_shares), portfolio_aum)
+  expect_equal(
+    as.numeric(
+      round(portfolio_aum - (mp_by_shares$shares %*% mp_by_shares$prices), 2)
+    ), 
+    mp_by_shares$cash
+  )
 )
 
 context("Calculate MP, Shares Mode, with shorts")
