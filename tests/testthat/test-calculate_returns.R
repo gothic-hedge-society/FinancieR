@@ -3,7 +3,7 @@
 context("TXN & Hurricane Sandy")
 test_that(
   paste0(
-    "calculate_returns() correctly handles Texas Instruments' Hurricane ",
+    "calculate_historical_returns() correctly handles Texas Instruments' Hurricane ",
     "Sandy missing dividend for all returns_method options."
   ),
   expect_equivalent(
@@ -11,7 +11,7 @@ test_that(
       vapply(
         function(rtn_method){
           zoo::coredata(
-            calculate_returns(
+            calculate_historical_returns(
               assets         = stock_data["TXN"],
               date_range_xts = "2012-10",
               returns_method = rtn_method
@@ -36,12 +36,12 @@ test_that(
 
 context("Apple's 7-1 Split in 2014")
 test_that(
-  "calculate_returns() correctly handles Apple's 7-to-1 split in 2014.",
+  "calculate_historical_returns() correctly handles Apple's 7-to-1 split in 2014.",
   expect_equivalent(
     c("ln", "log2", "log10", "pct_diff", "multiple") %>%
       vapply(
         function(rtn_method){
-          calculate_returns(
+          calculate_historical_returns(
             assets         = stock_data["AAPL"],
             date_range_xts = "2014-06",
             returns_method = rtn_method 
@@ -61,16 +61,16 @@ test_that(
   )
 )
 
-context("calculate_returns() examples work")
+context("calculate_historical_returns() examples work")
 test_that(
-  "The first example in calculate_returns() documentation works.",
+  "The first example in calculate_historical_returns() documentation works.",
   expect_identical(
     log(
       as.numeric(stock_data$T$prices$Close["2014-07-21"]) /
         as.numeric(stock_data$T$prices$Close["2014-07-18"])
     ),
     as.numeric(
-      calculate_returns(
+      calculate_historical_returns(
         assets         = stock_data[c("AAPL", "T")],
         date_range_xts = "2014"
       )["2014-07-21", "T"]
@@ -79,7 +79,7 @@ test_that(
 )
 
 test_that(
-  "The second example in calculate_returns() documentation works.",
+  "The second example in calculate_historical_returns() documentation works.",
   expect_identical(
     log(
       (
@@ -88,7 +88,7 @@ test_that(
       ) / as.numeric(stock_data$T$prices$Close["2014-07-07"])
     ),
     as.numeric(
-      calculate_returns(
+      calculate_historical_returns(
         assets         = stock_data[c("AAPL", "T")],
         date_range_xts = "2014"
       )["2014-07-08", "T"]
@@ -97,7 +97,7 @@ test_that(
 )
 
 test_that(
-  "The third example in calculate_returns() documentation works.",
+  "The third example in calculate_historical_returns() documentation works.",
   expect_identical(
     log(
       (
@@ -106,7 +106,7 @@ test_that(
       ) / as.numeric(stock_data$AAPL$prices$Close["2014-06-06"])
     ),
     as.numeric(
-      calculate_returns(
+      calculate_historical_returns(
         assets         = stock_data[c("AAPL", "T")],
         date_range_xts = "2014"
       )["2014-06-09", "AAPL"]
@@ -115,13 +115,13 @@ test_that(
 )
 
 sf <- c("CB" = 0.004, "GD" = 0.0025, "IVV" = 0.0025) 
-gd_cb_ivv_returns_w_shorts <- calculate_returns(
+gd_cb_ivv_returns_w_shorts <- calculate_historical_returns(
   assets         = stock_data[c("GD", "CB", "IVV")],
   date_range_xts = "2020-08-05/2020-08-14",
   short_fees     = sf
 )
 test_that(
-  "The fourth example in calculate_returns() documentation works.",
+  "The fourth example in calculate_historical_returns() documentation works.",
   expect_equal(
     round(sf - 1, digits = 4), 
     round(
@@ -138,17 +138,17 @@ test_that(
   )
 )
 
-gd_cb_ivv_returns_w_shorts <- calculate_returns(
+gd_cb_ivv_returns_w_shorts <- calculate_historical_returns(
   assets         = stock_data[c("GD", "CB", "IVV")],
   date_range_xts = "2020-08-05/2020-08-14",
   short_fees     = 0.0025
 )
-gd_cb_ivv_returns <- calculate_returns(
+gd_cb_ivv_returns <- calculate_historical_returns(
   assets         = stock_data[c("GD", "CB", "IVV")],
   date_range_xts = "2020-08-05/2020-08-14"
 )
 test_that(
-  "The fifth example in calculate_returns() documentation is correct.",
+  "The fifth example in calculate_historical_returns() documentation is correct.",
   expect_equal(
     round(
       colMeans(
@@ -176,9 +176,9 @@ test_that(
 
 context("M&A")
 test_that(
-  "calculate_returns() handles mergers",
+  "calculate_historical_returns() handles mergers",
   expect_identical(
-    calculate_returns(
+    calculate_historical_returns(
       assets         = stock_data$PX,
       date_range_xts = "2018-10-28/2018-11-04"
     ),
@@ -186,9 +186,9 @@ test_that(
   )
 )
 test_that(
-  "calculate_returns() handles a missing acquiring co for given daterange",
+  "calculate_historical_returns() handles a missing acquiring co for given daterange",
   expect_identical(
-    calculate_returns(
+    calculate_historical_returns(
       assets         = stock_data$PX,
       date_range_xts = paste0(
         as.Date("2018-01-09") - 365,
@@ -202,10 +202,10 @@ test_that(
 
 context("Missing Data")
 test_that(
-  "calculate_returns() fails gracefully if missing data.",
+  "calculate_historical_returns() fails gracefully if missing data.",
   {
     expect_message(
-      calculate_returns(
+      calculate_historical_returns(
         assets         = stock_data,
         date_range_xts = paste0(
           as.Date("2018-01-09") - 12,
@@ -215,7 +215,7 @@ test_that(
       )
     )
     expect_silent(
-      calculate_returns(
+      calculate_historical_returns(
         assets         = stock_data,
         date_range_xts = paste0(
           as.Date("2018-01-09") - 12,
@@ -227,7 +227,7 @@ test_that(
     )
     expect_length(
       colnames(
-        calculate_returns(
+        calculate_historical_returns(
           assets         = stock_data,
           date_range_xts = paste0(
             as.Date("2018-01-09") - 12,
@@ -240,7 +240,7 @@ test_that(
       9
     )
     expect_null(
-      calculate_returns(
+      calculate_historical_returns(
         assets         = stock_data$LIN,
         date_range_xts = paste0(
           as.Date("2018-01-09") - 365,

@@ -1,6 +1,6 @@
 # Calculate daily natural log returns of Apple (AAPL) and AT&T (T) for 2014, a
 # year in which Apple had a major stock split.
-aapl_att_returns <- calculate_returns(
+aapl_att_returns <- calculate_historical_returns(
   assets         = stock_data[c("AAPL", "T")],
   date_range_xts = "2014"
 )
@@ -11,22 +11,22 @@ head(aapl_att_returns, 10)
 # Let's check this result in a few key places. 
 
 # 1) Normal trading day
-#      Because we didn't specify otherwise, calculate_returns() will use its
-#      default behavior and will calculate period-over-period natural-log
-#      returns using Close prices. Let's pick Monday, 21 July 2014, which was a
-#      normal trading day (no dividend, no split) for AT&T. The previous trading
-#      day was Friday, 18 Jul 2014:
+#      Because we didn't specify otherwise, calculate_historical_returns() will
+#      use its default behavior and will calculate period-over-period
+#      natural-log returns using Close prices. Let's pick Monday, 21 July 2014,
+#      which was a normal trading day (no dividend, no split) for AT&T. The
+#      previous trading day was Friday, 18 Jul 2014:
 stock_data$T$prices["2014-07-18/2014-07-21"]
 
-#      The natural log return using Close prices (calculate_returns() default)
-#      as calculated by hand should be:
+#      The natural log return using Close prices (calculate_historical_returns()
+#      default) as calculated by hand should be:
 log(
   as.numeric(stock_data$T$prices$Close["2014-07-21"]) /
     as.numeric(stock_data$T$prices$Close["2014-07-18"])
 )
 
 #      This return was realized on 2014-07-21, so it should appear at that date
-#      index in the results returned by calculate_returns():
+#      index in the results returned by calculate_historical_returns():
 aapl_att_returns["2014-07-21", "T"]
 
 # 2) AT&T's dividend
@@ -45,7 +45,7 @@ log(
 )
 
 #      This return was realized on 2014-07-08, so it should appear at that date
-#      index in the results returned by calculate_returns():
+#      index in the results returned by calculate_historical_returns():
 aapl_att_returns["2014-07-08", "T"]
 # --> In this case, the stock closed at the same price as the previous day once
 #     the dividend was taken into account, so return = 0.
@@ -66,21 +66,21 @@ log(
 )
 
 #      This return was realized on 2014-06-09, so it should appear at that date
-#      index in the results returned by calculate_returns():
+#      index in the results returned by calculate_historical_returns():
 aapl_att_returns["2014-06-09", "AAPL"]
 
 # 4) Shorts
 #   a) Get returns for General Dynamics (GD), Chubb Ltd. (CB), and iShares' Core
 #        S&P 500 index (IVV), including shorts, assuming the following short 
 #        fees for each of these assets:
-gd_cb_ivv_returns_w_shorts <- calculate_returns(
+gd_cb_ivv_returns_w_shorts <- calculate_historical_returns(
   assets         = stock_data[c("GD", "CB", "IVV")],
   date_range_xts = "2020-08-05/2020-08-14",
   short_fees     = c("CB" = 0.004, "GD" = 0.0025, "IVV" = 0.0025) 
 )
 gd_cb_ivv_returns_w_shorts
 #   b) Now assume that the short fee for each stock is the same (0.25%):
-gd_cb_ivv_returns_w_shorts <- calculate_returns(
+gd_cb_ivv_returns_w_shorts <- calculate_historical_returns(
   assets         = stock_data[c("GD", "CB", "IVV")],
   date_range_xts = "2020-08-05/2020-08-14",
   short_fees     = 0.0025

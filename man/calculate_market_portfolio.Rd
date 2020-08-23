@@ -15,7 +15,7 @@ calculate_market_portfolio(
 }
 \arguments{
 \item{exp_rtn}{Named numeric vector for which each element is the return
-expected for the asset specified by the element's name.}
+expected for the next period for the asset specified by the element's name.}
 
 \item{exp_vol}{Named numeric vector for which each element is the volatility
 expected for the asset specified by the element's name.}
@@ -127,14 +127,64 @@ the capital allocated to each asset (including "cash") must equal
 \emph{portfolio_aum}, the number of values available for the \emph{shares}
 vector is countably finite and it is possible to find an exact solution.
 }
+\section{The Cost of Shorting}{
+
+You would only short an asset if the return you expect for buying that asset
+is negative. You may think that the expected return for shorting an asset is
+simply the return you expect for longing the asset times -1. In reality, the
+return you'll get from a short sale will be a fraction of the asset times -1
+because your broker charges fees on short position in exchange for providing
+the shorting service. In addition, the capital gains from short selling may
+taxed at a different rate than those realized on your long positions.
+
+The key additional costs of shorting are:
+
+\describe{
+\item{Dividends}{
+You don't earn dividends on a short position. In fact, it's the
+opposite: if you're short a stock on a dividend's ex-date, then you must
+actually \emph{pay} the dividend to the owner of the stock.
+\emph{\link{calculate_historical_returns}}() takes this into account
+itself when shorting is included.
+}
+\item{Short Fees}{
+Your brokerage will charge a fee on a short position for every day the
+position is open. This fee is based on the availability of assets for
+shorting, and varies from asset to asset and through time. Usually the
+fee is calculated on each trading day and debited from the trading
+account on at the beginning of each month.
+\emph{\link{calculate_historical_returns}}() takes this into account
+when the \emph{short_fees} parameter is specified.
+}
+\item{Taxes}{
+Capital gains taxes on your short sales can often be taxed at a higher
+rate than what you might expect for long sales. If \strong{uncovered},
+the short position will always be taxed as a short-term capital gain
+because the holding period is considered by the IRS to begin on the day
+when the short position was closed out (bought to cover). If
+\strong{covered}, then the holding period is considered to be the
+holding period of the \emph{substantially different securities} that can
+be converted to the stock itself. Taxes must be taken into account in
+the \emph{exp_rtn} parameter as passed to
+\emph{calculate_market_portfolio}.\preformatted{ Taxes will depend on your situation: whether you expect a short-term or
+ long-term investment, your income bracket, whether or not you're an
+ institution, etc. You must figure that out for yourself, and you might
+ find that, once everything is taken into account, it's just not worth it
+ to short assets in a lot of situations. Stay smart!
+}
+
+}
+}
+}
+
 \examples{
 # Let's pick an example date for which to create an MP:
 mp_date <- "2018-01-09"
 # Feel free to change this date to any other date for which you have data.
 
-# Use calculate_returns() to get the daily returns observed for the 365 days
+# Use calculate_historical_returns() to get the daily returns observed for the 365 days
 # ending on mp_date:
-historical_rtn <- calculate_returns(
+historical_rtn <- calculate_historical_returns(
   assets         = stock_data,
   date_range_xts = paste0(
     as.Date(mp_date) - 365,

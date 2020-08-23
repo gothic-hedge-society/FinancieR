@@ -12,7 +12,7 @@ reference:
 
 - title: Functions
   contents:
-  - calculate_returns
+  - calculate_historical_returns
   - gmrr
   - calculate_market_portfolio
   - extract_stock
