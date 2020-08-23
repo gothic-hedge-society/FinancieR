@@ -1,17 +1,20 @@
 #' @title Merge 2 XTS Tables According to Next Non-Missing Value
 #'
-#' @description For two XTS objects \code{xts1} and \code{xts2}, let \code{A}
-#'   be any datetime index that appears in \code{index(xts2)}, falls between
-#'   \code{min(index(xts1))} and \code{max(index(xts1))}, but does \bold{not}
-#'   appear in \code{index(xts1)}. Let \code{B} be the earliest-occurring
-#'   datetime index in \code{index(xts1)} that occurs \bold{after} \code{A}.
+#' @description You will probably never need to call this function directly, but
+#'   it's included just in case the need arises to perform a custom merge.
 #'
-#'   \code{xts_merge_align_next(xts1, xts2)} will return the left-join
-#'   merge of \code{xts1} and \code{xts2} with one additional operation: for
-#'   any/all \code{A} and \code{B} that occur for the XTS pair, the values at
-#'   at index \code{B} for the columns in the merged XTS coming from \code{xts2}
-#'   equal the aggregated value (as specified; e.g., \code{sum}) of the values
-#'   of the columns in \code{xts2} in the range \code{A:B}.
+#'  For two XTS objects \code{xts1} and \code{xts2}, let \code{A} be any
+#'  datetime index that appears in \code{index(xts2)}, falls between
+#'  \code{min(index(xts1))} and \code{max(index(xts1))}, but does \bold{not}
+#'  appear in \code{index(xts1)}. Let \code{B} be the earliest-occurring
+#'  datetime index in \code{index(xts1)} that occurs \bold{after} \code{A}.
+#'
+#'   \code{xts_merge_align_next(xts1, xts2)} will return the left-join merge of
+#'   \code{xts1} and \code{xts2} with one additional operation: for any/all
+#'   \code{A} and \code{B} that occur for the XTS pair, the values at at index
+#'   \code{B} for the columns in the merged XTS coming from \code{xts2} equal
+#'   the aggregated value (as specified; e.g., \code{sum}) of the values of the
+#'   columns in \code{xts2} in the range \code{A:B}.
 #'
 #' @param xts1 An XTS object
 #' @param xts2 An XTS object that may or may not have indices that fall within
@@ -25,7 +28,7 @@
 #'
 #' @example inst/examples/xts_merge_align_next_ex.R
 #'
-#' @keywords internal
+#' @export
 #'
 xts_merge_align_next <- function(xts1, xts2, agg_function, na.fill){
 

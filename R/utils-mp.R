@@ -238,7 +238,7 @@ refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
           mkt_p$ex_volatility          <- round(
             sqrt(
               as.numeric(
-                (mkt_p$weights %*% exp_cov) %*% as.matrix(mkt_p$weights)
+                (mkt_p$weights %*% cov_mtx) %*% as.matrix(mkt_p$weights)
               )
             ),
             8

@@ -13,6 +13,10 @@ historical_rtn <- calculate_returns(
   )
 )
 
+# Note that a warning message is printed: Linde plc (NYSE: LIN) was the result
+#   of a merger between Praxair (NYSE: PX) and Linde AG (FWB: LINU and FWB: LIN)
+#   and therefore did not exist during the time range specified.
+
 # We'll assume that the return we expect over the next year is the annualized 
 # GMMR of the daily rates of return in historical_rtn:
 exp_rtn <- gmrr(historical_rtn)
@@ -33,20 +37,12 @@ exp_cor <- stats::cor(historical_rtn, use = "pairwise.complete.obs")
 mp_by_wt <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
 mp_by_wt
 
-### Calculate the market portfolio allowing both long & short positions:
-mp_by_wt_shorts <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
-mp_by_wt_shorts
-
 ### Repeat the above, assuming you have $250,000 to invest and that the stocks
-### may be bought at their closing prices on mp_date:
-
+### may be bought at their closing prices on mp_date. 
 prices <- stock_data %>%
-  vapply(
-    function(stock){
-      stock$prices$Close[mp_date]
-    },
-    numeric(1)
-  )
+  lapply(function(stock){stock$prices$Close[mp_date]}) %>%
+  unlist() %>%
+  purrr::compact()
 portfolio_aum <- 250000
 
 mp_by_shares <- calculate_market_portfolio(
@@ -57,13 +53,3 @@ mp_by_shares <- calculate_market_portfolio(
   portfolio_aum = portfolio_aum
 )
 mp_by_shares
-
-### Allow shorting:
-mp_by_shares_shorts <- calculate_market_portfolio(
-  exp_rtn,
-  exp_vol,
-  exp_cor,
-  prices        = prices,
-  portfolio_aum = portfolio_aum
-)
-mp_by_shares_shorts

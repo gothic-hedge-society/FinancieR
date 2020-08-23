@@ -123,36 +123,37 @@ calculate_market_portfolio <- function(
   exp_cor,
   rfr                = 0.000027397,
   prices             = NULL,
-  portfolio_aum      = NULL,
-  shortable_shares   = NULL,
-  initial_margin     = NULL,
-  maintenance_margin = NULL
+  portfolio_aum      = NULL
+  # ,
+  # shortable_shares   = NULL,
+  # initial_margin     = NULL,
+  # maintenance_margin = NULL
 ){
   
   # Make sure names & elements are in order to avoid disaster
   exp_vol      <- exp_vol[names(exp_rtn)]
   exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
   
-  # Boolean flag if shorting
-  allow_shorts <- any(grepl("^s_", names(exp_rtn))) 
+  # # Boolean flag if shorting
+  # allow_shorts <- any(grepl("^s_", names(exp_rtn))) 
   
   # Boolean flag if shares mode
   shares_mode <- !is.null(prices) && !is.null(portfolio_aum)
   
-  if(allow_shorts){
-    exp_rtn <- c(exp_rtn, "cash" = 0)
-    exp_vol <- c(exp_vol, "cash" = 0)
-    exp_cor <- rbind(
-      cbind(
-        exp_cor,
-        magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
-      ),
-      cbind(
-        magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
-        exp_cor
-      )
-    )
-  }
+  # if(allow_shorts){
+  #   exp_rtn <- c(exp_rtn, "cash" = 0)
+  #   exp_vol <- c(exp_vol, "cash" = 0)
+  #   exp_cor <- rbind(
+  #     cbind(
+  #       exp_cor,
+  #       magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
+  #     ),
+  #     cbind(
+  #       magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
+  #       exp_cor
+  #     )
+  #   )
+  # }
   
   # create covariance matrix of returns
   exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
@@ -170,15 +171,16 @@ calculate_market_portfolio <- function(
         .$weights <- .$weights[which(.$weights > 0)]
         .
       }
-    } %>% {
-      # Step 3: Apply short parameters
-      if(allow_shorts){
-        refine_shorts(
-          ., exp_rtn, exp_vol, exp_cov, rfr, initial_margin, shortable_shares
-        )
-      } else {
-        .
-      }
-    }
+    } 
+  # %>% {
+  #     # Step 3: Apply short parameters
+  #     if(allow_shorts){
+  #       refine_shorts(
+  #         ., exp_rtn, exp_vol, exp_cov, rfr, initial_margin, shortable_shares
+  #       )
+  #     } else {
+  #       .
+  #     }
+  #   }
   
 }
