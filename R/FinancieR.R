@@ -16,6 +16,6 @@ NULL
 ## quiets concerns of R CMD check re: the .'s that appear in pipelines
 if(getRversion() >= "2.15.1"){
   utils::globalVariables(
-    c(".", "from", "to", "stock_data", "Symbol", "Name")
+    c(".", "from", "to", "stock_data", "Symbol", "Name", "exp_rtn")
   )
 }

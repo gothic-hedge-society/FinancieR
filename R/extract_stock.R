@@ -27,7 +27,9 @@ parameter_j <- function(){
 #' operator on an object of class \emph{stock}, much like subsetting a matrix
 #' or list in base R.
 #'
-#' @param x an \code{\link[xts]{xts}} subsetting string following the same rules
+#' @param x an object of class "\emph{stock}".
+#'
+#' @param i an \code{\link[xts]{xts}} subsetting string following the same rules
 #'   as for an \code{\link[xts]{xts}} object: "\strong{2015}" will return data
 #'   for all of 2015, "\strong{2018-04}" will return data for March of 2018
 #'   only, "\strong{2016-09-19/2016-12-31}" will return data from 19 Sep 2016 to
@@ -69,15 +71,15 @@ parameter_j <- function(){
 #'
 #' @export
 #'
-`[.stock` <- function(x, i, j = NULL, ..., silent = FALSE){
-
+`[.stock` <- function(x, i, j = NULL, silent = FALSE){
+  
   stock_extract_try <- tryCatch(
     {
-
+      
       if(is.null(i)){ i <- paste0(trading_dates()[1], "/") }
-
+      
       stock_block <- stock_blockify(x, i, j)
-
+      
       if(is.null(stock_block)){
         if(silent){
           return(NULL)
@@ -103,13 +105,13 @@ parameter_j <- function(){
           return(NULL)
         }
       }
-
+      
       if(any(names(x) == "MnA")){
-
+        
         needed_dates <- trading_dates() %>% {
           zoo::index(xts::xts(rep("", length(.)), order.by = as.Date(.))[i])
         }
-
+        
         # CASE: Stock was ACQUIRED.
         if(
           all(
@@ -119,7 +121,7 @@ parameter_j <- function(){
             )
           )
         ){
-
+          
           stock_block_2 <- stock_blockify(
             x = stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
             i = paste0(
@@ -129,37 +131,37 @@ parameter_j <- function(){
             ),
             j = j
           )
-
+          
           if(!is.null(stock_block_2)){
             storage.mode(stock_block) <- "character"
             stock_block$symbol        <- as.character(x$MnA$company)
             stock_block$multiplier    <- as.character(1)
-
+            
             storage.mode(stock_block_2) <- "character"
             stock_block_2$symbol <- attr(
               stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
               "Symbol"
             )
             stock_block_2$multiplier    <- as.character(1)
-
+            
             stock_block <- xts::rbind.xts(stock_block, stock_block_2) %>% {
               .[!duplicated(zoo::index(.), fromLast = TRUE),]
             }
-
+            
             stock_block[
               zoo::index(xts::last(x$MnA)), "multiplier"
             ] <- as.character(xts::last(x$MnA)$multiple)
-
+            
           }
-
+          
           stock_block
-
+          
         }
-
+        
       }
-
+      
       stock_block
-
+      
     },
     error = function(e){e}
   )
@@ -168,5 +170,5 @@ parameter_j <- function(){
   } else {
     stock_extract_try
   }
-
+  
 }

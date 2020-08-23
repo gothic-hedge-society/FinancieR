@@ -49,8 +49,8 @@ mp_by_shares_shorts       <- calculate_market_portfolio(
   exp_rtn, exp_vol, exp_cor, prices = prices, portfolio_aum = portfolio_aum 
 )
 
-context("Cash Balance, Shares Mode, with shorts")
-test_that(
-  "Cash balances for mp by shares, with shorting",
-  expect_equal(cash_bal(mp_by_shares_shorts), portfolio_aum)
-)
+# context("Cash Balance, Shares Mode, with shorts")
+# test_that(
+#   "Cash balances for mp by shares, with shorting",
+#   expect_equal(cash_bal(mp_by_shares_shorts), portfolio_aum)
+# )

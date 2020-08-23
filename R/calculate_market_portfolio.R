@@ -3,9 +3,9 @@
 #' Calculate the Sharpe-optimal market portfolio available for a set of assets
 #' given the expected returns, volatilities, and correlations of returns for
 #' each asset.
-#' 
+#'  
 #' @param exp_rtn Named numeric vector for which each element is the return
-#'   expected for the asset specified by the element's name.
+#'   expected for the next period for the asset specified by the element's name.
 #'   
 #' @param exp_vol Named numeric vector for which each element is the volatility
 #'   expected for the asset specified by the element's name. 
@@ -36,6 +36,54 @@
 #' @param portfolio_aum Optional: numeric, length 1, giving the total amount of
 #'   assets under management for which a market portfolio is to be calculated.
 #'   In other words, \emph{portfolio_aum} = "total cash at risk".
+#'   
+#' @section The Cost of Shorting:
+#'  You would only short an asset if the return you expect for buying that asset
+#'  is negative. You may think that the expected return for shorting an asset is
+#'  simply the return you expect for longing the asset times -1. In reality, the
+#'  return you'll get from a short sale will be a fraction of the asset times -1
+#'  because your broker charges fees on short position in exchange for providing
+#'  the shorting service. In addition, the capital gains from short selling may
+#'  taxed at a different rate than those realized on your long positions.
+#'  
+#'  The key additional costs of shorting are:
+#'  
+#'  \describe{
+#'   \item{Dividends}{
+#'      You don't earn dividends on a short position. In fact, it's the
+#'      opposite: if you're short a stock on a dividend's ex-date, then you must
+#'      actually \emph{pay} the dividend to the owner of the stock.
+#'      \emph{\link{calculate_historical_returns}}() takes this into account
+#'      itself when shorting is included.
+#'    }
+#'    \item{Short Fees}{
+#'      Your brokerage will charge a fee on a short position for every day the
+#'      position is open. This fee is based on the availability of assets for
+#'      shorting, and varies from asset to asset and through time. Usually the
+#'      fee is calculated on each trading day and debited from the trading
+#'      account on at the beginning of each month.
+#'      \emph{\link{calculate_historical_returns}}() takes this into account
+#'      when the \emph{short_fees} parameter is specified.
+#'    }
+#'    \item{Taxes}{
+#'      Capital gains taxes on your short sales can often be taxed at a higher
+#'      rate than what you might expect for long sales. If \strong{uncovered},
+#'      the short position will always be taxed as a short-term capital gain
+#'      because the holding period is considered by the IRS to begin on the day
+#'      when the short position was closed out (bought to cover). If
+#'      \strong{covered}, then the holding period is considered to be the
+#'      holding period of the \emph{substantially different securities} that can
+#'      be converted to the stock itself. Taxes must be taken into account in
+#'      the \emph{exp_rtn} parameter as passed to
+#'      \emph{calculate_market_portfolio}.
+#'      
+#'      Taxes will depend on your situation: whether you expect a short-term or
+#'      long-term investment, your income bracket, whether or not you're an
+#'      institution, etc. You must figure that out for yourself, and you might
+#'      find that, once everything is taken into account, it's just not worth it
+#'      to short assets in a lot of situations. Stay smart!
+#'    }
+#'  }
 #'    
 #' @details 
 #' 
@@ -123,36 +171,37 @@ calculate_market_portfolio <- function(
   exp_cor,
   rfr                = 0.000027397,
   prices             = NULL,
-  portfolio_aum      = NULL,
-  shortable_shares   = NULL,
-  initial_margin     = NULL,
-  maintenance_margin = NULL
+  portfolio_aum      = NULL
+  # ,
+  # shortable_shares   = NULL,
+  # initial_margin     = NULL,
+  # maintenance_margin = NULL
 ){
   
   # Make sure names & elements are in order to avoid disaster
   exp_vol      <- exp_vol[names(exp_rtn)]
   exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
   
-  # Boolean flag if shorting
-  allow_shorts <- any(grepl("^s_", names(exp_rtn))) 
+  # # Boolean flag if shorting
+  # allow_shorts <- any(grepl("^s_", names(exp_rtn))) 
   
   # Boolean flag if shares mode
   shares_mode <- !is.null(prices) && !is.null(portfolio_aum)
   
-  if(allow_shorts){
-    exp_rtn <- c(exp_rtn, "cash" = 0)
-    exp_vol <- c(exp_vol, "cash" = 0)
-    exp_cor <- rbind(
-      cbind(
-        exp_cor,
-        magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
-      ),
-      cbind(
-        magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
-        exp_cor
-      )
-    )
-  }
+  # if(allow_shorts){
+  #   exp_rtn <- c(exp_rtn, "cash" = 0)
+  #   exp_vol <- c(exp_vol, "cash" = 0)
+  #   exp_cor <- rbind(
+  #     cbind(
+  #       exp_cor,
+  #       magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
+  #     ),
+  #     cbind(
+  #       magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
+  #       exp_cor
+  #     )
+  #   )
+  # }
   
   # create covariance matrix of returns
   exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
@@ -170,15 +219,16 @@ calculate_market_portfolio <- function(
         .$weights <- .$weights[which(.$weights > 0)]
         .
       }
-    } %>% {
-      # Step 3: Apply short parameters
-      if(allow_shorts){
-        refine_shorts(
-          ., exp_rtn, exp_vol, exp_cov, rfr, initial_margin, shortable_shares
-        )
-      } else {
-        .
-      }
-    }
+    } 
+  # %>% {
+  #     # Step 3: Apply short parameters
+  #     if(allow_shorts){
+  #       refine_shorts(
+  #         ., exp_rtn, exp_vol, exp_cov, rfr, initial_margin, shortable_shares
+  #       )
+  #     } else {
+  #       .
+  #     }
+  #   }
   
 }

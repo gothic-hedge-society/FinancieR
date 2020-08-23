@@ -5,10 +5,12 @@
 \alias{extract_stock}
 \title{Using \code{[} on Objects of Class "stock"}
 \usage{
-\method{[}{stock}(x, i, j = NULL, ..., silent = FALSE)
+\method{[}{stock}(x, i, j = NULL, silent = FALSE)
 }
 \arguments{
-\item{x}{an \code{\link[xts]{xts}} subsetting string following the same rules
+\item{x}{an object of class "\emph{stock}".}
+
+\item{i}{an \code{\link[xts]{xts}} subsetting string following the same rules
 as for an \code{\link[xts]{xts}} object: "\strong{2015}" will return data
 for all of 2015, "\strong{2018-04}" will return data for March of 2018
 only, "\strong{2016-09-19/2016-12-31}" will return data from 19 Sep 2016 to
