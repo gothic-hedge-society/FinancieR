@@ -37,6 +37,21 @@
 #'   assets under management for which a market portfolio is to be calculated.
 #'   In other words, \emph{portfolio_aum} = "total cash at risk".
 #'   
+#' @param initial_margin Optional: numeric, length 1, only needed if
+#'   \emph{prices} and \emph{portfolio_aum} are specified. Defaults to 0.5. See 
+#'   \strong{Margins} section below.
+#'
+#' @param shortable_shares Optional: NULL or named numeric. Defaults to NULL,
+#'   which instructs \emph{calculate_market_portfolio}() to assume that shares
+#'   of all assets are always available for shorting. For large companies whose
+#'   stock is traded in high volumes this assumption is usually valid. For the
+#'   case in which only a relatively small number of shares of a stock are
+#'   available to short, set \emph{shortable_shares} to a named numeric in which
+#'   each name specifies an asset, and each element gives the number of shares
+#'   of that asset available for shorting. If an asset does not appear in
+#'   \emph{shortable_shares}, then \emph{calculate_market_portfolio}() assumes
+#'   that the shares of that asset are always available for shorting.
+#'   
 #' @section The Cost of Shorting:
 #'  You would only short an asset if the return you expect for buying that asset
 #'  is negative. You may think that the expected return for shorting an asset is
@@ -73,17 +88,60 @@
 #'      when the short position was closed out (bought to cover). If
 #'      \strong{covered}, then the holding period is considered to be the
 #'      holding period of the \emph{substantially different securities} that can
-#'      be converted to the stock itself. Taxes must be taken into account in
+#'      be converted to the stock itself. Taxes should be taken into account in
 #'      the \emph{exp_rtn} parameter as passed to
-#'      \emph{calculate_market_portfolio}.
-#'      
-#'      Taxes will depend on your situation: whether you expect a short-term or
-#'      long-term investment, your income bracket, whether or not you're an
-#'      institution, etc. You must figure that out for yourself, and you might
-#'      find that, once everything is taken into account, it's just not worth it
-#'      to short assets in a lot of situations. Stay smart!
+#'      \emph{calculate_market_portfolio}. Taxes will depend on your situation:
+#'      whether you expect a short-term or long-term investment, your income
+#'      bracket, whether or not you're an institution, etc. You must figure that
+#'      out for yourself, and you might find that, once everything is taken into
+#'      account, it's just not worth it to short assets in a lot of situations.
+#'      Stay smart!
 #'    }
 #'  }
+#'  
+#' @section Margin:
+#'  \strong{This section covers both initial and maintenance margin, but only 
+#'  initial margin is used by \emph{calculate_market_portfolio}()}.
+#'  
+#'  When you short sell a stock, cash magically appears in your account, which
+#'  you can use to buy more stock. However, there are limits to how much cash
+#'  your brokerage will allow you to raise by shorting.
+#'  
+#'  Money obtained by shorting is considered to be "borrowed"; i.e., not yours.
+#'  The consequence is that, after shorting, your equity (the assets in the
+#'  account that actually belong to you) decreases as a percentage of the
+#'  account's apparent cash value.
+#'  
+#'  For example, if you own $5,000 worth of stock outright, then you have 100%
+#'  equity in your account. If you then short $1,000 worth of other stocks
+#'  (brokerages usually won't let you maintain a long and a short position in
+#'  the same stock), then $1,000 cash will appear in your account, raising the
+#'  total value of the account to $6,000. 
+#'  
+#'  The $1,000 isn't really "yours" because at some point you'll have to buy to
+#'  cover your short positions, meaning that, effectively, you've only borrowed
+#'  the $1,000. As a consequence, your equity percentage decreases to $5,000 *
+#'  100 / $6,000, or 83.3% in this case.
+#'  
+#'  \strong{Initial Margin}: The \emph{initial_margin} determines whether or not
+#'  your brokerage will allow you to open a \strong{new} short position. The
+#'  rule is: \strong{If opening a short position will cause your equity
+#'  percentage to fall \emph{below} the \emph{initial_margin}, then your
+#'  brokerage won't allow the short sale}. This value is usually set to 50%.
+#'  
+#'  \strong{Maintenance Margin}: After you make a short sale, market prices
+#'  might not move in your favor, meaning that the the value of the stocks you
+#'  own outright (your equity) vs. the amount you owe to cover short positions
+#'  might decrease. If your equity percentage decreases too far, then your
+#'  brokerage will take action. The \emph{maintenance margin}, set by your
+#'  brokerage, determines what "too far" means. The rule is: \strong{If, at any
+#'  time, market prices move in a way such that your total equity percentage
+#'  (including ALL open long & short positions) is less than the
+#'  \emph{maintenance margin}, then your brokerage will take action}. "Taking
+#'  action" by the brokerage might include demanding that you deposit more cash
+#'  into the account or, if you're unable to do so, automatically selling long
+#'  stock that you own, or
+#'  \href{https://www.thebalance.com/what-is-margin-call-358106}{worse}.
 #'    
 #' @details 
 #' 
@@ -131,9 +189,9 @@
 #'   vector is countably finite and it is possible to find an exact solution.
 #' 
 #' @return 
-#'   If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum} 
-#'   not specified): #'   A list describing the market portfolio (MP). Contains
-#'   the following four elements:
+#'   If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum} not
+#'   specified): A list describing the market portfolio (MP). Contains the
+#'   following four elements:
 #'   
 #'   \describe{
 #'     \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
@@ -170,12 +228,11 @@ calculate_market_portfolio <- function(
   exp_vol,
   exp_cor,
   rfr                = 0.000027397,
+  taxes              = NULL,
   prices             = NULL,
-  portfolio_aum      = NULL
-  # ,
-  # shortable_shares   = NULL,
-  # initial_margin     = NULL,
-  # maintenance_margin = NULL
+  portfolio_aum      = NULL,
+  initial_margin     = 0.5,
+  shortable_shares   = NULL
 ){
   
   # Make sure names & elements are in order to avoid disaster
