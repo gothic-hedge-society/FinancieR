@@ -121,20 +121,18 @@ gd_cb_ivv_returns_w_shorts <- calculate_historical_returns(
   short_fees     = sf
 )
 test_that(
-  "The fourth example in calculate_historical_returns() documentation works.",
+  "The 4th example in calculate_historical_returns() documentation works.",
   expect_equal(
-    round(sf - 1, digits = 4), 
-    round(
-      colMeans(
+    sf,
+    colSums(
+      -zoo::coredata(
         gd_cb_ivv_returns_w_shorts[
-          , grepl("^s_", colnames(gd_cb_ivv_returns_w_shorts))
-        ] / gd_cb_ivv_returns_w_shorts[
           , !grepl("^s_", colnames(gd_cb_ivv_returns_w_shorts))
-        ]
-      ),
-      digits = 4
-    ) %>%
-      stats::setNames(., names(sf))
+        ] + gd_cb_ivv_returns_w_shorts[
+          , grepl("^s_", colnames(gd_cb_ivv_returns_w_shorts))
+        ] 
+      )
+    ) / nrow(gd_cb_ivv_returns_w_shorts)
   )
 )
 
@@ -148,7 +146,7 @@ gd_cb_ivv_returns <- calculate_historical_returns(
   date_range_xts = "2020-08-05/2020-08-14"
 )
 test_that(
-  "The fifth example in calculate_historical_returns() documentation is correct.",
+  "The 5th example in calculate_historical_returns() documentation is correct.",
   expect_equal(
     round(
       colMeans(
@@ -173,7 +171,6 @@ test_that(
   )
 )
 
-
 context("M&A")
 test_that(
   "calculate_historical_returns() handles mergers",
@@ -186,7 +183,7 @@ test_that(
   )
 )
 test_that(
-  "calculate_historical_returns() handles a missing acquiring co for given daterange",
+  "calculate_historical_returns() handles a missing acquiring co in daterange",
   expect_identical(
     calculate_historical_returns(
       assets         = stock_data$PX,
@@ -197,6 +194,37 @@ test_that(
       )
     ),
     testthis::read_testdata("MnA_w_missing_data.rds")
+  )
+)
+
+context("Dividends")
+IVV_rtns <- calculate_historical_returns(
+  assets         = stock_data$IVV, 
+  date_range_xts = "2020-06-10/2020-06-20",
+  short_fees     = 0.0025
+)
+test_that(
+  "calculate_historical_returns() gets correct returns if long.",
+  expect_equal(
+    as.numeric(IVV_rtns["2020-06-15", "IVV"]),
+    log(
+      (
+        as.numeric(stock_data$IVV$prices["2020-06-15", "Close"]) +  
+          as.numeric(stock_data$IVV$dividends["2020-06-15", "DividendAmount"])
+      ) / as.numeric(stock_data$IVV$prices["2020-06-12", "Close"])
+    )
+  )
+)
+test_that(
+  "calculate_historical_returns() gets correct returns if short.",
+  expect_equal(
+    as.numeric(IVV_rtns["2020-06-15", "s_IVV"]),
+    log(
+      as.numeric(stock_data$IVV$prices["2020-06-12", "Close"]) / (
+        as.numeric(stock_data$IVV$prices["2020-06-15", "Close"]) +  
+          as.numeric(stock_data$IVV$dividends["2020-06-15", "DividendAmount"])
+      )
+    ) - 0.0025
   )
 )
 

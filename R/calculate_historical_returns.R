@@ -90,7 +90,7 @@ calculate_historical_returns <- function(
     if(length(short_fees) > 1){
       short_fees <- short_fees[names(assets)]  
     }
-    shorts     <- TRUE
+    shorts <- TRUE
   }
   
   assets[sort(names(assets))] %>%
@@ -180,20 +180,21 @@ calculate_historical_returns <- function(
       if(length(.) > 0){
         purrr::reduce(., xts::merge.xts) %>% {
           if(!is.null(short_fees)){
-            shorts <- .
-            if(length(short_fees) == 1){
-              shorts <- short_fees - shorts
-            } else {
-              for(short_fee in names(short_fees)){
-                shorts[,short_fee] <- shorts[,short_fee] * 
-                  (short_fees[short_fee] - 1)
-              }
+            if(length(short_fees) > 1){
+              short_fees <- matrix(
+                short_fees,
+                nrow     = nrow(.),
+                ncol     = length(short_fees),
+                byrow    = TRUE,
+                dimnames = list(list(), names(short_fees))
+              )[, colnames(.)]  
             }
-            colnames(shorts) <- paste0("s_", colnames(.))
-            . <- xts::cbind.xts(., shorts)
+            short_rtn <- -. - short_fees
+            colnames(short_rtn) <- paste0("s_", colnames(.))
+            . <- xts::cbind.xts(., short_rtn)
           }
           .
-        }   
+        }
       }
     }
   
