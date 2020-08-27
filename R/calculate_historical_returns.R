@@ -97,40 +97,8 @@ calculate_historical_returns <- function(
     purrr::map(
       function(asset){
         
-        if(any(names(asset) == "MnA")){
-          
-          asset_name <- attr(asset, "Symbol")
-          asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
-          
-          if(!is.null(asset)){
-            if(any(colnames(asset) == "symbol")){
-              asset_name <- paste(
-                unique(as.character(asset$symbol)), collapse = "-"
-              )              
-            }
-            
-            asset <- asset[, find_numeric_columns(asset), silent = TRUE]
-            
-          } else {
-            
-            if(!silent){
-              usethis::ui_info(
-                paste0(
-                  "No data available for ", crayon::bold(asset_name),
-                  " during time range ",    crayon::bold(date_range_xts),
-                  "."
-                )
-              )
-            }
-            
-            return(NULL)
-            
-          }
-          
-        } else {
-          asset_name <- attr(asset, "Symbol")
-          asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
-        }
+        asset_name <- attr(asset, "Symbol")
+        asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
         
         if(is.null(asset)){
           if(!silent){
@@ -141,9 +109,17 @@ calculate_historical_returns <- function(
                 "."
               )
             )
-          } 
+          }
           return(NULL)
-        } 
+        }
+        
+        if(any(colnames(asset) == "symbol")){
+          asset_name <- paste(
+            unique(as.character(asset$symbol)), collapse = "-"
+          )              
+        }
+        
+        asset <- asset[, find_numeric_columns(asset), silent = TRUE]
         
         storage.mode(asset) <- "numeric"
         
@@ -162,6 +138,7 @@ calculate_historical_returns <- function(
           sell_price <- sell_price * asset$multiplier
         }
         
+        
         switch(
           returns_method,
           "ln"       = log(sell_price / buy_price),
@@ -175,6 +152,7 @@ calculate_historical_returns <- function(
         }
         
       }
+      
     ) %>%
     purrr::compact() %>% {
       if(length(.) > 0){

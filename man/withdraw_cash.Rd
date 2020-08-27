@@ -4,8 +4,30 @@
 \alias{withdraw_cash}
 \title{Optimum way to withdraw cash.}
 \usage{
-withdraw_cash(portfolio, exp_rtn, exp_vol, exp_cov, prices, cash)
+withdraw_cash(portfolio, exp_rtn, exp_vol, exp_cov, prices, withdraw_cash)
+}
+\arguments{
+\item{exp_rtn}{Named numeric vector for which each element is the return
+expected for the next period for the asset specified by the element's name.}
+
+\item{exp_vol}{Named numeric vector for which each element is the volatility
+expected for the asset specified by the element's name.}
+
+\item{prices}{Optional: a named numeric vector for which each name is the
+identifier of an asset and each element is the current price of that asset
+for which a market portfolio is to be calculated on a shares basis. See the
+"Returns" section for more info.}
+
+\item{withdraw_cash}{Numeric length 1. The amount of cash to be withdrawn
+from the portfolio.}
 }
 \description{
-Taking into account capital gains taxes
+\strong{this function is under development and will be added soon}.
+}
+\details{
+Calculate the optimum resultant portfolio, and the trades required to create
+it, if some amount of cash is required to be withdrawn from the portfolio.
+}
+\examples{
+# this function is under development and will be added soon
 }

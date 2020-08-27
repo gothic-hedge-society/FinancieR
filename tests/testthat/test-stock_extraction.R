@@ -39,7 +39,7 @@ test_that(
   expect_identical(AAPL_split, testthis::read_testdata("AAPL_split.rds"))
 )
 test_that(
-  "Stock exctract fails gracefully if no data for that date range",
+  "Stock exctract fails gracefully",
   {
     expect_message(
       stock_data$LIN[
@@ -57,6 +57,33 @@ test_that(
       stock_data$LIN[
         paste0(as.Date("2018-01-09") - 365, "/2018-01-09"), c("Close", "Close")
       ]
+    )
+    expect_equal(
+      nrow(stock_data$PX["2018-01-01/2018-10-31", c("Close", "Close")]), 211
+    )
+  }
+)
+test_that(
+  "Stock extract handles PX and LIN only, and PX-LIN matches rbind of the two",
+  {
+    PX_extract   <- stock_data$PX["2018-10-26/2018-10-30", c("Close", "Close")]
+    LIN_extract  <- stock_data$LIN["2018-10-31/2018-11-05", c("Close", "Close")]
+    both_extract <- stock_data$PX["2018-10-26/2018-11-05", c("Close", "Close")]
+    expect_equal(
+      xts::rbind.xts(PX_extract, LIN_extract) %>% {
+        storage.mode(.) <- "character"
+        xts::cbind.xts(
+          .,
+          xts::xts(
+            cbind(
+              "symbol"     = c("PX", "PX", "PX", "LIN", "LIN", "LIN", "LIN"),
+              "multiplier" = c("1",   "1", "1",  "1",   "1",   "1",   "1")
+            ),
+            order.by = zoo::index(.)
+          )
+        )
+      },
+      both_extract
     )
   }
 )

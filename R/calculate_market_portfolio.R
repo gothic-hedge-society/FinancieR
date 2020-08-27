@@ -1,8 +1,11 @@
 #' Calculate Market Portfolio
 #' 
-#' Calculate the Sharpe-optimal market portfolio available for a set of assets
-#' given the expected returns, volatilities, and correlations of returns for
-#' each asset.
+#' Calculate the Sharpe-optimal market portfolio (MP) available for a set of
+#' assets given the expected returns, volatilities, and correlations of returns
+#' for each asset. Assets passed in via the parameters \emph{exp_rtn},
+#' \emph{exp_vol}, and \emph{exp_cor} specify the universe, or choices
+#' available, for inclusion in the market portfolio, but not every asset passed
+#' in will necessarily appear in the optimized MP.
 #'  
 #' @param exp_rtn Named numeric vector for which each element is the return
 #'   expected for the next period for the asset specified by the element's name.

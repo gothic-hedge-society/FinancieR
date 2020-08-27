@@ -3,7 +3,6 @@
 # Single date:
 stock_data$IVV["2019-06-11"]
 
-
 # Dividends are correctly applied, even when issued on a non-trading day. In
 # 2012, for example, Texas Instruments (TXN) had scheduled a dividend for the
 # 29th of October but the exchange was closed due to Hurricane Sandy. The
@@ -11,7 +10,6 @@ stock_data$IVV["2019-06-11"]
 # we'll select just the closing price for a date range around that time.
 # Remember, any dividends that occur within the date range are always included.
 stock_data$TXN["2012-10-25/2012-11-05", "Close"]
-
 
 # Mergers are handled as illustrated below for the PX-LIN merger in 2018.
 # Shareholders of PX received 1 share of the new company, LIN, for every 1
@@ -24,3 +22,15 @@ stock_data$AAPL["2014-06-05/2014-06-11", c("Open", "Close")]
 # Not specifying which columns you want can quickly lead to a lot of data, as in
 # the below subset of IVV for the month of June 2019:
 stock_data$IVV["2019-06"]
+
+# Consider the M&A event that took place on 31 Oct 2018 in which Praxair merged
+# with Linde AG (not included in dataset) to form a new company traded as LIN.
+
+# Extracting a stock created by a merger will treat the stock as a brand new
+# company whose data history begins on the merger's ex-date:
+stock_data$LIN["2018-10-26/2018-11-05", c("Close", "Close")]
+
+# Extracting a stock that is no longer traded but was merged into or acquired by
+# another company will output data for BOTH the acquired / merged stock and the
+# acquiring stock / newly merged company:
+stock_data$PX["2018-10-26/2018-11-05", c("Close", "Close")]

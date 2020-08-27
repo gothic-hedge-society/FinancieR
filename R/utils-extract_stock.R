@@ -1,5 +1,5 @@
 # make a stock block (an xts) from a "stock" class object.
-stock_blockify <- function(x, i, j){
+stock_blockify <- function(x, i, j, force_divs_col = FALSE){
 
   requireNamespace("xts", quietly = TRUE)
 
@@ -78,6 +78,10 @@ stock_blockify <- function(x, i, j){
       na.fill      = 1,
       agg_function = base::prod
     )
+  }
+
+  if(force_divs_col){
+    stock_block$DividendAmount <- rep("0", nrow(stock_block))
   }
 
   stock_block

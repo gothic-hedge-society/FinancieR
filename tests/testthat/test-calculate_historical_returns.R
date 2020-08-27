@@ -196,6 +196,39 @@ test_that(
     testthis::read_testdata("MnA_w_missing_data.rds")
   )
 )
+test_that(
+  "calculate_historical_returns() gives correct combination of PX and LIN.",
+  {
+    PX_rtns <- calculate_historical_returns(
+      stock_data$PX, 
+      date_range_xts = "2018-10-25/2018-10-30"
+    )
+    LIN_rtns <- calculate_historical_returns(
+      stock_data$LIN, 
+      date_range_xts = "2018-10-25/2018-11-05"
+    )
+    both_rtns <- calculate_historical_returns(
+      stock_data$PX, 
+      date_range_xts = "2018-10-25/2018-11-05"
+    )
+    expect_equal(
+      as.numeric(PX_rtns),
+      as.numeric(both_rtns[zoo::index(PX_rtns)])
+    )
+    expect_equal(
+      as.numeric(LIN_rtns),
+      as.numeric(both_rtns[zoo::index(LIN_rtns)])
+    )
+    expect_equal(
+      log(
+        as.numeric(xts::first(stock_data$LIN$prices$Close)) / as.numeric(
+          xts::last(stock_data$PX$prices$Close)
+        )
+      ),
+      as.numeric(both_rtns["2018-10-31"])
+    )
+  }
+)
 
 context("Dividends")
 IVV_rtns <- calculate_historical_returns(

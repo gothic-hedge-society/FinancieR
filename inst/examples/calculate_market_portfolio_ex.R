@@ -2,8 +2,8 @@
 mp_date <- "2018-01-09"
 # Feel free to change this date to any other date for which you have data.
 
-# Use calculate_historical_returns() to get the daily returns observed for the 365 days
-# ending on mp_date:
+# Use calculate_historical_returns() to get the daily returns observed for the
+# 365 days ending on mp_date:
 historical_rtn <- calculate_historical_returns(
   assets         = stock_data,
   date_range_xts = paste0(
@@ -17,17 +17,19 @@ historical_rtn <- calculate_historical_returns(
 #   of a merger between Praxair (NYSE: PX) and Linde AG (FWB: LINU and FWB: LIN)
 #   and therefore did not exist during the time range specified.
 
-# We'll assume that the return we expect over the next year is the annualized 
-# GMMR of the daily rates of return in historical_rtn:
-exp_rtn <- gmrr(historical_rtn)
+# We'll assume that the return we expect over the next year for each asset is
+# the annualized GMMR of the daily rates of return over the past year:
+exp_rtn <- log(1 + gmrr(historical_rtn))*252
 
-# Assume that the volatilities we expect for the next year are the annualized
-# daily vols we observed during the previous year:
-exp_vol <- dplyr::summarize(
-  tibble::as_tibble(historical_rtn),
-  dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
-) %>%
-  purrr::as_vector()
+# Assume that the volatilities we expect over the next year for each asset are
+# the annualized daily vols we observed during the previous year:
+exp_vol <- (
+  dplyr::summarize(
+    tibble::as_tibble(historical_rtn),
+    dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
+  ) %>%
+    purrr::as_vector()
+) * sqrt(252)
 
 # Assume that the correlations of returns of each asset pair that we expect
 # for the next year will be the same as the previous year:

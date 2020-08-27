@@ -46,3 +46,23 @@ test_that(
     )
   }
 )
+test_that(
+  "PX has no price entry on the day of the merger.",
+  expect_equal(nrow(stock_data$PX$prices["2018-10-31"]), 0)
+)
+
+context("Trading Dates")
+
+test_that(
+  "No intersection between dates which have data and trading_dates() output",
+  expect_length(
+    intersect(
+      trading_dates(),
+      stock_data %>%
+        lapply(function(asset){as.character(zoo::index(asset$prices))}) %>%
+        unlist() %>%
+        unique()
+    ),
+    0
+  )
+)

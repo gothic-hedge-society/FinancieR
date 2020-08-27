@@ -27,7 +27,9 @@ parameter_j <- function(){
 #' operator on an object of class \emph{stock}, much like subsetting a matrix
 #' or list in base R.
 #'
-#' @param x an \code{\link[xts]{xts}} subsetting string following the same rules
+#' @param x an object of class "\emph{stock}".
+#'
+#' @param i an \code{\link[xts]{xts}} subsetting string following the same rules
 #'   as for an \code{\link[xts]{xts}} object: "\strong{2015}" will return data
 #'   for all of 2015, "\strong{2018-04}" will return data for March of 2018
 #'   only, "\strong{2016-09-19/2016-12-31}" will return data from 19 Sep 2016 to
@@ -91,52 +93,55 @@ parameter_j <- function(){
               "."
             )
           )
-          for(mna_row in 1:nrow(x$MnA)){
-            usethis::ui_info(
-              paste0(
-                crayon::bold(x$MnA$type[mna_row]), " event found for ",
-                crayon::bold(attr(x, "Symbol")),   " on ",
-                zoo::index(x$MnA[mna_row,]),       "."
+          if(any(names(x) == "MnA")){
+            for(mna_row in 1:nrow(x$MnA)){
+              usethis::ui_info(
+                paste0(
+                  crayon::bold(x$MnA$type[mna_row]), " event found for ",
+                  crayon::bold(attr(x, "Symbol")),   " on ",
+                  zoo::index(x$MnA[mna_row,]),       "."
+                )
               )
-            )
+            }
+            return(NULL)
           }
-          return(NULL)
         }
       }
 
-      if(any(names(x) == "MnA")){
+      if(isTRUE(any(names(x$MnA) == "acquired_by"))){
+        # Stock was acquired or merged into another one, so add the new
+        # company's data if needed.
 
         needed_dates <- trading_dates() %>% {
-          zoo::index(xts::xts(rep("", length(.)), order.by = as.Date(.))[i])
+          setdiff(
+            as.character(
+              zoo::index(xts::xts(rep("", length(.)), order.by = as.Date(.))[i])
+            ),
+            as.character(zoo::index(stock_block))
+          )
         }
 
-        # CASE: Stock was ACQUIRED.
-        if(
-          all(
-            zoo::index(xts::last(stock_block)) < as.Date(
-              setdiff(needed_dates, zoo::index(stock_block)),
-              origin = "1970-01-01"
-            )
-          )
-        ){
+        if(length(needed_dates) > 0){
 
           stock_block_2 <- stock_blockify(
             x = stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
             i = paste0(
-              zoo::index(xts::first(stock_block)),
+              needed_dates[1],
               "/",
               needed_dates[length(needed_dates)]
             ),
-            j = j
+            j = j,
+            force_divs_col = any(colnames(stock_block) == "DividendAmount")
           )
 
           if(!is.null(stock_block_2)){
+
             storage.mode(stock_block) <- "character"
             stock_block$symbol        <- as.character(x$MnA$company)
             stock_block$multiplier    <- as.character(1)
 
             storage.mode(stock_block_2) <- "character"
-            stock_block_2$symbol <- attr(
+            stock_block_2$symbol        <- attr(
               stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
               "Symbol"
             )
@@ -151,8 +156,6 @@ parameter_j <- function(){
             ] <- as.character(xts::last(x$MnA)$multiple)
 
           }
-
-          stock_block
 
         }
 
