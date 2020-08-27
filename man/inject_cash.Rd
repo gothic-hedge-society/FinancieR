@@ -2,20 +2,66 @@
 % Please edit documentation in R/inject_cash.R
 \name{inject_cash}
 \alias{inject_cash}
-\title{Takes in a portfolio object & prices and calculates the new portfolio if
-you injected cash ONLY.}
+\title{Add Cash to an Existing Portfolio}
 \usage{
 inject_cash(
-  portfolio,
+  positions,
   prices,
   exp_rtn,
   exp_vol,
   exp_cor,
   rfr = 2.7397e-05,
-  portfolio_aum
+  new_cash
 )
 }
+\arguments{
+\item{positions}{Named numeric vector giving the number of shares of each
+asset held in an existing portfolio.}
+
+\item{prices}{Optional: a named numeric vector for which each name is the
+identifier of an asset and each element is the current price of that asset
+for which a market portfolio is to be calculated on a shares basis. See the
+"Returns" section for more info.}
+
+\item{exp_rtn}{Named numeric vector for which each element is the return
+expected for the next period for the asset specified by the element's name.}
+
+\item{exp_vol}{Named numeric vector for which each element is the volatility
+expected for the asset specified by the element's name.}
+
+\item{exp_cor}{Named numeric matrix specifying the expected covariance of
+returns for each asset pair.}
+
+\item{rfr}{The risk-free rate (in decimal form; i.e., to specify a rate of
+"3\%" use "0.03", \emph{not} "3") that \strong{YOU} can earn on cash with
+reasonable liquidity constraints that \strong{YOU} can tolerate. For big
+banks and in economic textbooks, this rate is usually the current rate on
+3-month T-bills (or even higher). That might be just fine for you if you
+plan on rebalancing once a year. For a trader running a strategy that can't
+tolerate cash being tied up for 3 months at a time, the \emph{rfr} should
+be set to whatever interest rate your brokerage is giving you on cash in
+your trading account. Used in calculation of the
+\href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe
+Ratio}. Defaults to \strong{0.0027397}\% daily return (about 1\% annually).
+If you specify a different value for \emph{rfr}, \strong{make sure its time
+basis matches the one used for you other inputs}, (i.e., if \emph{exp_rtn}
+contains monthly returns, use monthly risk-free rate)!}
+
+\item{new_cash}{Numeric, length 1, specifying the amount of \strong{new} cash
+intended to be invested into the portfolio.}
+}
 \description{
-Takes in a portfolio object & prices and calculates the new portfolio if
-you injected cash ONLY.
+\strong{this function is under development and will be added soon}.
+}
+\details{
+Calculate the optimum allocation of new cash injected into an existing
+portfolio without rebalancing. Assets passed in via the parameters
+\emph{exp_rtn}, \emph{exp_vol}, and \emph{exp_cor} specify the universe, or
+choices available, for inclusion in the market portfolio, but not every asset
+passed in will necessarily appear in the optimized MP.
+
+\emph{inject_cash}() is the "inverse" of \link{withdraw_cash}().
+}
+\examples{
+# this function is under development and will be added soon
 }
