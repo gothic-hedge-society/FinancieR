@@ -271,10 +271,10 @@ exp_rtn <- log(1 + gmrr(historical_rtn))*252
 # the annualized daily vols we observed during the previous year:
 exp_vol <- (
   dplyr::summarize(
-  tibble::as_tibble(historical_rtn),
-  dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
-) \%>\%
-  purrr::as_vector()
+    tibble::as_tibble(historical_rtn),
+    dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
+  ) \%>\%
+    purrr::as_vector()
 ) * sqrt(252)
 
 # Assume that the correlations of returns of each asset pair that we expect
