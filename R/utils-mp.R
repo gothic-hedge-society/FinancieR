@@ -172,6 +172,8 @@ refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
   
   pocket_sharpe <- mkt_p$sharpe
   
+  options(warn = 2)
+  
   while(TRUE){
     
     # Every iteration of this loop tries to find a better Sharpe that can be 
@@ -190,7 +192,7 @@ refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
         )
         
         # If we don't have that many shares, next.
-        if(shares_to_sell > mkt_p$shares[asset_to_sell]){next()}
+        if(shares_to_sell > shares[asset_to_sell]){next()}
         
         # Maximum possible amount of shares that can be bought given that we're
         #   selling shares_to_sell amount of asset_to_sell, plus cash.
@@ -224,12 +226,19 @@ refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
             round(max_sharpe, 8)
           }
         
-        if(candidate_sharpe > mkt_p$sharpe){
-          mkt_p$shares[asset_to_sell]  <- mkt_p$shares[asset_to_sell] - 
-            shares_to_sell
-          mkt_p$weights[asset_to_sell] <- round(mkt_p$shares * prc / aum, 8)
-          mkt_p$sharpe                 <- candidate_sharpe
-          mkt_p$ex_return              <- round(
+        new_shares                <- mkt_p$shares
+        new_shares[asset_to_sell] <- new_shares[asset_to_sell] - 
+          shares_to_sell
+        new_shares[asset_to_buy]  <- new_shares[asset_to_buy] + 
+          number_of_shares_to_buy
+        
+        cash <- round(aum - (new_shares %*% mkt_p$prices), 2)
+        
+        if(cash >= 0 && candidate_sharpe > mkt_p$sharpe){
+          mkt_p$shares    <- new_shares
+          mkt_p$weights   <- round(mkt_p$shares * prc / aum, 8)
+          mkt_p$sharpe    <- candidate_sharpe
+          mkt_p$ex_return <- round(
             as.numeric(
               exp_rtn %*% as.matrix(mkt_p$weights)
             ),
@@ -244,9 +253,9 @@ refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
             8
           )
           mkt_p$cash                   <- round(
-            aum - (mkt_p$shares %*% mkt_p$prices), 
-            2
+            as.numeric(aum - (mkt_p$shares %*% mkt_p$prices)), 2
           )
+          
         }
         
       }
@@ -260,6 +269,10 @@ refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
     }
     
   }
+  
+  mkt_p$shares  <- mkt_p$shares[which(mkt_p$shares > 0)]
+  mkt_p$weights <- mkt_p$weights[which(mkt_p$weights > 0)]
+  mkt_p$prices  <- mkt_p$prices[names(mkt_p$shares)]
   
   mkt_p
   

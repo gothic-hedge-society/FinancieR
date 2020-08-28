@@ -245,18 +245,14 @@ stock that you own, or
 
 \examples{
 # Let's pick an example date for which to create an MP:
-mp_date <- "2018-01-09"
+mp_date <- "2019-11-15"
 # Feel free to change this date to any other date for which you have data.
 
 # Use calculate_historical_returns() to get the daily returns observed for the
 # 365 days ending on mp_date:
 historical_rtn <- calculate_historical_returns(
   assets         = stock_data,
-  date_range_xts = paste0(
-    as.Date(mp_date) - 365,
-    "/",
-    mp_date
-  )
+  date_range_xts = paste0(as.Date(mp_date) - 365, "/", mp_date)
 )
 
 # Note that a warning message is printed: Linde plc (NYSE: LIN) was the result

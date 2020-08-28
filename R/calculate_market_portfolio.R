@@ -239,14 +239,22 @@ calculate_market_portfolio <- function(
 ){
   
   # Make sure names & elements are in order to avoid disaster
-  exp_vol      <- exp_vol[names(exp_rtn)]
-  exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
+  names_order <- sort(names(exp_rtn))
+  exp_rtn <- exp_rtn[names_order]
+  exp_vol <- exp_vol[names_order]
+  exp_cor <- exp_cor[names_order, names_order]
+  if(missing(prices)){
+    shares_mode <- FALSE
+  } else {
+    shares_mode <- TRUE
+    prices      <- prices[names_order]
+  }
+  rm(names_order)
+  
+  
   
   # # Boolean flag if shorting
-  # allow_shorts <- any(grepl("^s_", names(exp_rtn))) 
-  
-  # Boolean flag if shares mode
-  shares_mode <- !is.null(prices) && !is.null(portfolio_aum)
+  # allow_shorts <- any(grepl("^s_", names(exp_rtn)))
   
   # if(allow_shorts){
   #   exp_rtn <- c(exp_rtn, "cash" = 0)
@@ -277,6 +285,7 @@ calculate_market_portfolio <- function(
         )
       } else {
         .$weights <- .$weights[which(.$weights > 0)]
+        .$prices  <- .$prices[names(.$weights)]
         .
       }
     } 
