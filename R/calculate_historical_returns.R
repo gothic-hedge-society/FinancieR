@@ -127,7 +127,7 @@ calculate_historical_returns <- function(
             usethis::ui_info(
               paste0(
                 "Full historical data is not available for the date range ",
-                crayon::bold(date_range_xts), " for the following assets: \n\t",
+                crayon::bold(date_range_xts), " for the following assets:\t",
                 paste(crayon::bold(names(.)[which(!.)]), collapse = ", "),
                 ".\nThese assets were removed from output."
               )

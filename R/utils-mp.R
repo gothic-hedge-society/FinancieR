@@ -176,8 +176,6 @@ refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
   
   pocket_sharpe <- mkt_p$sharpe
   
-  options(warn = 2)
-  
   while(TRUE){
     
     # Every iteration of this loop tries to find a better Sharpe that can be 
