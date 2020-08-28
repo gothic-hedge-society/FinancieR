@@ -176,8 +176,9 @@ test_that(
   "calculate_historical_returns() handles mergers",
   expect_identical(
     calculate_historical_returns(
-      assets         = stock_data$PX,
-      date_range_xts = "2018-10-28/2018-11-04"
+      assets             = stock_data$PX,
+      date_range_xts     = "2018-10-28/2018-11-04",
+      enforce_date_range = FALSE
     ),
     testthis::read_testdata("PX_LIN_returns.rds")
   )
@@ -186,12 +187,9 @@ test_that(
   "calculate_historical_returns() handles a missing acquiring co in daterange",
   expect_identical(
     calculate_historical_returns(
-      assets         = stock_data$PX,
-      date_range_xts = paste0(
-        as.Date("2018-01-09") - 365,
-        "/",
-        "2018-01-09"
-      )
+      assets             = stock_data$PX,
+      date_range_xts     = paste0(as.Date("2018-01-09") - 365, "/2018-01-09"),
+      enforce_date_range = FALSE
     ),
     testthis::read_testdata("MnA_w_missing_data.rds")
   )
@@ -209,7 +207,8 @@ test_that(
     )
     both_rtns <- calculate_historical_returns(
       stock_data$PX, 
-      date_range_xts = "2018-10-25/2018-11-05"
+      date_range_xts     = "2018-10-25/2018-11-05",
+      enforce_date_range = FALSE
     )
     expect_equal(
       as.numeric(PX_rtns),
@@ -286,8 +285,8 @@ test_that(
         silent         = TRUE
       )
     )
-    expect_length(
-      colnames(
+    expect_equal(
+      ncol(
         calculate_historical_returns(
           assets         = stock_data,
           date_range_xts = paste0(
@@ -303,11 +302,7 @@ test_that(
     expect_null(
       calculate_historical_returns(
         assets         = stock_data$LIN,
-        date_range_xts = paste0(
-          as.Date("2018-01-09") - 365,
-          "/",
-          "2018-01-09"
-        )
+        date_range_xts = paste0(as.Date("2018-01-09") - 365, "/2018-01-09")
       )
     )
   }

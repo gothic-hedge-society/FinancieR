@@ -36,32 +36,34 @@ xts_merge_align_next <- function(xts1, xts2, agg_function, na.fill){
     storage.mode(xts2) <- "numeric"
   }
 
-  # If there are no dates that are in xts2 but not xts1, return the left-join.
-  if(length(setdiff(zoo::index(xts2), zoo::index(xts1))) == 0){
-    return(xts::merge.xts(xts1, xts2, join = "left", fill = na.fill))
-  }
-
   # Disregard dates in xts2 that fall outside the range of xts1
   # Then, want to full merge them because we need the NAs, if any.
-  merged_xts <- xts2 %>% {
-    .[paste0(zoo::index(xts::first(xts1)), "/", zoo::index(xts::last(xts1)))]
-  } %>% {
-    xts::merge.xts(xts1, .)
-  }
 
-  agg_range <- merged_xts[,colnames(xts1)] %>%
+  merged_xts <- xts::merge.xts(
+    xts1,
+    xts2[
+      paste0(zoo::index(xts::first(xts1)), "/", zoo::index(xts::last(xts1)))
+    ]
+  )
+
+  mismatch_dates <- merged_xts[,colnames(xts1)] %>%
     apply(
       MARGIN = 1,
       FUN     = function(xts1_row){all(is.na(xts1_row))}
     ) %>% {
       stats::setNames(.[-length(.)] - .[-1], names(.)[-1])
-    } %>% {
-      tibble::tibble(
-        "from"      = names(.[which(. == -1)]),
-        "to"        = names(.[which(. == 1)]),
-        "xts_range" = paste0(from, "/", to)
-      )
     }
+
+  if(all(mismatch_dates == 0)){
+    return(xts::merge.xts(xts1, xts2, join = "left", fill = na.fill))
+  }
+
+  # agg range gives the date ranges that need to be aggregated by agg_function
+  agg_range <-  tibble::tibble(
+    "from"      = names(mismatch_dates[which(mismatch_dates == -1)]),
+    "to"        = names(mismatch_dates[which(mismatch_dates == 1)]),
+    "xts_range" = paste0(from, "/", to)
+  )
 
   if(nrow(agg_range) == 0) return(NULL)
 

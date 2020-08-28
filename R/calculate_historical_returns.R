@@ -58,7 +58,13 @@
 #'    
 #'    See the "\strong{The Cost of Shorting}" section for more information.
 #'    
-#' @inheritParams [.stock
+#' @param silent Boolean, default FALSE, which allows messages. To suppress 
+#'   messages, set to TRUE.
+#'   
+#' @param enforce_date_range Boolean, default TRUE. If TRUE, then only assets
+#'   for which returns are available during the FULL data range will be included
+#'   in the output. Set to FALSE to allow NA values in the output where no 
+#'   historical data exists.
 #'  
 #' @return An xts object. Each element is the return observed on the date given
 #'   by the xts's index with respect to the previous period, taking into
@@ -71,12 +77,13 @@
 #'
 calculate_historical_returns <- function(
   assets,
-  date_range_xts = paste0("2012/", as.character(Sys.Date())),
-  buy_at         = "Close",
-  sell_at        = "Close",
-  returns_method = "ln",
-  short_fees     = NULL,
-  silent         = FALSE
+  date_range_xts     = paste0("2012/", as.character(Sys.Date())),
+  buy_at             = "Close",
+  sell_at            = "Close",
+  returns_method     = "ln",
+  short_fees         = NULL,
+  enforce_date_range = TRUE,
+  silent             = FALSE
 ){
   
   # Need xts namespace
@@ -93,67 +100,107 @@ calculate_historical_returns <- function(
     shorts <- TRUE
   }
   
-  assets[sort(names(assets))] %>%
-    purrr::map(
-      function(asset){
-        
-        asset_name <- attr(asset, "Symbol")
-        asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
-        
-        if(is.null(asset)){
+  assets[sort(names(assets))] %>% {
+    
+    if(enforce_date_range){
+      
+      needed_dates <- trading_dates() %>% {
+        as.character(
+          zoo::index(
+            xts::xts(rep("", length(.)), order.by = as.Date(.))[date_range_xts]
+          )
+        )
+      }
+      
+      . <- .[
+        vapply(
+          .,
+          function(asset){
+            identical(
+              setdiff(needed_dates, as.character(zoo::index(asset$prices))),
+              character(0)
+            )
+          },
+          logical(1)
+        ) %>% {
           if(!silent){
             usethis::ui_info(
               paste0(
-                "No data available for ", crayon::bold(asset_name),
-                " during time range ",    crayon::bold(date_range_xts),
-                "."
+                "Full historical data is not available for the date range ",
+                crayon::bold(date_range_xts), " for the following assets: \n\t",
+                paste(crayon::bold(names(.)[which(!.)]), collapse = ", "),
+                ".\nThese assets were removed from output."
               )
             )
           }
-          return(NULL)
+          names(.)[which(.)]
         }
-        
-        if(any(colnames(asset) == "symbol")){
-          asset_name <- paste(
-            unique(as.character(asset$symbol)), collapse = "-"
-          )              
+      ]
+      
+    }
+    
+    .
+    
+  } %>% purrr::map(
+    function(asset){
+      
+      asset_name <- attr(asset, "Symbol")
+      asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
+      
+      if(is.null(asset)){
+        if(!silent){
+          usethis::ui_info(
+            paste0(
+              "No data available for ", crayon::bold(asset_name),
+              " during time range ",    crayon::bold(date_range_xts),
+              "."
+            )
+          )
         }
-        
-        asset <- asset[, find_numeric_columns(asset), silent = TRUE]
-        
-        storage.mode(asset) <- "numeric"
-        
-        buy_price  <- xts::lag.xts(asset[, buy_at], k = 1, na.pad = FALSE)
-        sell_price <- asset[, sell_at][-1, ]
-        
-        if(all(c("Denominator", "Numerator") %in% colnames(asset))){
-          sell_price <- sell_price * asset$Denominator / asset$Numerator
-        }
-        
-        if(any(colnames(asset) == "DividendAmount")){
-          sell_price <- sell_price + asset$DividendAmount
-        }
-        
-        if(any(colnames(asset) == "multiplier")){
-          sell_price <- sell_price * asset$multiplier
-        }
-        
-        
-        switch(
-          returns_method,
-          "ln"       = log(sell_price / buy_price),
-          "log2"     = log2(sell_price / buy_price),
-          "log10"    = log10(sell_price / buy_price),
-          "pct_diff" = ((sell_price / buy_price) - 1),
-          "multiple" = sell_price / buy_price
-        ) %>% {
-          colnames(.) <- asset_name
-          .
-        }
-        
+        return(NULL)
       }
       
-    ) %>%
+      if(any(colnames(asset) == "symbol")){
+        asset_name <- paste(
+          unique(as.character(asset$symbol)), collapse = "-"
+        )              
+      }
+      
+      asset <- asset[, find_numeric_columns(asset), silent = TRUE]
+      
+      storage.mode(asset) <- "numeric"
+      
+      buy_price  <- xts::lag.xts(asset[, buy_at], k = 1, na.pad = FALSE)
+      sell_price <- asset[, sell_at][-1, ]
+      
+      if(all(c("Denominator", "Numerator") %in% colnames(asset))){
+        sell_price <- sell_price * asset$Denominator / asset$Numerator
+      }
+      
+      if(any(colnames(asset) == "DividendAmount")){
+        sell_price <- sell_price + asset$DividendAmount
+      }
+      
+      if(any(colnames(asset) == "multiplier")){
+        sell_price <- sell_price * asset$multiplier
+      }
+      
+      
+      switch(
+        returns_method,
+        "ln"       = log(sell_price / buy_price),
+        "log2"     = log2(sell_price / buy_price),
+        "log10"    = log10(sell_price / buy_price),
+        "pct_diff" = ((sell_price / buy_price) - 1),
+        "multiple" = sell_price / buy_price
+      ) %>% {
+        colnames(.) <- asset_name
+        .
+      }
+      
+    }
+    
+  ) %>%
     purrr::compact() %>% {
       if(length(.) > 0){
         purrr::reduce(., xts::merge.xts) %>% {

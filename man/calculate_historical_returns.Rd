@@ -11,6 +11,7 @@ calculate_historical_returns(
   sell_at = "Close",
   returns_method = "ln",
   short_fees = NULL,
+  enforce_date_range = TRUE,
   silent = FALSE
 )
 }
@@ -70,10 +71,13 @@ each asset is expected to be significantly different.
 
 See the "\strong{The Cost of Shorting}" section for more information.}
 
-\item{silent}{Boolean. If FALSE (Default), messages will be displayed for
-special cases that might produce unexpected behavior; e.g., if no data
-is available for the date range specified. If TRUE, these messages will
-not be displayed.}
+\item{enforce_date_range}{Boolean, default TRUE. If TRUE, then only assets
+for which returns are available during the FULL data range will be included
+in the output. Set to FALSE to allow NA values in the output where no
+historical data exists.}
+
+\item{silent}{Boolean, default FALSE, which allows messages. To suppress
+messages, set to TRUE.}
 }
 \value{
 An xts object. Each element is the return observed on the date given

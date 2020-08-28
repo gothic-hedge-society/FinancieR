@@ -27,12 +27,15 @@ exp_vol <- (
     purrr::as_vector()
 ) * sqrt(252)
 
+# Annualize rfr:
+rfr = exp(0.000027397 * 365) - 1
+
 # Assume that the correlations of returns of each asset pair that we expect
 # for the next year will be the same as the previous year:
 exp_cor <- stats::cor(historical_rtn, use = "pairwise.complete.obs")
 
 # Calculate the market portfolio:
-mp_by_wt <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
+mp_by_wt <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, rfr)
 mp_by_wt
 
 ### Repeat the above, assuming you have $250,000 to invest and that the stocks
@@ -48,6 +51,7 @@ mp_by_shares <- calculate_market_portfolio(
   exp_vol,
   exp_cor,
   prices        = prices,
-  portfolio_aum = portfolio_aum
+  portfolio_aum = portfolio_aum,
+  rfr
 )
 mp_by_shares

@@ -36,7 +36,7 @@ described by \code{Denominator} and \code{Numerator}.
 stock_data
 }
 \description{
-Contains daily high, low, open, close, and volume histories, plus dividend and split events, for 10 (somewhat randomly) selected stocks collected from public sources.
+Contains daily high, low, open, close, and volume histories, plus dividend and split events, for 100 (somewhat randomly) selected stocks collected from public sources.
 }
 \section{Disclaimer}{
  Absolutely no promise, guarantee, or representation is

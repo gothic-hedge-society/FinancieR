@@ -87,3 +87,21 @@ test_that(
     )
   }
 )
+
+test_that(
+  "Extract works if divs occur in the future",
+  {
+    mp_date      <- Sys.Date()
+    for(stock_ticker in names(stock_data)){
+      if(
+        any(as.Date(zoo::index(stock_data[[stock_ticker]]$dividends)) > mp_date)
+      ){break()}
+    }
+    expect_s3_class(
+      stock_data[[stock_ticker]][
+        paste0(as.Date(mp_date) - 3*365, "/", mp_date), c("Close", "Close")
+      ],
+      "xts"
+    )
+  }
+)

@@ -2,6 +2,10 @@
 # Calculates the best equally-weighted portfolio available
 best_equal_weighted_portfolio <- function(rtn, cov_mtx, rfr){
   
+  rtn     <<- rtn
+  cov_mtx <<- cov_mtx
+  rfr     <<- rfr
+  
   # The "record" (best) portfolio found so far
   mp_pocket <- list(
     "sharpe"  = 0,

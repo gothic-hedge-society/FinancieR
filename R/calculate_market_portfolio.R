@@ -240,9 +240,10 @@ calculate_market_portfolio <- function(
   
   # Make sure names & elements are in order to avoid disaster
   names_order <- sort(names(exp_rtn))
-  exp_rtn <- exp_rtn[names_order]
-  exp_vol <- exp_vol[names_order]
-  exp_cor <- exp_cor[names_order, names_order]
+  exp_rtn     <- exp_rtn[names_order]
+  exp_vol     <- exp_vol[names_order]
+  exp_cor     <- exp_cor[names_order, names_order]
+  
   if(missing(prices)){
     shares_mode <- FALSE
   } else {
@@ -250,8 +251,6 @@ calculate_market_portfolio <- function(
     prices      <- prices[names_order]
   }
   rm(names_order)
-  
-  
   
   # # Boolean flag if shorting
   # allow_shorts <- any(grepl("^s_", names(exp_rtn)))
