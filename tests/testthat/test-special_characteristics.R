@@ -46,6 +46,7 @@ test_that(
     )
   }
 )
+<<<<<<< HEAD
 test_that(
   "PX has no price entry on the day of the merger.",
   expect_equal(nrow(stock_data$PX$prices["2018-10-31"]), 0)
@@ -66,3 +67,5 @@ test_that(
     0
   )
 )
+=======
+>>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e

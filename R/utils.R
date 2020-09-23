@@ -8,7 +8,7 @@ tabular <- function(df, rowname_var = NULL, ...) {
     df <- df[, c(ncol(df), 1:(ncol(df) - 1))]
     rownames(df) <- NULL
   }
-
+  
   paste(
     "\\tabular{", 
     paste(
@@ -35,5 +35,5 @@ tabular <- function(df, rowname_var = NULL, ...) {
     "}", 
     sep = ""
   )
-
+  
 }

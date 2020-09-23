@@ -39,7 +39,11 @@ test_that(
   expect_identical(AAPL_split, testthis::read_testdata("AAPL_split.rds"))
 )
 test_that(
+<<<<<<< HEAD
   "Stock exctract fails gracefully",
+=======
+  "Stock exctract fails gracefully if no data for that date range",
+>>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
   {
     expect_message(
       stock_data$LIN[
@@ -58,6 +62,7 @@ test_that(
         paste0(as.Date("2018-01-09") - 365, "/2018-01-09"), c("Close", "Close")
       ]
     )
+<<<<<<< HEAD
     expect_equal(
       nrow(stock_data$PX["2018-01-01/2018-10-31", c("Close", "Close")]), 211
     )
@@ -103,5 +108,7 @@ test_that(
       ],
       "xts"
     )
+=======
+>>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
   }
 )

@@ -1,4 +1,4 @@
-context("Accuracy")
+context("xts_merge_align_next() works")
 
 test_that(
   "xts_merge_align_next() gives correct result for TXN during Hurricane Sandy",

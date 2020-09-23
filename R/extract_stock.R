@@ -93,6 +93,7 @@ parameter_j <- function(){
               "."
             )
           )
+<<<<<<< HEAD
           if(any(names(x) == "MnA")){
             for(mna_row in 1:nrow(x$MnA)){
               usethis::ui_info(
@@ -122,10 +123,41 @@ parameter_j <- function(){
         }
 
         if(length(needed_dates) > 0){
+=======
+          for(mna_row in 1:nrow(x$MnA)){
+            usethis::ui_info(
+              paste0(
+                crayon::bold(x$MnA$type[mna_row]), " event found for ",
+                crayon::bold(attr(x, "Symbol")),   " on ",
+                zoo::index(x$MnA[mna_row,]),       "."
+              )
+            )
+          }
+          return(NULL)
+        }
+      }
+
+      if(any(names(x) == "MnA")){
+
+        needed_dates <- trading_dates() %>% {
+          zoo::index(xts::xts(rep("", length(.)), order.by = as.Date(.))[i])
+        }
+
+        # CASE: Stock was ACQUIRED.
+        if(
+          all(
+            zoo::index(xts::last(stock_block)) < as.Date(
+              setdiff(needed_dates, zoo::index(stock_block)),
+              origin = "1970-01-01"
+            )
+          )
+        ){
+>>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
 
           stock_block_2 <- stock_blockify(
             x = stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
             i = paste0(
+<<<<<<< HEAD
               needed_dates[1],
               "/",
               needed_dates[length(needed_dates)]
@@ -136,12 +168,26 @@ parameter_j <- function(){
 
           if(!is.null(stock_block_2)){
 
+=======
+              zoo::index(xts::first(stock_block)),
+              "/",
+              needed_dates[length(needed_dates)]
+            ),
+            j = j
+          )
+
+          if(!is.null(stock_block_2)){
+>>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
             storage.mode(stock_block) <- "character"
             stock_block$symbol        <- as.character(x$MnA$company)
             stock_block$multiplier    <- as.character(1)
 
             storage.mode(stock_block_2) <- "character"
+<<<<<<< HEAD
             stock_block_2$symbol        <- attr(
+=======
+            stock_block_2$symbol <- attr(
+>>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
               stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
               "Symbol"
             )
@@ -157,6 +203,11 @@ parameter_j <- function(){
 
           }
 
+<<<<<<< HEAD
+=======
+          stock_block
+
+>>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
         }
 
       }

@@ -3,9 +3,9 @@
 #' Calculate the Sharpe-optimal market portfolio available for a set of assets
 #' given the expected returns, volatilities, and correlations of returns for
 #' each asset.
-#' 
+#'  
 #' @param exp_rtn Named numeric vector for which each element is the return
-#'   expected for the asset specified by the element's name. 
+#'   expected for the next period for the asset specified by the element's name.
 #'   
 #' @param exp_vol Named numeric vector for which each element is the volatility
 #'   expected for the asset specified by the element's name. 
@@ -13,48 +13,82 @@
 #' @param exp_cor Named numeric matrix specifying the expected covariance of
 #'   returns for each asset pair.
 #' 
-#' @param rf The risk-free rate to use in calculation of
-#'   \href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe Ratio}, 
-#'   in decimal form. Defaults to \strong{0.00822}% daily return (about 3%
-#'   annually). If you specify a different value for \emph{rf}, \strong{make
-#'   sure its time basis matches the one used for you other inputs}, (i.e., if
-#'   \emph{exp_rtn} contains monthly returns, use monthly risk-free rate)!
+#' @param rfr The risk-free rate (in decimal form; i.e., to specify a rate of
+#'   "3%" use "0.03", \emph{not} "3") that \strong{YOU} can earn on cash with
+#'   reasonable liquidity constraints that \strong{YOU} can tolerate. For big
+#'   banks and in economic textbooks, this rate is usually the current rate on
+#'   3-month T-bills (or even higher). That might be just fine for you if you
+#'   plan on rebalancing once a year. For a trader running a strategy that can't
+#'   tolerate cash being tied up for 3 months at a time, the \emph{rfr} should
+#'   be set to whatever interest rate your brokerage is giving you on cash in
+#'   your trading account. Used in calculation of the
+#'   \href{https://www.investopedia.com/articles/07/sharpe_ratio.asp}{Sharpe
+#'   Ratio}. Defaults to \strong{0.0027397}% daily return (about 1% annually).
+#'   If you specify a different value for \emph{rfr}, \strong{make sure its time
+#'   basis matches the one used for you other inputs}, (i.e., if \emph{exp_rtn}
+#'   contains monthly returns, use monthly risk-free rate)!
 #'   
-#' @param allow_shorts Defaults to FALSE; set to TRUE to allow shorting of all
-#'   the assets. There are MANY ways to do this, but by default
-#'   \emph{calculate_market_portfolio}() simply treats shorts as another asset
-#'   whose expected return equals negative the expected return of going long. 
-#' 
-#' @return A list describing the market portfolio (MP). Has four elements:
-#'   \describe{
-#'     \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
-#'     \item{\code{weights}, named numeric vector:}{The values of 
-#'       \code{weights} range from 0 to 1 and denote the fraction of the total
-#'       MP value allocated to the asset whose identifier is that value's name.}
-#'     \item{\code{ex_return}, numeric:}{The return that is expected (i.e., 
-#'     predicted/forecast) for the MP over the next time interval.}
-#'     \item{\code{ex_volatility}:}{The volatility that is expected (i.e., 
-#'     predicted/forecast) for the MP over the next time interval.}
-#'   }
-#'   If \emph{total_capital} and \emph{prices} are specified, then two more
-#'   elements are included in the list output:
-#'   \describe{
-#'     \item{\code{shares}, named numeric:}{
-#'     Integer number of shares to be bought 
-#'     }
-#'     \item{\code{cash_balance}, named numeric vector:}{The values of 
-#'       \code{weights} range from 0 to 1 and denote the fraction of the total
-#'       MP value allocated to the asset whose identifier is that value's name.}
-#'     \item{\code{ex_return}, numeric:}{The return that is expected (i.e., 
-#'     predicted/forecast) for the MP over the next time interval.}
-#'     \item{\code{ex_volatility}:}{The volatility that is expected (i.e., 
-#'     predicted/forecast) for the MP over the next time interval.}
-#'   }
+#' @param prices Optional: a named numeric vector for which each name is the
+#'   identifier of an asset and each element is the current price of that asset
+#'   for which a market portfolio is to be calculated on a shares basis. See the
+#'   "Returns" section for more info.
 #'   
+#' @param portfolio_aum Optional: numeric, length 1, giving the total amount of
+#'   assets under management for which a market portfolio is to be calculated.
+#'   In other words, \emph{portfolio_aum} = "total cash at risk".
+#'   
+#' @section The Cost of Shorting:
+#'  You would only short an asset if the return you expect for buying that asset
+#'  is negative. You may think that the expected return for shorting an asset is
+#'  simply the return you expect for longing the asset times -1. In reality, the
+#'  return you'll get from a short sale will be a fraction of the asset times -1
+#'  because your broker charges fees on short position in exchange for providing
+#'  the shorting service. In addition, the capital gains from short selling may
+#'  taxed at a different rate than those realized on your long positions.
+#'  
+#'  The key additional costs of shorting are:
+#'  
+#'  \describe{
+#'   \item{Dividends}{
+#'      You don't earn dividends on a short position. In fact, it's the
+#'      opposite: if you're short a stock on a dividend's ex-date, then you must
+#'      actually \emph{pay} the dividend to the owner of the stock.
+#'      \emph{\link{calculate_historical_returns}}() takes this into account
+#'      itself when shorting is included.
+#'    }
+#'    \item{Short Fees}{
+#'      Your brokerage will charge a fee on a short position for every day the
+#'      position is open. This fee is based on the availability of assets for
+#'      shorting, and varies from asset to asset and through time. Usually the
+#'      fee is calculated on each trading day and debited from the trading
+#'      account on at the beginning of each month.
+#'      \emph{\link{calculate_historical_returns}}() takes this into account
+#'      when the \emph{short_fees} parameter is specified.
+#'    }
+#'    \item{Taxes}{
+#'      Capital gains taxes on your short sales can often be taxed at a higher
+#'      rate than what you might expect for long sales. If \strong{uncovered},
+#'      the short position will always be taxed as a short-term capital gain
+#'      because the holding period is considered by the IRS to begin on the day
+#'      when the short position was closed out (bought to cover). If
+#'      \strong{covered}, then the holding period is considered to be the
+#'      holding period of the \emph{substantially different securities} that can
+#'      be converted to the stock itself. Taxes must be taken into account in
+#'      the \emph{exp_rtn} parameter as passed to
+#'      \emph{calculate_market_portfolio}.
+#'      
+#'      Taxes will depend on your situation: whether you expect a short-term or
+#'      long-term investment, your income bracket, whether or not you're an
+#'      institution, etc. You must figure that out for yourself, and you might
+#'      find that, once everything is taken into account, it's just not worth it
+#'      to short assets in a lot of situations. Stay smart!
+#'    }
+#'  }
+#'    
 #' @details 
 #' 
 #'   All arguments which are percentages (\emph{exp_rtn}, \emph{exp_vol}, and
-#'   \emph{rf}) must be supplied in decimal form; i.e., to specify "12%", use
+#'   \emph{rfr}) must be supplied in decimal form; i.e., to specify "12%", use
 #'   0.12, not 12.
 #'   
 #'   It should go without saying, but make sure that every asset is represented
@@ -73,43 +107,61 @@
 #'   other asset B so as to create a portfolio having a better Sharpe, the
 #'   Market Portfolio has been reached and the function returns the value.
 #'   
-#' @examples
+#'   \strong{Weights} mode:
+#'   If either \emph{prices} or \emph{portfolio_aum} is unspecified in the call
+#'   to \emph{calculate_market_portfolio}(), then the function operates in
+#'   "\emph{Weights Mode}" and will attempt to answer the question: "What is the
+#'   the optimum fractional, real-valued weight of each asset in the
+#'   Sharpe-optimal MP?" Because the Sharpe ratio and the optimum weights are
+#'   real numbers, this operation can be computed with arbitrary precision, to
+#'   infinte decimal places. \emph{calculate_market_portfolio}() was written to
+#'   be clearly understood and run reasonably fast, and testing indicates that
+#'   the weights are reliable to within +/- 1% (i.e., "0.18" to "0.20" for a
+#'   reported weight of "0.19") of the optimal value. As such, weights reported
+#'   by \emph{weights mode} should be considered somewhat approximate.
 #' 
-#' # Use the sample dataset "yahoo_adj_prices", provided with the package, for 
-#' # this example. Start with the assumption that the returns that we expect for 
-#' # the next period (day) are the means of the historical log returns observed 
-#' # for a given date window specified by "start_dt" and "end_dt"
-#' end_dt   <- as.Date(zoo::index(xts::last(yahoo_adj_prices))) # latest date
-#' start_dt <- end_dt - 365*3                                   # 3-yr window
-#' end_dt
-#' start_dt
+#'   \strong{Shares} mode: 
+#'   A much different situation arises when we ask the question: "Given $5MM in
+#'   capital, what's the optimum portfolio that can be built from a set of
+#'   assets trading at given prices?" Note that the formulation of this question
+#'   requires both \emph{prices} and \emph{portfolio_aum} to be provided.
+#'   Because shares can only be bought in integer values, and because the sum of
+#'   the capital allocated to each asset (including "cash") must equal
+#'   \emph{portfolio_aum}, the number of values available for the \emph{shares}
+#'   vector is countably finite and it is possible to find an exact solution.
 #' 
-#' # From adjusted prices, get the observed daily historical log return
-#' historical_rtn <- yahoo_adj_prices[paste0(start_dt - 1, "/", end_dt)] %>% {
-#'   log(.[-1,] / lag(., k =  1, na.pad = FALSE)[-nrow(.),])
-#' }
-#' 
-#' # Assume that the returns we expect for the next period (day) are the
-#' # averages of the returns observed during the date window:
-#' exp_rtn <- colMeans(historical_rtn)
-#' 
-#' # Assume that the volatilities we expect for the next period (day) are the
-#' # standard deviations of the returns observed during the date window:
-#' exp_vol <- dplyr::summarize(
-#'   tibble::as_tibble(historical_rtn),
-#'   dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
-#' ) %>%
-#'   purrr::as_vector()
-#' 
-#' # Assume that the correlations of returns of each asset pair that we expect
-#' # for the next perid (day) are the observed historical correlations:
-#' exp_cor <- stats::cor(historical_rtn, use = "pairwise.complete.obs")
-#' 
-#' # Calculate the market portfolio:
-#' calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
-#' 
-#' ### Calculate the market portfolio allowing both long & short positions:
-#' calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, allow_shorts = TRUE)
+#' @return 
+#'   If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum} 
+#'   not specified): #'   A list describing the market portfolio (MP). Contains
+#'   the following four elements:
+#'   
+#'   \describe{
+#'     \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
+#'     \item{\code{weights}, named numeric vector:}{The values of 
+#'       \code{weights} range from 0 to 1 and denote the fraction of the total
+#'       MP value allocated to the asset whose identifier is that value's name.}
+#'     \item{\code{ex_return}, numeric:}{The return that is expected (i.e., 
+#'     predicted/forecast) for the MP over the next time interval.}
+#'     \item{\code{ex_volatility}:}{The volatility that is expected (i.e., 
+#'     predicted/forecast) for the MP over the next time interval.}
+#'   }
+#'   
+#'   If \strong{shares basis} (\emph{prices} and \emph{portfolio_aum}
+#'   specified): \emph{calculate_market_portfolio}() will optimize the portfolio
+#'   assuming that  \emph{portfolio_aum} is available for investing and that the
+#'   price of each asset is given by \emph{prices}. Returns a list describing
+#'   the market portfolio (MP) which contains the for elements described above,
+#'   plus three more:
+#'   
+#'   \describe{
+#'     \item{shares:}{Named numeric vector giving the number of shares of each
+#'     asset calculated for the market portfolio}
+#'     \item{prices:}{Named umeric vector giving the prices used by 
+#'     calculate_market_portfolio() to determine the MP.}
+#'     \item{cash:}{Numeric, length 1. Leftover cash not invested in assets.}
+#'   }
+#'   
+#' @example inst/examples/calculate_market_portfolio_ex.R
 #' 
 #' @export
 #' 
@@ -117,213 +169,66 @@ calculate_market_portfolio <- function(
   exp_rtn,
   exp_vol,
   exp_cor,
-  rf             = 0.0000822,
-  allow_shorts   = FALSE
+  rfr                = 0.000027397,
+  prices             = NULL,
+  portfolio_aum      = NULL
+  # ,
+  # shortable_shares   = NULL,
+  # initial_margin     = NULL,
+  # maintenance_margin = NULL
 ){
   
   # Make sure names & elements are in order to avoid disaster
-  exp_vol <- exp_vol[names(exp_rtn)]
-  exp_cor <- exp_cor[names(exp_rtn), names(exp_rtn)]
+  exp_vol      <- exp_vol[names(exp_rtn)]
+  exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
   
-  if(allow_shorts){
-    
-    exp_rtn <- c(
-      exp_rtn, stats::setNames(exp_rtn * -1, paste0("s_", names(exp_rtn)))
-    )
-    
-    exp_vol <- c(
-      exp_vol, stats::setNames(exp_vol, paste0("s_", names(exp_vol)))
-    )
-    
-    exp_cor <- rbind(
-      cbind(
-        exp_cor,
-        magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
-      ),
-      cbind(
-        magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
-        exp_cor
-      )
-    )
-    
-  }
+  # # Boolean flag if shorting
+  # allow_shorts <- any(grepl("^s_", names(exp_rtn))) 
+  
+  # Boolean flag if shares mode
+  shares_mode <- !is.null(prices) && !is.null(portfolio_aum)
+  
+  # if(allow_shorts){
+  #   exp_rtn <- c(exp_rtn, "cash" = 0)
+  #   exp_vol <- c(exp_vol, "cash" = 0)
+  #   exp_cor <- rbind(
+  #     cbind(
+  #       exp_cor,
+  #       magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
+  #     ),
+  #     cbind(
+  #       magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
+  #       exp_cor
+  #     )
+  #   )
+  # }
   
   # create covariance matrix of returns
   exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
   
-  # initialize `portfolio_sharpe` to zero, which represents investing all
-  # capital into risk-free assets only.
-  portfolio_sharpe  <- 0
-  
-  # initialize `portfolio_weights` to 0 for all assets
-  portfolio_weights    <- stats::setNames(
-    rep(0, ncol(exp_cov)),
-    colnames(exp_cov)
-  )
-  
   # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
   # created by selecting from the assets provided.
-  
-  while(TRUE){
-    
-    # Take all of the assets that AREN'T included in portfolio_weights...
-    candidate_portfolios <- setdiff(
-      names(exp_rtn), 
-      names(portfolio_weights[portfolio_weights != 0])
-    ) %>%
-      vapply(
-        
-        # ...and for each one of those, add it to portfolio_weights, and weight
-        # everything equally.
-        function(asset){
-          
-          
-          # initialize `weights` to the higher-scoped `portfolio_weights`
-          weights <- portfolio_weights
-          
-          # make `weights` an equal-weighted portfolio consisting of the assets
-          # that are already in the portfolio, plus `asset`.
-          weights[c(names(weights[weights != 0]), asset)] <- 1 / (
-            length(which(weights != 0)) + 1
-          )
-          
-          # calculate expected return for the portfolio given by `weights`
-          expected_return <- as.numeric(exp_rtn %*% as.matrix(weights))
-          
-          # calculate expected volatility for the portfolio given by `weights`
-          expected_volatility <- sqrt(
-            as.numeric((weights %*% exp_cov) %*% as.matrix(weights))
-          )
-          
-          tibble::lst(
-            "sharpe"  = (expected_return - rf) / expected_volatility,
-            "weights" = weights
-          )
-          
-        },
-        FUN.VALUE = list(numeric(1), numeric(length(portfolio_weights)))
-      )
-    
-    # If your best portfolio is better than the current record, store it.
-    if(portfolio_sharpe < max(unlist(candidate_portfolios["sharpe",]))){
-      
-      portfolio_weights <- candidate_portfolios[[
-        "weights",
-        which.max(unlist(candidate_portfolios["sharpe",]))
-      ]]
-      
-      portfolio_sharpe <- max(unlist(candidate_portfolios["sharpe",]))
-      
-    } else {
-      # If none of your portfolios beat your current one, then stop adding
-      # new assets, exit the while() and move on.
-      break()
-    }
-    
-  }
-  
-  # Initialize loop vars
-  step <- min(portfolio_weights[portfolio_weights != 0]) / 10
-  counts <- 0
-  
-  # Step 2: Refine the rough portfolio found in step 1.
-  
-  while(TRUE){
-    
-    # make `buy_sell_matrix`: a matrix whose row names are all the assets that
-    #   appear in the inputs, and whose column names are all the assets whose 
-    #   `portfolio_weights` are >= `step`. The values of `buy_sell_matrix` are 
-    #   the Sharpe ratios that result if you start with `portfolio_weights` and 
-    #   SELL `step` worth of the asset given buy the column index, and BUY 
-    #   `step` worth of the asset in the row index.
-    # Obviously buying and selling the same asset is not useful -- these cells 
-    #   are given the value -999 in `buy_sell_matrix`.
-    
-    buy_sell_matrix <- vapply(
-      # Step through the assets whose portfolio weights are >= to the amount
-      #   we'll be adding/subtracting (otherwise they'll get negative weights)
-      names(portfolio_weights[portfolio_weights >= step]),
-      function(take_from_asset){
-        
-        # initialize `weights` to the higher-scoped `portfolio_weights`
-        weights <- portfolio_weights
-        
-        # take weight `step` FROM an asset.
-        weights[take_from_asset] <- weights[take_from_asset] - step
-        
-        # create the column for `buy_sell_matrix`, and make sure it's ordered
-        #   in the same order as `portfolio_weights`.
-        c(
-          stats::setNames(-999, take_from_asset),
-          vapply(
-            setdiff(names(portfolio_weights), take_from_asset),
-            function(add_to_asset, wts = weights){
-              
-              wts[add_to_asset] <- wts[add_to_asset] + step
-              
-              as.numeric(exp_rtn %*% as.matrix(wts) - rf) / sqrt(
-                as.numeric((wts %*% exp_cov) %*% as.matrix(wts))
-              )
-            },
-            FUN.VALUE = numeric(1)
-          )
-        )[names(portfolio_weights)]
-        
-      },
-      FUN.VALUE = numeric(length(portfolio_weights))
-    )
-    
-    # If we got a better sharpe ratio in `buy_sell_matrix`, keep it & update!
-    if(max(buy_sell_matrix) > portfolio_sharpe){
-      
-      add_to_asset    <- rownames(buy_sell_matrix)[
-        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[1]
-      ]
-      
-      take_from_asset <- colnames(buy_sell_matrix)[
-        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[2]
-      ]
-      
-      portfolio_weights[add_to_asset] <- portfolio_weights[
-        add_to_asset
-      ] + step
-      
-      portfolio_weights[take_from_asset] <- portfolio_weights[
-        take_from_asset
-      ] - step
-      
-      portfolio_sharpe <-  (
-        as.numeric(exp_rtn %*% as.matrix(portfolio_weights)) - rf
-      ) / sqrt(
-        as.numeric(
-          (portfolio_weights %*% exp_cov) %*% as.matrix(portfolio_weights)
+  best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) %>%
+    # Step 2: Refine the rough portfolio found in step 1.
+    refine_weights(exp_rtn, exp_vol, exp_cov, rfr) %>% {
+      if(shares_mode){
+        refine_shares_no_shorts(
+          ., exp_rtn, exp_vol, exp_cov, rfr, prices, portfolio_aum
         )
-      )
-      
-      
-    } else {
-      # drop `step` by a factor of 10, but only do this `count` number of times.
-      step <- min(portfolio_weights[portfolio_weights != 0]) / 10
-      counts <- counts + 1
-      
-      if(counts >= 10){
-        break()
+      } else {
+        .$weights <- .$weights[which(.$weights > 0)]
+        .
       }
-    }
-  }
-  
-  list(
-    "sharpe"        = portfolio_sharpe,
-    "weights"       = portfolio_weights,
-    "ex_return"     = as.numeric(exp_rtn %*% as.matrix(portfolio_weights)),
-    "ex_volatility" = sqrt(
-      as.numeric(
-        (portfolio_weights %*% exp_cov) %*% as.matrix(portfolio_weights)
-      )
-    )
-  )
+    } 
+  # %>% {
+  #     # Step 3: Apply short parameters
+  #     if(allow_shorts){
+  #       refine_shorts(
+  #         ., exp_rtn, exp_vol, exp_cov, rfr, initial_margin, shortable_shares
+  #       )
+  #     } else {
+  #       .
+  #     }
+  #   }
   
 }
-
-
-
