@@ -35,28 +35,29 @@
 #'      \emph{(sell_price - buy_price)/buy_price}. NOT multiplied by 100.
 #'    \item{\strong{"multiple"}}: Price multiple; \emph{sell_price / buy_price}. 
 #'  }
-#' @param short_fees Optional. Either a named numeric vector or a numeric length
-#'   1 (i.e., a single number). Specify this parameter to cause
-#'   \emph{calculate_historical_returns}() to include the returns observed for short
-#'   selling each asset. \emph{calculate_historical_returns}() will assume that, for every
-#'   return reported in the output, the expected return on a short sale equals
-#'   the expected return on the long sale times (1 - short fees):
-#'    \deqn{
-#'      \langle E_r,short \rangle = \langle E_r,long \rangle \times 
-#'        (short\_fees - 1)
-#'    }{ASCII representation}
-#'    
-#'    If a \strong{single number} (numeric vector of length 1): The short fees
-#'    for every asset in \emph{assets} are assumed to be equal to the number
-#'    passed in as \emph{short_fees}. Use this option if you expect the short
-#'    fees for each asset to be the same.
-#'    
-#'    If \strong{numeric vector length > 1}: The names of \emph{short_fees} must
-#'    correspond to the names of \emph{assets}, and each element must be the
-#'    short fee expected for each asset. Use this option if the short fees for
-#'    each asset is expected to be significantly different.
-#'    
-#'    See the "\strong{The Cost of Shorting}" section for more information.
+#' @param short_fees Optional. Ether a single numeric value or a named numeric
+#'   vector for which each element is a percentage short fee and each name is an
+#'   asset that appears in \emph{assets} to which the short fee applies. Specify
+#'   this parameter to cause \emph{calculate_historical_returns}() to include
+#'   the returns observed for short selling each asset.
+#'   \emph{calculate_historical_returns}() will assume that, for every return
+#'   reported in the output, the expected return on a short sale equals the
+#'   expected return on the long sale times (1 - short fees).
+#'
+#'   If a \strong{single number} (numeric vector of length 1): The short fees
+#'   for every asset in \emph{assets} are assumed to be equal to the number
+#'   passed in as \emph{short_fees}, and a new column for the returns of
+#'   shorting each asset will be included in the output. Use this option if you
+#'   expect the short fees for each asset to be the same.
+#'
+#'   If \strong{numeric vector length > 1}: The names of \emph{short_fees} must
+#'   correspond to the names of \emph{assets}, and each element must be the
+#'   short fee expected for each asset. Use this option if the short fees for
+#'   each asset is expected to be significantly different. If an asset's name
+#'   does not appear in the \emph{short_fees} vector, then a column containing 
+#'   the returns from shorting that asset won't be included in the output.
+#'
+#'   See the "\strong{The Cost of Shorting}" section for more information.
 #'    
 #' @param silent Boolean, default FALSE, which allows messages. To suppress 
 #'   messages, set to TRUE.
@@ -65,6 +66,53 @@
 #'   for which returns are available during the FULL data range will be included
 #'   in the output. Set to FALSE to allow NA values in the output where no 
 #'   historical data exists.
+#'  
+#'  #' @section The Cost of Shorting:
+#'  You would only short an asset if the return you expect for buying that asset
+#'  is negative. You may think that the expected return for shorting an asset is
+#'  simply the return you expect for longing the asset times -1. In reality, the
+#'  return you'll get from a short sale will be a fraction of the asset times -1
+#'  because your broker charges fees on short position in exchange for providing
+#'  the shorting service. In addition, the capital gains from short selling may
+#'  taxed at a different rate than those realized on your long positions.
+#'  
+#'  The key additional costs of shorting are:
+#'  
+#'  \describe{
+#'   \item{Dividends}{
+#'      You don't earn dividends on a short position. In fact, it's the
+#'      opposite: if you're short a stock on a dividend's ex-date, then you must
+#'      actually \emph{pay} the dividend to the owner of the stock.
+#'      \emph{\link{calculate_historical_returns}}() takes this into account
+#'      itself when shorting is included.
+#'    }
+#'    \item{Short Fees}{
+#'      Your brokerage will charge a fee on a short position for every day the
+#'      position is open. This fee is based on the availability of assets for
+#'      shorting, and varies from asset to asset and through time. Usually the
+#'      fee is calculated on each trading day and debited from the trading
+#'      account on at the beginning of each month.
+#'      \emph{\link{calculate_historical_returns}}() takes this into account
+#'      when the \emph{short_fees} parameter is specified.
+#'    }
+#'    \item{Taxes}{
+#'      Capital gains taxes on your short sales can often be taxed at a higher
+#'      rate than what you might expect for long sales. If \strong{uncovered},
+#'      the short position will always be taxed as a short-term capital gain
+#'      because the holding period is considered by the IRS to begin on the day
+#'      when the short position was closed out (bought to cover). If
+#'      \strong{covered}, then the holding period is considered to be the
+#'      holding period of the \emph{substantially different securities} that can
+#'      be converted to the stock itself. Taxes should be taken into account in
+#'      the \emph{exp_rtn} parameter as passed to
+#'      \emph{calculate_market_portfolio}. Taxes will depend on your situation:
+#'      whether you expect a short-term or long-term investment, your income
+#'      bracket, whether or not you're an institution, etc. You must figure that
+#'      out for yourself, and you might find that, once everything is taken into
+#'      account, it's just not worth it to short assets in a lot of situations.
+#'      Stay smart!
+#'    }
+#'  }
 #'  
 #' @return An xts object. Each element is the return observed on the date given
 #'   by the xts's index with respect to the previous period, taking into

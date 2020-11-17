@@ -81,12 +81,15 @@ stock_data$AAPL["2014-06-05/2014-06-11", c("Open", "Close")]
 # the below subset of IVV for the month of June 2019:
 stock_data$IVV["2019-06"]
 
-# Consider the M&A event that took place on 31 Oct 2018 in which Praxair merged
-# with Linde AG (not included in dataset) to form a new company traded as LIN.
+###### M&A Events: Mergers, Acquisitions, Spinoffs, Breakups, etc.
+# Consider the M&A event that took place on 31 Oct 2018 in which Praxair (PX)
+# merged with Linde AG (not included in dataset) to form Linde PLC, a new
+# company traded under the symbol LIN.
 
-# Extracting a stock created by a merger will treat the stock as a brand new
-# company whose data history begins on the merger's ex-date:
-stock_data$LIN["2018-10-26/2018-11-05", c("Close", "Close")]
+# Extracting the newly stock will treat the stock as a brand new company whose
+# "born on" date is the ex-date of the M&A event. Therefore, extracting LIN over
+# a date range that spans the merger's ex-Date will return data for LIN only:
+stock_data$LIN["2018-10-26/2018-11-05", "Close"]
 
 # Extracting a stock that is no longer traded but was merged into or acquired by
 # another company will output data for BOTH the acquired / merged stock and the
