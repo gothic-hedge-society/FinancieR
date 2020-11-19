@@ -11,7 +11,8 @@ is_blotter(obj)
 \item{obj}{An R object}
 }
 \value{
-
+The function \code{is_blotter}() returns TRUE if passed an R object that
+meets# the criteria to be treated as a blotter.
 }
 \description{
 A \strong{blotter} is an xts time-series object that contains a complete record of

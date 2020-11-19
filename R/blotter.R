@@ -31,10 +31,10 @@
 #'  
 #' @param obj An R object
 #' 
-#' @return 
-# The function \code{is_blotter}() returns TRUE if passed an R object that meets
-# the criteria to be treated as a blotter.
-#'  
+#' @return
+#' The function \code{is_blotter}() returns TRUE if passed an R object that
+#' meets# the criteria to be treated as a blotter.
+#' 
 #' @name blotter
 #' @aliases is_blotter
 #' @export
