@@ -56,7 +56,8 @@ price: Always positive. The asset's price for the trade.
 fees: Sum of all fees paid for the trade. Includes
 commision, transaction fees, etc. Does not include taxes.
 
-" />
+
+Use the function is_blotter() to determine if an object is a blotter." />
 
 
 
@@ -148,10 +149,24 @@ CUSIP, ISIN, a unique ID assigned by a brokerage, etc.</p></li>
 commision, transaction fees, etc. Does not include taxes.</p></li>
 </ul>
 
+<p>Use the function <code>is_blotter</code>() to determine if an object is a blotter.</p>
     </div>
 
+    <pre class="usage"><span class='fu'>is_blotter</span><span class='op'>(</span><span class='va'>obj</span><span class='op'>)</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>obj</th>
+      <td><p>An R object</p></td>
+    </tr>
+    </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>The function <code>is_blotter</code> returns TRUE if passed an R object that meets
+the criteria to be treated as a blotter.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p><strong>Options exercises</strong> do not appear explicitly on the blotter. However, the
