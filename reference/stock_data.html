@@ -122,7 +122,7 @@
     <p>Contains daily high, low, open, close, and volume histories, plus dividend and split events, for 10 (somewhat randomly) selected stocks collected from public sources.</p>
     </div>
 
-    <pre class="usage"><span class='no'>stock_data</span></pre>
+    <pre class="usage"><span class='va'>stock_data</span></pre>
 
 
     <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
@@ -131,7 +131,7 @@
 identifier of the asset to which its constituent data corresponds (e.g.,
 the element named "AAPL" contains data for Apple, Inc.).</p>
 <p>Each of the constituent lists elements contains the following elements:</p>
-<dl'>
+<dl>
 <dt><strong><code>dividends</code></strong>:</dt><dd><p>An xts object having a single column -- <code>DividendAmount</code> -- giving
 the total value of any and all dividends that went ex-div on the date
 given by the index of the xts.</p></dd>
@@ -155,8 +155,9 @@ made by the authors of FinancieR concerning the accuracy or reliability of
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>  <span class='co'>## Daily low prices for Chubb from 01 June 2014 to the end of 2015</span>
-  <span class='no'>chubb_low</span> <span class='kw'>&lt;-</span> <span class='no'>stock_data</span>$<span class='no'>CB</span>$<span class='no'>prices</span>$<span class='no'>Low</span>[<span class='st'>"2014-06-01/2015"</span>]
-  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span>(<span class='no'>chubb_low</span>)</div><div class='output co'>#&gt;                 Low
+  <span class='va'>chubb_low</span> <span class='op'>&lt;-</span> <span class='va'>stock_data</span><span class='op'>$</span><span class='va'>CB</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>$</span><span class='va'>Low</span><span class='op'>[</span><span class='st'>"2014-06-01/2015"</span><span class='op'>]</span>
+  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span><span class='op'>(</span><span class='va'>chubb_low</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                 Low
 #&gt; 2015-12-23 117.2400
 #&gt; 2015-12-24 117.6300
 #&gt; 2015-12-28 117.4600
@@ -164,8 +165,9 @@ made by the authors of FinancieR concerning the accuracy or reliability of
 #&gt; 2015-12-30 118.0700
 #&gt; 2015-12-31 116.7326</div><div class='input'>
   <span class='co'>## All prices data for Pepsico for 2012</span>
-  <span class='no'>pep_2012</span> <span class='kw'>&lt;-</span> <span class='no'>stock_data</span>$<span class='no'>PEP</span>$<span class='no'>prices</span>[<span class='st'>"2012"</span>]
-  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span>(<span class='no'>pep_2012</span>)</div><div class='output co'>#&gt;             Open  High    Low Close    TWAP    VWAP  Volume PreviousCloseDate
+  <span class='va'>pep_2012</span> <span class='op'>&lt;-</span> <span class='va'>stock_data</span><span class='op'>$</span><span class='va'>PEP</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>[</span><span class='st'>"2012"</span><span class='op'>]</span>
+  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span><span class='op'>(</span><span class='va'>pep_2012</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;             Open  High    Low Close    TWAP    VWAP  Volume PreviousCloseDate
 #&gt; 2012-12-21 69.98 70.09 69.234 69.63 69.6429 69.7605 8751056             15694
 #&gt; 2012-12-24 69.33 69.60 69.010 69.43 69.2595 69.2725 2071245             15695
 #&gt; 2012-12-26 69.41 69.43 68.580 68.84 68.8609 68.8640 3731741             15698
@@ -178,21 +180,25 @@ made by the authors of FinancieR concerning the accuracy or reliability of
 #&gt; 2012-12-26         69.43
 #&gt; 2012-12-27         68.84
 #&gt; 2012-12-28         68.67
-#&gt; 2012-12-31         68.02</div><div class='input'>
+#&gt; 2012-12-31         68.02</div><div class='input'> 
   <span class='co'>## High &amp; Low prices for GD for March 2017</span>
-  <span class='no'>gd_high_and_low</span> <span class='kw'>&lt;-</span> <span class='no'>stock_data</span>$<span class='no'>GD</span>$<span class='no'>prices</span>[<span class='st'>"2017-03"</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"High"</span>, <span class='st'>"Low"</span>)]
-  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span>(<span class='no'>gd_high_and_low</span>)</div><div class='output co'>#&gt;               High      Low
+  <span class='va'>gd_high_and_low</span> <span class='op'>&lt;-</span> <span class='va'>stock_data</span><span class='op'>$</span><span class='va'>GD</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>[</span><span class='st'>"2017-03"</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"High"</span>, <span class='st'>"Low"</span><span class='op'>)</span><span class='op'>]</span>
+  <span class='fu'><a href='https://rdrr.io/r/utils/head.html'>tail</a></span><span class='op'>(</span><span class='va'>gd_high_and_low</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;               High      Low
 #&gt; 2017-03-24 189.895 186.3500
 #&gt; 2017-03-27 186.180 183.7201
 #&gt; 2017-03-28 189.450 184.8800
 #&gt; 2017-03-29 188.920 187.2000
 #&gt; 2017-03-30 189.300 188.2000
-#&gt; 2017-03-31 188.560 186.4200</div><div class='input'>
+#&gt; 2017-03-31 188.560 186.4200</div><div class='input'> 
   <span class='co'>## Dividends paid by Johnson &amp; Johnson in 2017</span>
-  <span class='no'>stock_data</span>$<span class='no'>JNJ</span>$<span class='no'>dividends</span>[<span class='st'>"2017"</span>]</div><div class='output co'>#&gt; NULL</div><div class='input'>
+  <span class='va'>stock_data</span><span class='op'>$</span><span class='va'>JNJ</span><span class='op'>$</span><span class='va'>dividends</span><span class='op'>[</span><span class='st'>"2017"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt; NULL</div><div class='input'> 
   <span class='co'>## Stock splits for AAPL</span>
-  <span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span></div><div class='output co'>#&gt;            Denominator Numerator
-#&gt; 2014-06-09           7         1</div><div class='input'> 
+  <span class='va'>stock_data</span><span class='op'>$</span><span class='va'>AAPL</span><span class='op'>$</span><span class='va'>splits</span>
+</div><div class='output co'>#&gt;            Denominator Numerator
+#&gt; 2014-06-09           7         1
+#&gt; 2020-08-31           4         1</div><div class='input'> 
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -209,7 +215,7 @@ made by the authors of FinancieR concerning the accuracy or reliability of
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

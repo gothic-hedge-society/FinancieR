@@ -43,11 +43,9 @@
 
 <meta property="og:title" content="Calculate Historical Time-series Returns — calculate_historical_returns" />
 <meta property="og:description" content="Calculate period-over-period historical returns for a list of assets.
-calculate_historical_returns() takes dividends, splits, and mergers &amp;amp;
-acquisitions into account, as well as short fees if returns on short
-positions are to be included in the output.
-calculate_historical_returns is intended for use in calculating
-correlations, averages, and volatility of returns; therefore, it does not
+calculate_historical_returns() takes dividends and splits into
+account. Because calculate_historical_returns is intended for use in
+calculating correlations, averages, and volatility of returns it does not
 take taxes or transaction fees into account." />
 
 
@@ -126,23 +124,20 @@ take taxes or transaction fees into account." />
 
     <div class="ref-description">
     <p>Calculate period-over-period historical returns for a list of assets.
-<em>calculate_historical_returns</em>() takes dividends, splits, and mergers &amp;
-acquisitions into account, as well as short fees if returns on short
-positions are to be included in the output.
-<em>calculate_historical_returns</em> is intended for use in calculating
-correlations, averages, and volatility of returns; therefore, it does not
+<em>calculate_historical_returns</em>() takes dividends and splits into
+account. Because <em>calculate_historical_returns</em> is intended for use in
+calculating correlations, averages, and volatility of returns it does not
 take taxes or transaction fees into account.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>calculate_historical_returns</span>(
-  <span class='no'>assets</span>,
-  <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"2012/"</span>, <span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>())),
-  <span class='kw'>buy_at</span> <span class='kw'>=</span> <span class='st'>"Close"</span>,
-  <span class='kw'>sell_at</span> <span class='kw'>=</span> <span class='st'>"Close"</span>,
-  <span class='kw'>returns_method</span> <span class='kw'>=</span> <span class='st'>"ln"</span>,
-  <span class='kw'>short_fees</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>silent</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)</pre>
+    <pre class="usage"><span class='fu'>calculate_historical_returns</span><span class='op'>(</span>
+  <span class='va'>assets</span>,
+  date_range_xts <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"2012/"</span>, <span class='fu'><a href='https://rdrr.io/r/base/character.html'>as.character</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>,
+  buy_at <span class='op'>=</span> <span class='st'>"Close"</span>,
+  sell_at <span class='op'>=</span> <span class='st'>"Close"</span>,
+  returns_method <span class='op'>=</span> <span class='st'>"ln"</span>,
+  silent <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -189,28 +184,6 @@ where <em>log()</em> denotes the logarithm to base <em>10</em>.</p></li>
 </ul></td>
     </tr>
     <tr>
-      <th>short_fees</th>
-      <td><p>Optional. Either a named numeric vector or a numeric length
-1 (i.e., a single number). Specify this parameter to cause
-<em>calculate_historical_returns</em>() to include the returns observed for short
-selling each asset. <em>calculate_historical_returns</em>() will assume that, for every
-return reported in the output, the expected return on a short sale equals
-the expected return on the long sale times (1 - short fees):
-$$
-     \langle E_r,short \rangle = \langle E_r,long \rangle \times 
-       (short\_fees - 1)
-   $$</p>
-<p>If a <strong>single number</strong> (numeric vector of length 1): The short fees
-for every asset in <em>assets</em> are assumed to be equal to the number
-passed in as <em>short_fees</em>. Use this option if you expect the short
-fees for each asset to be the same.</p>
-<p>If <strong>numeric vector length &gt; 1</strong>: The names of <em>short_fees</em> must
-correspond to the names of <em>assets</em>, and each element must be the
-short fee expected for each asset. Use this option if the short fees for
-each asset is expected to be significantly different.</p>
-<p>See the "<strong>The Cost of Shorting</strong>" section for more information.</p></td>
-    </tr>
-    <tr>
       <th>silent</th>
       <td><p>Boolean. If FALSE (Default), messages will be displayed for
 special cases that might produce unexpected behavior; e.g., if no data
@@ -222,20 +195,21 @@ not be displayed.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>An xts object. Each element is the return observed on the date given
-by the xts's index with respect to the previous period, taking into
-account any splits, dividends or M&amp;A events that may have occurred in
-between, for the asset specified by the element's column name.</p>
+by the xts's index with respect to the previous period, taking into account
+any splits or dividends that may have occurred in between, for the asset
+specified by the element's column name.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Calculate daily natural log returns of Apple (AAPL) and AT&amp;T (T) for 2014, a</span>
 <span class='co'># year in which Apple had a major stock split.</span>
-<span class='no'>aapl_att_returns</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_historical_returns</span>(
-  <span class='kw'>assets</span>         <span class='kw'>=</span> <span class='no'>stock_data</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"AAPL"</span>, <span class='st'>"T"</span>)],
-  <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='st'>"2014"</span>
-)
+<span class='va'>aapl_att_returns</span> <span class='op'>&lt;-</span> <span class='fu'>calculate_historical_returns</span><span class='op'>(</span>
+  assets         <span class='op'>=</span> <span class='va'>stock_data</span><span class='op'>[</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"AAPL"</span>, <span class='st'>"T"</span><span class='op'>)</span><span class='op'>]</span>,
+  date_range_xts <span class='op'>=</span> <span class='st'>"2014"</span>
+<span class='op'>)</span>
 
 <span class='co'># Print the first 10 rows:</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span>(<span class='no'>aapl_att_returns</span>, <span class='fl'>10</span>)</div><div class='output co'>#&gt;                    AAPL             T
+<span class='fu'><a href='https://rdrr.io/r/utils/head.html'>head</a></span><span class='op'>(</span><span class='va'>aapl_att_returns</span>, <span class='fl'>10</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;                    AAPL             T
 #&gt; 2014-01-03 -0.022210746 -0.0043010819
 #&gt; 2014-01-06  0.005438253  0.0045871640
 #&gt; 2014-01-07 -0.007181981 -0.0002860821
@@ -254,7 +228,8 @@ between, for the asset specified by the element's column name.</p>
 <span class='co'>#      natural-log returns using Close prices. Let's pick Monday, 21 July 2014,</span>
 <span class='co'>#      which was a normal trading day (no dividend, no split) for AT&amp;T. The</span>
 <span class='co'>#      previous trading day was Friday, 18 Jul 2014:</span>
-<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>[<span class='st'>"2014-07-18/2014-07-21"</span>]</div><div class='output co'>#&gt;             Open  High   Low Close    TWAP    VWAP   Volume PreviousCloseDate
+<span class='va'>stock_data</span><span class='op'>$</span><span class='cn'>T</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>[</span><span class='st'>"2014-07-18/2014-07-21"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;             Open  High   Low Close    TWAP    VWAP   Volume PreviousCloseDate
 #&gt; 2014-07-18 36.18 36.19 36.00 36.17 36.1052 36.1115 16132950             16268
 #&gt; 2014-07-21 36.07 36.16 35.88 35.96 36.0222 36.0169 20917407             16269
 #&gt;            PreviousClose
@@ -262,17 +237,20 @@ between, for the asset specified by the element's column name.</p>
 #&gt; 2014-07-21         36.17</div><div class='input'>
 <span class='co'>#      The natural log return using Close prices (calculate_historical_returns()</span>
 <span class='co'>#      default) as calculated by hand should be:</span>
-<span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(
-  <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-07-21"</span>]) /
-    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-07-18"</span>])
-)</div><div class='output co'>#&gt; [1] -0.005822836</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span><span class='op'>(</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>stock_data</span><span class='op'>$</span><span class='cn'>T</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>$</span><span class='va'>Close</span><span class='op'>[</span><span class='st'>"2014-07-21"</span><span class='op'>]</span><span class='op'>)</span> <span class='op'>/</span>
+    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>stock_data</span><span class='op'>$</span><span class='cn'>T</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>$</span><span class='va'>Close</span><span class='op'>[</span><span class='st'>"2014-07-18"</span><span class='op'>]</span><span class='op'>)</span>
+<span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] -0.005822836</div><div class='input'>
 <span class='co'>#      This return was realized on 2014-07-21, so it should appear at that date</span>
 <span class='co'>#      index in the results returned by calculate_historical_returns():</span>
-<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-21"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;                       T
+<span class='va'>aapl_att_returns</span><span class='op'>[</span><span class='st'>"2014-07-21"</span>, <span class='st'>"T"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;                       T
 #&gt; 2014-07-21 -0.005822836</div><div class='input'>
 <span class='co'># 2) AT&amp;T's dividend</span>
 <span class='co'>#      AT&amp;T paid several dividends in 2014:</span>
-<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>dividends</span>[<span class='st'>"2014"</span>]</div><div class='output co'>#&gt;            DividendAmount RecordDate   DeclaredDate Type              
+<span class='va'>stock_data</span><span class='op'>$</span><span class='cn'>T</span><span class='op'>$</span><span class='va'>dividends</span><span class='op'>[</span><span class='st'>"2014"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;            DividendAmount RecordDate   DeclaredDate Type              
 #&gt; 2014-01-08 "0.46000"      "2014-01-10" "2013-12-13" "OrdinaryDividend"
 #&gt; 2014-04-08 "0.46000"      "2014-04-10" "2014-03-28" "OrdinaryDividend"
 #&gt; 2014-07-08 "0.46000"      "2014-07-10" "2014-06-27" "OrdinaryDividend"
@@ -286,82 +264,42 @@ between, for the asset specified by the element's column name.</p>
 <span class='co'>#     Close price the next day after the dividend went ex-div, you would have</span>
 <span class='co'>#     collected the closing price from the sale plus the dividend amount, </span>
 <span class='co'>#     meaning that your total earned return would have been:</span>
-<span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(
-  (
-    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-07-08"</span>]) +
-      <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>dividends</span>$<span class='no'>DividendAmount</span>[<span class='st'>"2014-07-08"</span>])
-  ) / <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>T</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-07-07"</span>])
-)</div><div class='output co'>#&gt; [1] 0</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span><span class='op'>(</span>
+  <span class='op'>(</span>
+    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>stock_data</span><span class='op'>$</span><span class='cn'>T</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>$</span><span class='va'>Close</span><span class='op'>[</span><span class='st'>"2014-07-08"</span><span class='op'>]</span><span class='op'>)</span> <span class='op'>+</span> 
+      <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>stock_data</span><span class='op'>$</span><span class='cn'>T</span><span class='op'>$</span><span class='va'>dividends</span><span class='op'>$</span><span class='va'>DividendAmount</span><span class='op'>[</span><span class='st'>"2014-07-08"</span><span class='op'>]</span><span class='op'>)</span>
+  <span class='op'>)</span> <span class='op'>/</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>stock_data</span><span class='op'>$</span><span class='cn'>T</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>$</span><span class='va'>Close</span><span class='op'>[</span><span class='st'>"2014-07-07"</span><span class='op'>]</span><span class='op'>)</span>
+<span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 0</div><div class='input'>
 <span class='co'>#      This return was realized on 2014-07-08, so it should appear at that date</span>
 <span class='co'>#      index in the results returned by calculate_historical_returns():</span>
-<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-07-08"</span>, <span class='st'>"T"</span>]</div><div class='output co'>#&gt;            T
+<span class='va'>aapl_att_returns</span><span class='op'>[</span><span class='st'>"2014-07-08"</span>, <span class='st'>"T"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;            T
 #&gt; 2014-07-08 0</div><div class='input'><span class='co'># --&gt; In this case, the stock closed at the same price as the previous day once</span>
 <span class='co'>#     the dividend was taken into account, so return = 0.</span>
 
 <span class='co'># 3) AAPL's split</span>
 <span class='co'>#      Apple underwent a major split on a Monday in June of 2014:</span>
-<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span></div><div class='output co'>#&gt;            Denominator Numerator
-#&gt; 2014-06-09           7         1</div><div class='input'>
+<span class='va'>stock_data</span><span class='op'>$</span><span class='va'>AAPL</span><span class='op'>$</span><span class='va'>splits</span>
+</div><div class='output co'>#&gt;            Denominator Numerator
+#&gt; 2014-06-09           7         1
+#&gt; 2020-08-31           4         1</div><div class='input'>
 <span class='co'>#     If you had bought a share of AAPL at Close price on Friday, you would have</span>
 <span class='co'>#     woken up on Monday morning with 7 shares... each one of which worth about</span>
 <span class='co'>#     1/7th what they were worth previously. If you sold those shares at Close</span>
 <span class='co'>#     price on Monday, your total return would be:</span>
-<span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span>(
-  (
-    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-06-09"</span>]) *
-      <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>splits</span>$<span class='no'>Denominator</span>[<span class='st'>"2014-06-09"</span>])
-  ) / <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span>(<span class='no'>stock_data</span>$<span class='no'>AAPL</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='st'>"2014-06-06"</span>])
-)</div><div class='output co'>#&gt; [1] 0.01587469</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/Log.html'>log</a></span><span class='op'>(</span>
+  <span class='op'>(</span>
+    <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>stock_data</span><span class='op'>$</span><span class='va'>AAPL</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>$</span><span class='va'>Close</span><span class='op'>[</span><span class='st'>"2014-06-09"</span><span class='op'>]</span><span class='op'>)</span> <span class='op'>*</span>
+      <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>stock_data</span><span class='op'>$</span><span class='va'>AAPL</span><span class='op'>$</span><span class='va'>splits</span><span class='op'>$</span><span class='va'>Denominator</span><span class='op'>[</span><span class='st'>"2014-06-09"</span><span class='op'>]</span><span class='op'>)</span>
+  <span class='op'>)</span> <span class='op'>/</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>as.numeric</a></span><span class='op'>(</span><span class='va'>stock_data</span><span class='op'>$</span><span class='va'>AAPL</span><span class='op'>$</span><span class='va'>prices</span><span class='op'>$</span><span class='va'>Close</span><span class='op'>[</span><span class='st'>"2014-06-06"</span><span class='op'>]</span><span class='op'>)</span>
+<span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] 0.01587469</div><div class='input'>
 <span class='co'>#      This return was realized on 2014-06-09, so it should appear at that date</span>
 <span class='co'>#      index in the results returned by calculate_historical_returns():</span>
-<span class='no'>aapl_att_returns</span>[<span class='st'>"2014-06-09"</span>, <span class='st'>"AAPL"</span>]</div><div class='output co'>#&gt;                  AAPL
-#&gt; 2014-06-09 0.01587469</div><div class='input'>
-<span class='co'># 4) Shorts</span>
-<span class='co'>#   a) Get returns for General Dynamics (GD), Chubb Ltd. (CB), and iShares' Core</span>
-<span class='co'>#        S&amp;P 500 index (IVV), including shorts, assuming the following short </span>
-<span class='co'>#        fees for each of these assets:</span>
-<span class='no'>gd_cb_ivv_returns_w_shorts</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_historical_returns</span>(
-  <span class='kw'>assets</span>         <span class='kw'>=</span> <span class='no'>stock_data</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"GD"</span>, <span class='st'>"CB"</span>, <span class='st'>"IVV"</span>)],
-  <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='st'>"2020-08-05/2020-08-14"</span>,
-  <span class='kw'>short_fees</span>     <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"CB"</span> <span class='kw'>=</span> <span class='fl'>0.004</span>, <span class='st'>"GD"</span> <span class='kw'>=</span> <span class='fl'>0.0025</span>, <span class='st'>"IVV"</span> <span class='kw'>=</span> <span class='fl'>0.0025</span>)
-)
-<span class='no'>gd_cb_ivv_returns_w_shorts</span></div><div class='output co'>#&gt;                      CB            GD           IVV         s_CB          s_GD
-#&gt; 2020-08-06  0.007057080 -0.0003351993  0.0067547630 -0.007028852  0.0003343613
-#&gt; 2020-08-07  0.026433257  0.0253563616  0.0007146473 -0.026327524 -0.0252929707
-#&gt; 2020-08-10  0.007742172  0.0231974994  0.0030018896 -0.007711203 -0.0231395056
-#&gt; 2020-08-11  0.007985744  0.0145210376 -0.0084041621 -0.007953801 -0.0144847350
-#&gt; 2020-08-12 -0.013191697 -0.0154795960  0.0138498959  0.013138930  0.0154408970
-#&gt; 2020-08-13  0.007036896 -0.0093782805 -0.0017133915 -0.007008749  0.0093548348
-#&gt; 2020-08-14 -0.008112082  0.0096979020 -0.0000887036  0.008079634 -0.0096736573
-#&gt;                    s_IVV
-#&gt; 2020-08-06 -6.737876e-03
-#&gt; 2020-08-07 -7.128607e-04
-#&gt; 2020-08-10 -2.994385e-03
-#&gt; 2020-08-11  8.383152e-03
-#&gt; 2020-08-12 -1.381527e-02
-#&gt; 2020-08-13  1.709108e-03
-#&gt; 2020-08-14  8.848184e-05</div><div class='input'><span class='co'>#   b) Now assume that the short fee for each stock is the same (0.25%):</span>
-<span class='no'>gd_cb_ivv_returns_w_shorts</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_historical_returns</span>(
-  <span class='kw'>assets</span>         <span class='kw'>=</span> <span class='no'>stock_data</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"GD"</span>, <span class='st'>"CB"</span>, <span class='st'>"IVV"</span>)],
-  <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='st'>"2020-08-05/2020-08-14"</span>,
-  <span class='kw'>short_fees</span>     <span class='kw'>=</span> <span class='fl'>0.0025</span>
-)
-<span class='no'>gd_cb_ivv_returns_w_shorts</span></div><div class='output co'>#&gt;                      CB            GD           IVV         s_CB         s_GD
-#&gt; 2020-08-06  0.007057080 -0.0003351993  0.0067547630 -0.004557080  0.002835199
-#&gt; 2020-08-07  0.026433257  0.0253563616  0.0007146473 -0.023933257 -0.022856362
-#&gt; 2020-08-10  0.007742172  0.0231974994  0.0030018896 -0.005242172 -0.020697499
-#&gt; 2020-08-11  0.007985744  0.0145210376 -0.0084041621 -0.005485744 -0.012021038
-#&gt; 2020-08-12 -0.013191697 -0.0154795960  0.0138498959  0.015691697  0.017979596
-#&gt; 2020-08-13  0.007036896 -0.0093782805 -0.0017133915 -0.004536896  0.011878280
-#&gt; 2020-08-14 -0.008112082  0.0096979020 -0.0000887036  0.010612082 -0.007197902
-#&gt;                    s_IVV
-#&gt; 2020-08-06 -0.0042547630
-#&gt; 2020-08-07  0.0017853527
-#&gt; 2020-08-10 -0.0005018896
-#&gt; 2020-08-11  0.0109041621
-#&gt; 2020-08-12 -0.0113498959
-#&gt; 2020-08-13  0.0042133915
-#&gt; 2020-08-14  0.0025887036</div></pre>
+<span class='va'>aapl_att_returns</span><span class='op'>[</span><span class='st'>"2014-06-09"</span>, <span class='st'>"AAPL"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;                  AAPL
+#&gt; 2014-06-09 0.01587469</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -377,7 +315,7 @@ between, for the asset specified by the element's column name.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -126,14 +126,7 @@ given the expected returns, volatilities, and correlations of returns for
 each asset.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>calculate_market_portfolio</span>(
-  <span class='no'>exp_rtn</span>,
-  <span class='no'>exp_vol</span>,
-  <span class='no'>exp_cor</span>,
-  <span class='kw'>rfr</span> <span class='kw'>=</span> <span class='fl'>2.7397e-05</span>,
-  <span class='kw'>prices</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>portfolio_aum</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>calculate_market_portfolio</span><span class='op'>(</span><span class='va'>exp_rtn</span>, <span class='va'>exp_vol</span>, <span class='va'>exp_cor</span>, rfr <span class='op'>=</span> <span class='fl'>2.7397e-05</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -170,27 +163,12 @@ If you specify a different value for <em>rfr</em>, <strong>make sure its time
 basis matches the one used for you other inputs</strong>, (i.e., if <em>exp_rtn</em>
 contains monthly returns, use monthly risk-free rate)!</p></td>
     </tr>
-    <tr>
-      <th>prices</th>
-      <td><p>Optional: a named numeric vector for which each name is the
-identifier of an asset and each element is the current price of that asset
-for which a market portfolio is to be calculated on a shares basis. See the
-"Returns" section for more info.</p></td>
-    </tr>
-    <tr>
-      <th>portfolio_aum</th>
-      <td><p>Optional: numeric, length 1, giving the total amount of
-assets under management for which a market portfolio is to be calculated.
-In other words, <em>portfolio_aum</em> = "total cash at risk".</p></td>
-    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>If <strong>weights basis</strong> (<em>prices</em> and <em>portfolio_aum</em>
-not specified): #'   A list describing the market portfolio (MP). Contains
-the following four elements:</p>
-<dl'>
+    <p>A list describing the market portfolio (MP) having four elements:</p>
+<dl>
 <dt><code>sharpe</code>, numeric:</dt><dd><p>Sharpe Ratio of MP</p></dd>
 <dt><code>weights</code>, named numeric vector:</dt><dd><p>The values of
 <code>weights</code> range from 0 to 1 and denote the fraction of the total
@@ -199,21 +177,6 @@ MP value allocated to the asset whose identifier is that value's name.</p></dd>
 predicted/forecast) for the MP over the next time interval.</p></dd>
 <dt><code>ex_volatility</code>:</dt><dd><p>The volatility that is expected (i.e.,
 predicted/forecast) for the MP over the next time interval.</p></dd>
-
-</dl>
-
-<p>If <strong>shares basis</strong> (<em>prices</em> and <em>portfolio_aum</em>
-specified): <em>calculate_market_portfolio</em>() will optimize the portfolio
-assuming that  <em>portfolio_aum</em> is available for investing and that the
-price of each asset is given by <em>prices</em>. Returns a list describing
-the market portfolio (MP) which contains the for elements described above,
-plus three more:</p>
-<dl'>
-<dt>shares:</dt><dd><p>Named numeric vector giving the number of shares of each
-asset calculated for the market portfolio</p></dd>
-<dt>prices:</dt><dd><p>Named umeric vector giving the prices used by
-calculate_market_portfolio() to determine the MP.</p></dd>
-<dt>cash:</dt><dd><p>Numeric, length 1. Leftover cash not invested in assets.</p></dd>
 
 </dl>
 
@@ -235,27 +198,15 @@ possible assets A and B. The portfolio variable is updated.</p>
 it is not possible to reallocate <em>step</em> amount of any asset A into any
 other asset B so as to create a portfolio having a better Sharpe, the
 Market Portfolio has been reached and the function returns the value.</p>
-<p><strong>Weights</strong> mode:
-If either <em>prices</em> or <em>portfolio_aum</em> is unspecified in the call
-to <em>calculate_market_portfolio</em>(), then the function operates in
-"<em>Weights Mode</em>" and will attempt to answer the question: "What is the
-the optimum fractional, real-valued weight of each asset in the
-Sharpe-optimal MP?" Because the Sharpe ratio and the optimum weights are
-real numbers, this operation can be computed with arbitrary precision, to
-infinte decimal places. <em>calculate_market_portfolio</em>() was written to
-be clearly understood and run reasonably fast, and testing indicates that
-the weights are reliable to within +/- 1% (i.e., "0.18" to "0.20" for a
-reported weight of "0.19") of the optimal value. As such, weights reported
-by <em>weights mode</em> should be considered somewhat approximate.</p>
-<p><strong>Shares</strong> mode:
-A much different situation arises when we ask the question: "Given $5MM in
-capital, what's the optimum portfolio that can be built from a set of
-assets trading at given prices?" Note that the formulation of this question
-requires both <em>prices</em> and <em>portfolio_aum</em> to be provided.
-Because shares can only be bought in integer values, and because the sum of
-the capital allocated to each asset (including "cash") must equal
-<em>portfolio_aum</em>, the number of values available for the <em>shares</em>
-vector is countably finite and it is possible to find an exact solution.</p>
+<p>This function answers the question: "What is the the optimum fractional,
+real-valued weight of each asset in the Sharpe-optimal MP?" Because the
+Sharpe ratio and the optimum weights are real numbers, this operation can
+be computed with arbitrary precision, to infinte decimal places.
+<em>calculate_market_portfolio</em>() was written to be clearly understood
+and run reasonably fast, and testing indicates that the weights are
+reliable to within +/- 1% (i.e., "0.18" to "0.20" for a reported weight of
+"0.19") of the optimal value. As such, weights reported by <em>weights
+mode</em> should be considered somewhat approximate.</p>
     <h2 class="hasAnchor" id="the-cost-of-shorting"><a class="anchor" href="#the-cost-of-shorting"></a>The Cost of Shorting</h2>
 
     
@@ -268,7 +219,7 @@ because your broker charges fees on short position in exchange for providing
 the shorting service. In addition, the capital gains from short selling may
 taxed at a different rate than those realized on your long positions.</p>
 <p>The key additional costs of shorting are:</p>
-<dl'>
+<dl>
 <dt>Dividends</dt><dd><p>You don't earn dividends on a short position. In fact, it's the
 opposite: if you're short a stock on a dividend's ex-date, then you must
 actually <em>pay</em> the dividend to the owner of the stock.
@@ -278,9 +229,7 @@ itself when shorting is included.</p></dd>
 position is open. This fee is based on the availability of assets for
 shorting, and varies from asset to asset and through time. Usually the
 fee is calculated on each trading day and debited from the trading
-account on at the beginning of each month.
-<em><a href='calculate_historical_returns.html'>calculate_historical_returns</a></em>() takes this into account
-when the <em>short_fees</em> parameter is specified.</p></dd>
+account on at the beginning of each month.</p></dd>
 <dt>Taxes</dt><dd><p>Capital gains taxes on your short sales can often be taxed at a higher
 rate than what you might expect for long sales. If <strong>uncovered</strong>,
 the short position will always be taxed as a short-term capital gain
@@ -302,69 +251,52 @@ the <em>exp_rtn</em> parameter as passed to
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Let's pick an example date for which to create an MP:</span>
-<span class='no'>mp_date</span> <span class='kw'>&lt;-</span> <span class='st'>"2018-01-09"</span>
+<span class='va'>mp_date</span> <span class='op'>&lt;-</span> <span class='st'>"2018-01-09"</span>
 <span class='co'># Feel free to change this date to any other date for which you have data.</span>
 
 <span class='co'># Use calculate_historical_returns() to get the daily returns observed for the 365 days</span>
 <span class='co'># ending on mp_date:</span>
-<span class='no'>historical_rtn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='calculate_historical_returns.html'>calculate_historical_returns</a></span>(
-  <span class='kw'>assets</span>         <span class='kw'>=</span> <span class='no'>stock_data</span>,
-  <span class='kw'>date_range_xts</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(
-    <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='no'>mp_date</span>) - <span class='fl'>365</span>,
+<span class='va'>historical_rtn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='calculate_historical_returns.html'>calculate_historical_returns</a></span><span class='op'>(</span>
+  assets         <span class='op'>=</span> <span class='va'>stock_data</span>,
+  date_range_xts <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span>
+    <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span><span class='op'>(</span><span class='va'>mp_date</span><span class='op'>)</span> <span class='op'>-</span> <span class='fl'>365</span>,
     <span class='st'>"/"</span>,
-    <span class='no'>mp_date</span>
-  )
-)</div><div class='output co'>#&gt; <span class='message'><span style='color: #BBBB00;'>ℹ</span><span> No data available for </span><span style='font-weight: bold;'>LIN</span><span> during time range </span><span style='font-weight: bold;'>2017-01-09/2018-01-09</span><span>.</span></div><div class='input'>
-<span class='co'># Note that a warning message is printed: Linde plc (NYSE: LIN) was the result</span>
-<span class='co'>#   of a merger between Praxair (NYSE: PX) and Linde AG (FWB: LINU and FWB: LIN)</span>
-<span class='co'>#   and therefore did not exist during the time range specified.</span>
-
+    <span class='va'>mp_date</span>
+  <span class='op'>)</span>
+<span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'><span style='color: #BBBB00;'>ℹ</span><span> No data available for </span><span style='font-weight: bold;'>LIN</span><span> during time range </span><span style='font-weight: bold;'>2017-01-09/2018-01-09</span><span>.</span></div><div class='input'>
 <span class='co'># We'll assume that the return we expect over the next year is the annualized </span>
 <span class='co'># GMMR of the daily rates of return in historical_rtn:</span>
-<span class='no'>exp_rtn</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='gmrr.html'>gmrr</a></span>(<span class='no'>historical_rtn</span>)
+<span class='va'>exp_rtn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gmrr.html'>gmrr</a></span><span class='op'>(</span><span class='va'>historical_rtn</span><span class='op'>)</span>
 
 <span class='co'># Assume that the volatilities we expect for the next year are the annualized</span>
 <span class='co'># daily vols we observed during the previous year:</span>
-<span class='no'>exp_vol</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dplyr</span><span class='kw ns'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span>(
-  <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble</a></span>(<span class='no'>historical_rtn</span>),
-  <span class='kw pkg'>dplyr</span><span class='kw ns'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span>(<span class='kw pkg'>dplyr</span><span class='kw ns'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/reexports.html'>everything</a></span>(), <span class='no'>sd</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-) <span class='kw'>%&gt;%</span>
-  <span class='kw pkg'>purrr</span><span class='kw ns'>::</span><span class='fu'><a href='https://purrr.tidyverse.org/reference/as_vector.html'>as_vector</a></span>()
+<span class='va'>exp_vol</span> <span class='op'>&lt;-</span> <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>
+  <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/as_tibble.html'>as_tibble</a></span><span class='op'>(</span><span class='va'>historical_rtn</span><span class='op'>)</span>,
+  <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/across.html'>across</a></span><span class='op'>(</span><span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://tidyselect.r-lib.org/reference/everything.html'>everything</a></span><span class='op'>(</span><span class='op'>)</span>, <span class='va'>sd</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>purrr</span><span class='fu'>::</span><span class='fu'><a href='https://purrr.tidyverse.org/reference/as_vector.html'>as_vector</a></span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># Assume that the correlations of returns of each asset pair that we expect</span>
 <span class='co'># for the next year will be the same as the previous year:</span>
-<span class='no'>exp_cor</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>stats</span><span class='kw ns'>::</span><span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>cor</a></span>(<span class='no'>historical_rtn</span>, <span class='kw'>use</span> <span class='kw'>=</span> <span class='st'>"pairwise.complete.obs"</span>)
+<span class='va'>exp_cor</span> <span class='op'>&lt;-</span> <span class='fu'>stats</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>cor</a></span><span class='op'>(</span><span class='va'>historical_rtn</span>, use <span class='op'>=</span> <span class='st'>"pairwise.complete.obs"</span><span class='op'>)</span>
 
 <span class='co'># Calculate the market portfolio:</span>
-<span class='no'>mp_by_wt</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(<span class='no'>exp_rtn</span>, <span class='no'>exp_vol</span>, <span class='no'>exp_cor</span>)
-<span class='no'>mp_by_wt</span></div><div class='output co'>#&gt; $sharpe
-#&gt; [1] 0.2202067
+<span class='va'>mp_by_wt</span> <span class='op'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span><span class='op'>(</span><span class='va'>exp_rtn</span>, <span class='va'>exp_vol</span>, <span class='va'>exp_cor</span><span class='op'>)</span>
+<span class='va'>mp_by_wt</span>
+</div><div class='output co'>#&gt; $sharpe
+#&gt; [1] 0.2402515
 #&gt; 
 #&gt; $weights
-#&gt;   AAPL     CB    IVV    PEP     PG     PX    TXN 
-#&gt; 0.0912 0.0072 0.3884 0.2068 0.0100 0.1772 0.1192 
+#&gt;       AAPL        ABT         CB        IVV        PEP         PX        TXN 
+#&gt; 0.10500000 0.25166667 0.01333333 0.14033333 0.20166667 0.17300000 0.11500000 
 #&gt; 
 #&gt; $exp_rtn
-#&gt; [1] 0.001035
+#&gt; [1] 0.00121397
 #&gt; 
 #&gt; $exp_vol
-#&gt; [1] 0.00457569
-#&gt; </div><div class='input'>
-<span class='co'>### Repeat the above, assuming you have $250,000 to invest and that the stocks</span>
-<span class='co'>### may be bought at their closing prices on mp_date. </span>
-<span class='no'>prices</span> <span class='kw'>&lt;-</span> <span class='no'>stock_data</span> <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/r/base/lapply.html'>lapply</a></span>(<span class='kw'>function</span>(<span class='no'>stock</span>){<span class='no'>stock</span>$<span class='no'>prices</span>$<span class='no'>Close</span>[<span class='no'>mp_date</span>]}) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='https://rdrr.io/r/base/unlist.html'>unlist</a></span>() <span class='kw'>%&gt;%</span>
-  <span class='kw pkg'>purrr</span><span class='kw ns'>::</span><span class='fu'><a href='https://purrr.tidyverse.org/reference/keep.html'>compact</a></span>()
-<span class='no'>portfolio_aum</span> <span class='kw'>&lt;-</span> <span class='fl'>250000</span>
-
-<span class='no'>mp_by_shares</span> <span class='kw'>&lt;-</span> <span class='fu'>calculate_market_portfolio</span>(
-  <span class='no'>exp_rtn</span>,
-  <span class='no'>exp_vol</span>,
-  <span class='no'>exp_cor</span>,
-  <span class='kw'>prices</span>        <span class='kw'>=</span> <span class='no'>prices</span>,
-  <span class='kw'>portfolio_aum</span> <span class='kw'>=</span> <span class='no'>portfolio_aum</span>
-)</div><div class='output co'>#&gt; <span class='warning'>Warning: number of items to replace is not a multiple of replacement length</span></div><div class='output co'>#&gt; <span class='error'>Error: object 'exp_rtn' not found</span></div><div class='input'><span class='no'>mp_by_shares</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'mp_by_shares' not found</span></div></span></pre>
+#&gt; [1] 0.00493887
+#&gt; </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -380,7 +312,7 @@ the <em>exp_rtn</em> parameter as passed to
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

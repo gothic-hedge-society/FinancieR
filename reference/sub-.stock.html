@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Using <code>[</code> on Objects of Class "stock" — [.stock • FinancieR</title>
+<title>Using [ on Objects of Class "stock" — [.stock • FinancieR</title>
 
 
 <!-- jquery -->
@@ -41,10 +41,10 @@
   <link href="../extra.css" rel="stylesheet">
   <script src="../extra.js"></script>
 
-<meta property="og:title" content="Using <code>[</code> on Objects of Class "stock" — [.stock" />
-<meta property="og:description" content="You can quickly retrieve price, dividend, split, and MnA data useing the [
-operator on an object of class stock, much like subsetting a matrix
-or list in base R." />
+<meta property="og:title" content="Using [ on Objects of Class "stock" — [.stock" />
+<meta property="og:description" content="You can quickly retrieve price, dividend, and split data useing the [
+operator on an object of class stock, much like subsetting a matrix or
+list in base R." />
 
 
 
@@ -121,9 +121,9 @@ or list in base R." />
     </div>
 
     <div class="ref-description">
-    <p>You can quickly retrieve price, dividend, split, and MnA data useing the <code>[</code>
-operator on an object of class <em>stock</em>, much like subsetting a matrix
-or list in base R.</p>
+    <p>You can quickly retrieve price, dividend, and split data useing the <code><a href='https://rdrr.io/r/base/Extract.html'>[</a></code>
+operator on an object of class <em>stock</em>, much like subsetting a matrix or
+list in base R.</p>
     </div>
 
     <pre class="usage"># S3 method for stock
@@ -148,7 +148,7 @@ data for the selected stock will be returned.</p></td>
     <tr>
       <th>j</th>
       <td><p>Character vector specifying column names to be included in the output. Available column names are:</p>
-<p>"DividendAmount", "RecordDate", "DeclaredDate", "Type", "PaymentFrequency", "Open", "High", "Low", "Close", "TWAP", "VWAP", "Volume", "PreviousCloseDate", "PreviousClose", "Denominator", "Numerator", "ExDate"</p></td>
+<p>"DividendAmount", "RecordDate", "DeclaredDate", "Type", "PaymentFrequency", "Open", "High", "Low", "Close", "TWAP", "VWAP", "Volume", "PreviousCloseDate", "PreviousClose", "Denominator", "Numerator", "ExDate", "company", "acquired_by", "multiple", "type", "acquired"</p></td>
     </tr>
     <tr>
       <th>silent</th>
@@ -174,13 +174,6 @@ included in the output. "<strong>Denominator</strong>" refers to the number of
 shares AFTER the split and "<strong>Numerator</strong>" number of shares BEFORE
 the split; for example, a 2-to-1 split would have "<strong>Denominator</strong>"
 = 2 and "<strong>Numerator</strong>" = 1.</p></li>
-<li><p>If an M&amp;A event took place during the specified time range resulting
-in a change in the stock's ticker symbol, then the columns
-"<strong>symbol</strong>" and "<strong>multiple</strong>" will always be included in the
-output. "<strong>symbol</strong>" is the ticker symbol that the company traded
-under through time, and "<strong>multiple</strong>" gives the ratio
-<em>number of shares held prior to MnA</em> /
-<em>number of shares held after the MnA</em>.</p></li>
 </ol>
 
 
@@ -188,37 +181,28 @@ under through time, and "<strong>multiple</strong>" gives the ratio
     <pre class="examples"><div class='input'>
 <span class='co'># If no columns are specified, all available columns are returned.</span>
 <span class='co'># Single date:</span>
-<span class='no'>stock_data</span>$<span class='no'>IVV</span>[<span class='st'>"2019-06-11"</span>]</div><div class='output co'>#&gt;            Open   High    Low  Close     TWAP     VWAP  Volume
+<span class='va'>stock_data</span><span class='op'>$</span><span class='va'>IVV</span><span class='op'>[</span><span class='st'>"2019-06-11"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;            Open   High    Low  Close     TWAP     VWAP  Volume
 #&gt; 2019-06-11  293 293.42 290.18 290.95 291.3605 291.3883 2923455
 #&gt;            PreviousCloseDate PreviousClose
 #&gt; 2019-06-11             18057           291</div><div class='input'>
-
 <span class='co'># Dividends are correctly applied, even when issued on a non-trading day. In</span>
 <span class='co'># 2012, for example, Texas Instruments (TXN) had scheduled a dividend for the</span>
 <span class='co'># 29th of October but the exchange was closed due to Hurricane Sandy. The</span>
 <span class='co'># dividend, then, should be applied to the next trading day (31 October). Here,</span>
 <span class='co'># we'll select just the closing price for a date range around that time.</span>
 <span class='co'># Remember, any dividends that occur within the date range are always included.</span>
-<span class='no'>stock_data</span>$<span class='no'>TXN</span>[<span class='st'>"2012-10-25/2012-11-05"</span>, <span class='st'>"Close"</span>]</div><div class='output co'>#&gt;            Close DividendAmount
+<span class='va'>stock_data</span><span class='op'>$</span><span class='va'>TXN</span><span class='op'>[</span><span class='st'>"2012-10-25/2012-11-05"</span>, <span class='st'>"Close"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;            Close DividendAmount
 #&gt; 2012-10-25 28.13           0.00
 #&gt; 2012-10-26 28.92           0.00
 #&gt; 2012-10-31 28.09           0.21
 #&gt; 2012-11-01 29.21           0.00
 #&gt; 2012-11-02 28.53           0.00
 #&gt; 2012-11-05 29.47           0.00</div><div class='input'>
-
-<span class='co'># Mergers are handled as illustrated below for the PX-LIN merger in 2018.</span>
-<span class='co'># Shareholders of PX received 1 share of the new company, LIN, for every 1</span>
-<span class='co'># share of PX.</span>
-<span class='no'>stock_data</span>$<span class='no'>PX</span>[<span class='st'>"2018-10-29/2018-11-05"</span>, <span class='st'>"Close"</span>]</div><div class='output co'>#&gt;            Close    symbol multiplier
-#&gt; 2018-10-29 "165.49" "PX"   "1"       
-#&gt; 2018-10-30 "164.5"  "PX"   "1"       
-#&gt; 2018-10-31 "165.47" "LIN"  "1"       
-#&gt; 2018-11-01 "162"    "LIN"  "1"       
-#&gt; 2018-11-02 "159.84" "LIN"  "1"       
-#&gt; 2018-11-05 "161.99" "LIN"  "1"       </div><div class='input'>
 <span class='co'># Splits are handled as follows for Apple's 7-to-1 split of 2014:</span>
-<span class='no'>stock_data</span>$<span class='no'>AAPL</span>[<span class='st'>"2014-06-05/2014-06-11"</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Open"</span>, <span class='st'>"Close"</span>)]</div><div class='output co'>#&gt;              Open  Close Numerator Denominator
+<span class='va'>stock_data</span><span class='op'>$</span><span class='va'>AAPL</span><span class='op'>[</span><span class='st'>"2014-06-05/2014-06-11"</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"Open"</span>, <span class='st'>"Close"</span><span class='op'>)</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;              Open  Close Numerator Denominator
 #&gt; 2014-06-05 646.20 647.35         1           1
 #&gt; 2014-06-06 649.90 645.57         1           1
 #&gt; 2014-06-09  92.70  93.70         1           7
@@ -226,7 +210,8 @@ under through time, and "<strong>multiple</strong>" gives the ratio
 #&gt; 2014-06-11  94.13  93.86         1           1</div><div class='input'>
 <span class='co'># Not specifying which columns you want can quickly lead to a lot of data, as in</span>
 <span class='co'># the below subset of IVV for the month of June 2019:</span>
-<span class='no'>stock_data</span>$<span class='no'>IVV</span>[<span class='st'>"2019-06"</span>]</div><div class='output co'>#&gt;            Open     High       Low        Close    TWAP       VWAP      
+<span class='va'>stock_data</span><span class='op'>$</span><span class='va'>IVV</span><span class='op'>[</span><span class='st'>"2019-06"</span><span class='op'>]</span>
+</div><div class='output co'>#&gt;            Open     High       Low        Close    TWAP       VWAP      
 #&gt; 2019-06-03 "277.15" "278.39"   "274.9"    "276.38" "276.4588" "276.4957"
 #&gt; 2019-06-04 "278.96" "282.5759" "278.47"   "282.44" "280.6717" "280.8257"
 #&gt; 2019-06-05 "284.25" "284.9"    "282.211"  "284.86" "283.8816" "283.852" 
@@ -288,7 +273,12 @@ under through time, and "<strong>multiple</strong>" gives the ratio
 #&gt; 2019-06-25 ""           ""           ""                 ""              
 #&gt; 2019-06-26 ""           ""           ""                 ""              
 #&gt; 2019-06-27 ""           ""           ""                 ""              
-#&gt; 2019-06-28 ""           ""           ""                 ""              </div></pre>
+#&gt; 2019-06-28 ""           ""           ""                 ""              </div><div class='input'>
+<span class='co'>###### M&amp;A Events: Mergers, Acquisitions, Spinoffs, Breakups, etc.</span>
+<span class='co'># Consider the M&amp;A event that took place on 31 Oct 2018 in which Praxair (PX)</span>
+<span class='co'># merged with Linde AG (not included in dataset) to form Linde PLC, a new</span>
+<span class='co'># company traded under the symbol LIN.</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -304,7 +294,7 @@ under through time, and "<strong>multiple</strong>" gives the ratio
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
