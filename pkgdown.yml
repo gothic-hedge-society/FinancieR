@@ -3,7 +3,7 @@ pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   FinancieR: FinancieR.html
-last_built: 2020-11-19T22:04Z
+last_built: 2020-11-19T22:06Z
 urls:
   reference: https://github.com/gothic-hedge-society/FinancieR/reference
   article: https://github.com/gothic-hedge-society/FinancieR/articles
