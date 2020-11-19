@@ -16,6 +16,8 @@
 #'    commision, transaction fees, etc. Does not include taxes.
 #'  }
 #'  
+#'  Use the function \code{is_blotter}() to determine if an object is a blotter.
+#'  
 #' @details 
 #'  **Options exercises** do not appear explicitly on the blotter. However, the
 #'  purchase/sale of the option, and the purchase/sale of the underlying asset
@@ -27,6 +29,17 @@
 #'  **Dividends, coupon payments, and other cash** do not appear on the blotter.
 #'  Trades only.
 #'  
-#' @name blotter
+#' @param obj An R object
+#' 
+#' @return 
+#' The function \code{is_blotter} returns TRUE if passed an R object that meets
+#' the criteria to be treated as a blotter.
 #'  
-NULL
+#' @name blotter
+#' @aliases is_blotter
+#' @export
+#'  
+is_blotter <- function(obj){
+  isTRUE(identical(colnames(obj), c("symbol", "action", "price", "fees"))) &&
+    inherits(obj, "xts")
+}

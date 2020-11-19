@@ -2,7 +2,18 @@
 % Please edit documentation in R/blotter.R
 \name{blotter}
 \alias{blotter}
+\alias{is_blotter}
 \title{Trade Blotter}
+\usage{
+is_blotter(obj)
+}
+\arguments{
+\item{obj}{An R object}
+}
+\value{
+The function \code{is_blotter} returns TRUE if passed an R object that meets
+the criteria to be treated as a blotter.
+}
 \description{
 A \strong{blotter} is an xts time-series object that contains a complete record of
 all trades made during a given time interval. To be a blotter, an xts object
@@ -19,6 +30,8 @@ CUSIP, ISIN, a unique ID assigned by a brokerage, etc.
 \item{\strong{fees}}: Sum of all fees paid for the trade. Includes
 commision, transaction fees, etc. Does not include taxes.
 }
+
+Use the function \code{is_blotter}() to determine if an object is a blotter.
 }
 \details{
 \strong{Options exercises} do not appear explicitly on the blotter. However, the
