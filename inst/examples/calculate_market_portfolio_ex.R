@@ -13,6 +13,10 @@ historical_rtn <- calculate_historical_returns(
   )
 )
 
+# Note that we get an error message about LIN: that's because PX merged Linde
+# Plc during the time period we selected, and the system is alerting you that
+# data for the newly merged company, which trades under "LIN", is not available.
+
 # We'll assume that the return we expect over the next year is the annualized 
 # GMMR of the daily rates of return in historical_rtn:
 exp_rtn <- gmrr(historical_rtn)
