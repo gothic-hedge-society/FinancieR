@@ -265,6 +265,10 @@ the <em>exp_rtn</em> parameter as passed to
   <span class='op'>)</span>
 <span class='op'>)</span>
 </div><div class='output co'>#&gt; <span class='message'><span style='color: #BBBB00;'>ℹ</span><span> No data available for </span><span style='font-weight: bold;'>LIN</span><span> during time range </span><span style='font-weight: bold;'>2017-01-09/2018-01-09</span><span>.</span></div><div class='input'>
+<span class='co'># Note that we get an error message about LIN: that's because PX merged Linde</span>
+<span class='co'># Plc during the time period we selected, and the system is alerting you that</span>
+<span class='co'># data for the newly merged company, which trades under "LIN", is not available.</span>
+
 <span class='co'># We'll assume that the return we expect over the next year is the annualized </span>
 <span class='co'># GMMR of the daily rates of return in historical_rtn:</span>
 <span class='va'>exp_rtn</span> <span class='op'>&lt;-</span> <span class='fu'><a href='gmrr.html'>gmrr</a></span><span class='op'>(</span><span class='va'>historical_rtn</span><span class='op'>)</span>
