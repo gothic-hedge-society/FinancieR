@@ -1,15 +1,9 @@
 # make a stock block (an xts) from a "stock" class object.
-<<<<<<< HEAD
 stock_blockify <- function(x, i, j, force_divs_col = FALSE){
-=======
-stock_blockify <- function(x, i, j){
->>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
 
   requireNamespace("xts", quietly = TRUE)
 
-  stock <- structure(x, class = "list") %>% {
-    .[setdiff(names(.), "MnA")]
-  } %>%
+  stock <- structure(x, class = "list") %>%
     lapply(
       function(stock_component){
         {
@@ -84,13 +78,10 @@ stock_blockify <- function(x, i, j){
     )
   }
 
-<<<<<<< HEAD
   if(force_divs_col){
     stock_block$DividendAmount <- rep("0", nrow(stock_block))
   }
 
-=======
->>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
   stock_block
 
 }

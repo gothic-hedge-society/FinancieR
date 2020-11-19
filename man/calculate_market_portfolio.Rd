@@ -4,14 +4,7 @@
 \alias{calculate_market_portfolio}
 \title{Calculate Market Portfolio}
 \usage{
-calculate_market_portfolio(
-  exp_rtn,
-  exp_vol,
-  exp_cor,
-  rfr = 2.7397e-05,
-  prices = NULL,
-  portfolio_aum = NULL
-)
+calculate_market_portfolio(exp_rtn, exp_vol, exp_cor, rfr = 2.7397e-05)
 }
 \arguments{
 \item{exp_rtn}{Named numeric vector for which each element is the return
@@ -37,20 +30,9 @@ Ratio}. Defaults to \strong{0.0027397}\% daily return (about 1\% annually).
 If you specify a different value for \emph{rfr}, \strong{make sure its time
 basis matches the one used for you other inputs}, (i.e., if \emph{exp_rtn}
 contains monthly returns, use monthly risk-free rate)!}
-
-\item{prices}{Optional: a named numeric vector for which each name is the
-identifier of an asset and each element is the current price of that asset
-for which a market portfolio is to be calculated on a shares basis. See the
-"Returns" section for more info.}
-
-\item{portfolio_aum}{Optional: numeric, length 1, giving the total amount of
-assets under management for which a market portfolio is to be calculated.
-In other words, \emph{portfolio_aum} = "total cash at risk".}
 }
 \value{
-If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum}
-not specified): #'   A list describing the market portfolio (MP). Contains
-the following four elements:
+A list describing the market portfolio (MP) having four elements:
 
 \describe{
 \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
@@ -61,21 +43,6 @@ MP value allocated to the asset whose identifier is that value's name.}
 predicted/forecast) for the MP over the next time interval.}
 \item{\code{ex_volatility}:}{The volatility that is expected (i.e.,
 predicted/forecast) for the MP over the next time interval.}
-}
-
-If \strong{shares basis} (\emph{prices} and \emph{portfolio_aum}
-specified): \emph{calculate_market_portfolio}() will optimize the portfolio
-assuming that  \emph{portfolio_aum} is available for investing and that the
-price of each asset is given by \emph{prices}. Returns a list describing
-the market portfolio (MP) which contains the for elements described above,
-plus three more:
-
-\describe{
-\item{shares:}{Named numeric vector giving the number of shares of each
-asset calculated for the market portfolio}
-\item{prices:}{Named umeric vector giving the prices used by
-calculate_market_portfolio() to determine the MP.}
-\item{cash:}{Numeric, length 1. Leftover cash not invested in assets.}
 }
 }
 \description{
@@ -104,28 +71,15 @@ it is not possible to reallocate \emph{step} amount of any asset A into any
 other asset B so as to create a portfolio having a better Sharpe, the
 Market Portfolio has been reached and the function returns the value.
 
-\strong{Weights} mode:
-If either \emph{prices} or \emph{portfolio_aum} is unspecified in the call
-to \emph{calculate_market_portfolio}(), then the function operates in
-"\emph{Weights Mode}" and will attempt to answer the question: "What is the
-the optimum fractional, real-valued weight of each asset in the
-Sharpe-optimal MP?" Because the Sharpe ratio and the optimum weights are
-real numbers, this operation can be computed with arbitrary precision, to
-infinte decimal places. \emph{calculate_market_portfolio}() was written to
-be clearly understood and run reasonably fast, and testing indicates that
-the weights are reliable to within +/- 1\% (i.e., "0.18" to "0.20" for a
-reported weight of "0.19") of the optimal value. As such, weights reported
-by \emph{weights mode} should be considered somewhat approximate.
-
-\strong{Shares} mode:
-A much different situation arises when we ask the question: "Given $5MM in
-capital, what's the optimum portfolio that can be built from a set of
-assets trading at given prices?" Note that the formulation of this question
-requires both \emph{prices} and \emph{portfolio_aum} to be provided.
-Because shares can only be bought in integer values, and because the sum of
-the capital allocated to each asset (including "cash") must equal
-\emph{portfolio_aum}, the number of values available for the \emph{shares}
-vector is countably finite and it is possible to find an exact solution.
+This function answers the question: "What is the the optimum fractional,
+real-valued weight of each asset in the Sharpe-optimal MP?" Because the
+Sharpe ratio and the optimum weights are real numbers, this operation can
+be computed with arbitrary precision, to infinte decimal places.
+\emph{calculate_market_portfolio}() was written to be clearly understood
+and run reasonably fast, and testing indicates that the weights are
+reliable to within +/- 1\% (i.e., "0.18" to "0.20" for a reported weight of
+"0.19") of the optimal value. As such, weights reported by \emph{weights
+mode} should be considered somewhat approximate.
 }
 \section{The Cost of Shorting}{
 
@@ -153,8 +107,6 @@ position is open. This fee is based on the availability of assets for
 shorting, and varies from asset to asset and through time. Usually the
 fee is calculated on each trading day and debited from the trading
 account on at the beginning of each month.
-\emph{\link{calculate_historical_returns}}() takes this into account
-when the \emph{short_fees} parameter is specified.
 }
 \item{Taxes}{
 Capital gains taxes on your short sales can often be taxed at a higher
@@ -193,10 +145,6 @@ historical_rtn <- calculate_historical_returns(
   )
 )
 
-# Note that a warning message is printed: Linde plc (NYSE: LIN) was the result
-#   of a merger between Praxair (NYSE: PX) and Linde AG (FWB: LINU and FWB: LIN)
-#   and therefore did not exist during the time range specified.
-
 # We'll assume that the return we expect over the next year is the annualized 
 # GMMR of the daily rates of return in historical_rtn:
 exp_rtn <- gmrr(historical_rtn)
@@ -216,21 +164,4 @@ exp_cor <- stats::cor(historical_rtn, use = "pairwise.complete.obs")
 # Calculate the market portfolio:
 mp_by_wt <- calculate_market_portfolio(exp_rtn, exp_vol, exp_cor)
 mp_by_wt
-
-### Repeat the above, assuming you have $250,000 to invest and that the stocks
-### may be bought at their closing prices on mp_date. 
-prices <- stock_data \%>\%
-  lapply(function(stock){stock$prices$Close[mp_date]}) \%>\%
-  unlist() \%>\%
-  purrr::compact()
-portfolio_aum <- 250000
-
-mp_by_shares <- calculate_market_portfolio(
-  exp_rtn,
-  exp_vol,
-  exp_cor,
-  prices        = prices,
-  portfolio_aum = portfolio_aum
-)
-mp_by_shares
 }

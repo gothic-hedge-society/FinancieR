@@ -1,11 +1,9 @@
 #' Calculate Historical Time-series Returns
 #'
 #' Calculate period-over-period historical returns for a list of assets.
-#' \emph{calculate_historical_returns}() takes dividends, splits, and mergers &
-#' acquisitions into account, as well as short fees if returns on short
-#' positions are to be included in the output.
-#' \emph{calculate_historical_returns} is intended for use in calculating
-#' correlations, averages, and volatility of returns; therefore, it does not
+#' \emph{calculate_historical_returns}() takes dividends and splits into
+#' account. Because \emph{calculate_historical_returns} is intended for use in
+#' calculating correlations, averages, and volatility of returns it does not
 #' take taxes or transaction fees into account.
 #'
 #' @param assets a list of sub-lists named and corresponding to a given
@@ -35,35 +33,13 @@
 #'      \emph{(sell_price - buy_price)/buy_price}. NOT multiplied by 100.
 #'    \item{\strong{"multiple"}}: Price multiple; \emph{sell_price / buy_price}. 
 #'  }
-#' @param short_fees Optional. Either a named numeric vector or a numeric length
-#'   1 (i.e., a single number). Specify this parameter to cause
-#'   \emph{calculate_historical_returns}() to include the returns observed for short
-#'   selling each asset. \emph{calculate_historical_returns}() will assume that, for every
-#'   return reported in the output, the expected return on a short sale equals
-#'   the expected return on the long sale times (1 - short fees):
-#'    \deqn{
-#'      \langle E_r,short \rangle = \langle E_r,long \rangle \times 
-#'        (short\_fees - 1)
-#'    }{ASCII representation}
-#'    
-#'    If a \strong{single number} (numeric vector of length 1): The short fees
-#'    for every asset in \emph{assets} are assumed to be equal to the number
-#'    passed in as \emph{short_fees}. Use this option if you expect the short
-#'    fees for each asset to be the same.
-#'    
-#'    If \strong{numeric vector length > 1}: The names of \emph{short_fees} must
-#'    correspond to the names of \emph{assets}, and each element must be the
-#'    short fee expected for each asset. Use this option if the short fees for
-#'    each asset is expected to be significantly different.
-#'    
-#'    See the "\strong{The Cost of Shorting}" section for more information.
 #'    
 #' @inheritParams [.stock
 #'  
 #' @return An xts object. Each element is the return observed on the date given
-#'   by the xts's index with respect to the previous period, taking into
-#'   account any splits, dividends or M&A events that may have occurred in
-#'   between, for the asset specified by the element's column name. 
+#'   by the xts's index with respect to the previous period, taking into account
+#'   any splits or dividends that may have occurred in between, for the asset
+#'   specified by the element's column name.
 #'  
 #' @example inst/examples/calculate_historical_returns_ex.R
 #'
@@ -75,7 +51,6 @@ calculate_historical_returns <- function(
   buy_at         = "Close",
   sell_at        = "Close",
   returns_method = "ln",
-  short_fees     = NULL,
   silent         = FALSE
 ){
   
@@ -86,51 +61,12 @@ calculate_historical_returns <- function(
     assets <- stats::setNames(list(assets), nm = attr(assets, "Symbol"))
   }
   
-  if(!is.null(short_fees)){
-    if(length(short_fees) > 1){
-      short_fees <- short_fees[names(assets)]  
-    }
-    shorts     <- TRUE
-  }
-  
   assets[sort(names(assets))] %>%
     purrr::map(
       function(asset){
         
-        if(any(names(asset) == "MnA")){
-          
-          asset_name <- attr(asset, "Symbol")
-          asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
-          
-          if(!is.null(asset)){
-            if(any(colnames(asset) == "symbol")){
-              asset_name <- paste(
-                unique(as.character(asset$symbol)), collapse = "-"
-              )              
-            }
-            
-            asset <- asset[, find_numeric_columns(asset), silent = TRUE]
-            
-          } else {
-            
-            if(!silent){
-              usethis::ui_info(
-                paste0(
-                  "No data available for ", crayon::bold(asset_name),
-                  " during time range ",    crayon::bold(date_range_xts),
-                  "."
-                )
-              )
-            }
-            
-            return(NULL)
-            
-          }
-          
-        } else {
-          asset_name <- attr(asset, "Symbol")
-          asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
-        }
+        asset_name <- attr(asset, "Symbol")
+        asset      <- asset[date_range_xts, c(buy_at, sell_at), silent = TRUE]
         
         if(is.null(asset)){
           if(!silent){
@@ -178,22 +114,7 @@ calculate_historical_returns <- function(
     ) %>%
     purrr::compact() %>% {
       if(length(.) > 0){
-        purrr::reduce(., xts::merge.xts) %>% {
-          if(!is.null(short_fees)){
-            shorts <- .
-            if(length(short_fees) == 1){
-              shorts <- short_fees - shorts
-            } else {
-              for(short_fee in names(short_fees)){
-                shorts[,short_fee] <- shorts[,short_fee] * 
-                  (short_fees[short_fee] - 1)
-              }
-            }
-            colnames(shorts) <- paste0("s_", colnames(.))
-            . <- xts::cbind.xts(., shorts)
-          }
-          .
-        }   
+        purrr::reduce(., xts::merge.xts)
       }
     }
   

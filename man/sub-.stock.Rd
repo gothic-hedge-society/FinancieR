@@ -19,7 +19,7 @@ data for the selected stock will be returned.}
 
 \item{j}{Character vector specifying column names to be included in the output. Available column names are:
 
-"DividendAmount", "RecordDate", "DeclaredDate", "Type", "PaymentFrequency", "Open", "High", "Low", "Close", "TWAP", "VWAP", "Volume", "PreviousCloseDate", "PreviousClose", "Denominator", "Numerator", "ExDate"}
+"DividendAmount", "RecordDate", "DeclaredDate", "Type", "PaymentFrequency", "Open", "High", "Low", "Close", "TWAP", "VWAP", "Volume", "PreviousCloseDate", "PreviousClose", "Denominator", "Numerator", "ExDate", "company", "acquired_by", "multiple", "type", "acquired"}
 
 \item{silent}{Boolean. If FALSE (Default), messages will be displayed for
 special cases that might produce unexpected behavior; e.g., if no data
@@ -31,9 +31,9 @@ an xts object, or NULL if no data is available for the specified
 asset within the specified date range.
 }
 \description{
-You can quickly retrieve price, dividend, split, and MnA data useing the \code{[}
-operator on an object of class \emph{stock}, much like subsetting a matrix
-or list in base R.
+You can quickly retrieve price, dividend, and split data useing the \code{[}
+operator on an object of class \emph{stock}, much like subsetting a matrix or
+list in base R.
 }
 \details{
 The rules are:
@@ -46,13 +46,6 @@ included in the output. "\strong{Denominator}" refers to the number of
 shares AFTER the split and "\strong{Numerator}" number of shares BEFORE
 the split; for example, a 2-to-1 split would have "\strong{Denominator}"
 = 2 and "\strong{Numerator}" = 1.
-\item If an M&A event took place during the specified time range resulting
-in a change in the stock's ticker symbol, then the columns
-"\strong{symbol}" and "\strong{multiple}" will always be included in the
-output. "\strong{symbol}" is the ticker symbol that the company traded
-under through time, and "\strong{multiple}" gives the ratio
-\emph{number of shares held prior to MnA} /
-\emph{number of shares held after the MnA}.
 }
 }
 \examples{
@@ -60,7 +53,6 @@ under through time, and "\strong{multiple}" gives the ratio
 # If no columns are specified, all available columns are returned.
 # Single date:
 stock_data$IVV["2019-06-11"]
-
 
 # Dividends are correctly applied, even when issued on a non-trading day. In
 # 2012, for example, Texas Instruments (TXN) had scheduled a dividend for the
@@ -70,16 +62,15 @@ stock_data$IVV["2019-06-11"]
 # Remember, any dividends that occur within the date range are always included.
 stock_data$TXN["2012-10-25/2012-11-05", "Close"]
 
-
-# Mergers are handled as illustrated below for the PX-LIN merger in 2018.
-# Shareholders of PX received 1 share of the new company, LIN, for every 1
-# share of PX.
-stock_data$PX["2018-10-29/2018-11-05", "Close"]
-
 # Splits are handled as follows for Apple's 7-to-1 split of 2014:
 stock_data$AAPL["2014-06-05/2014-06-11", c("Open", "Close")]
 
 # Not specifying which columns you want can quickly lead to a lot of data, as in
 # the below subset of IVV for the month of June 2019:
 stock_data$IVV["2019-06"]
+
+###### M&A Events: Mergers, Acquisitions, Spinoffs, Breakups, etc.
+# Consider the M&A event that took place on 31 Oct 2018 in which Praxair (PX)
+# merged with Linde AG (not included in dataset) to form Linde PLC, a new
+# company traded under the symbol LIN.
 }

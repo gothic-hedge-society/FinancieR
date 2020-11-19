@@ -159,7 +159,7 @@ refine_weights <- function(mkt_p, rtn, vol, cov_mtx, rfr){
   
 }
 
-refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
+refine_shares <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
   
   mkt_p$shares  <- floor(mkt_p$weights * aum / prc) 
   mkt_p$prices  <- prc
@@ -262,26 +262,5 @@ refine_shares_no_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, prc, aum){
   }
   
   mkt_p
-  
-}
-
-refine_shorts <- function(mkt_p, rtn, vol, cov_mtx, rfr, i_mgn, shtbl_shrs){
-  mkt_p      <<- mkt_p
-  rtn        <<- rtn
-  vol        <<- vol
-  cov_mtx    <<- cov_mtx
-  rfr        <<- rfr
-  i_mgn      <<- i_mgn
-  shtbl_shrs <<- shtbl_shrs
-  stop("you are here.")
-  
-  # while(TRUE){
-  #   mp_pocket <- calc_mp_pocket(mp, exp_rtn, exp_vol, exp_cov)
-  #   if(mp_pocket$sharpe > mp$sharpe){
-  #     mp <- mp_pocket
-  #   } else {
-  #     break()
-  #   }
-  # }
   
 }

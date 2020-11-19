@@ -10,7 +10,6 @@ calculate_historical_returns(
   buy_at = "Close",
   sell_at = "Close",
   returns_method = "ln",
-  short_fees = NULL,
   silent = FALSE
 )
 }
@@ -47,29 +46,6 @@ where \emph{log()} denotes the logarithm to base \emph{10}.
 \item{\strong{"multiple"}}: Price multiple; \emph{sell_price / buy_price}.
 }}
 
-\item{short_fees}{Optional. Either a named numeric vector or a numeric length
-1 (i.e., a single number). Specify this parameter to cause
-\emph{calculate_historical_returns}() to include the returns observed for short
-selling each asset. \emph{calculate_historical_returns}() will assume that, for every
-return reported in the output, the expected return on a short sale equals
-the expected return on the long sale times (1 - short fees):
-\deqn{
-     \langle E_r,short \rangle = \langle E_r,long \rangle \times 
-       (short\_fees - 1)
-   }{ASCII representation}
-
-If a \strong{single number} (numeric vector of length 1): The short fees
-for every asset in \emph{assets} are assumed to be equal to the number
-passed in as \emph{short_fees}. Use this option if you expect the short
-fees for each asset to be the same.
-
-If \strong{numeric vector length > 1}: The names of \emph{short_fees} must
-correspond to the names of \emph{assets}, and each element must be the
-short fee expected for each asset. Use this option if the short fees for
-each asset is expected to be significantly different.
-
-See the "\strong{The Cost of Shorting}" section for more information.}
-
 \item{silent}{Boolean. If FALSE (Default), messages will be displayed for
 special cases that might produce unexpected behavior; e.g., if no data
 is available for the date range specified. If TRUE, these messages will
@@ -77,17 +53,15 @@ not be displayed.}
 }
 \value{
 An xts object. Each element is the return observed on the date given
-by the xts's index with respect to the previous period, taking into
-account any splits, dividends or M&A events that may have occurred in
-between, for the asset specified by the element's column name.
+by the xts's index with respect to the previous period, taking into account
+any splits or dividends that may have occurred in between, for the asset
+specified by the element's column name.
 }
 \description{
 Calculate period-over-period historical returns for a list of assets.
-\emph{calculate_historical_returns}() takes dividends, splits, and mergers &
-acquisitions into account, as well as short fees if returns on short
-positions are to be included in the output.
-\emph{calculate_historical_returns} is intended for use in calculating
-correlations, averages, and volatility of returns; therefore, it does not
+\emph{calculate_historical_returns}() takes dividends and splits into
+account. Because \emph{calculate_historical_returns} is intended for use in
+calculating correlations, averages, and volatility of returns it does not
 take taxes or transaction fees into account.
 }
 \examples{
@@ -161,22 +135,4 @@ log(
 #      This return was realized on 2014-06-09, so it should appear at that date
 #      index in the results returned by calculate_historical_returns():
 aapl_att_returns["2014-06-09", "AAPL"]
-
-# 4) Shorts
-#   a) Get returns for General Dynamics (GD), Chubb Ltd. (CB), and iShares' Core
-#        S&P 500 index (IVV), including shorts, assuming the following short 
-#        fees for each of these assets:
-gd_cb_ivv_returns_w_shorts <- calculate_historical_returns(
-  assets         = stock_data[c("GD", "CB", "IVV")],
-  date_range_xts = "2020-08-05/2020-08-14",
-  short_fees     = c("CB" = 0.004, "GD" = 0.0025, "IVV" = 0.0025) 
-)
-gd_cb_ivv_returns_w_shorts
-#   b) Now assume that the short fee for each stock is the same (0.25\%):
-gd_cb_ivv_returns_w_shorts <- calculate_historical_returns(
-  assets         = stock_data[c("GD", "CB", "IVV")],
-  date_range_xts = "2020-08-05/2020-08-14",
-  short_fees     = 0.0025
-)
-gd_cb_ivv_returns_w_shorts
 }

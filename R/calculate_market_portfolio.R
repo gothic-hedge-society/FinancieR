@@ -28,15 +28,6 @@
 #'   basis matches the one used for you other inputs}, (i.e., if \emph{exp_rtn}
 #'   contains monthly returns, use monthly risk-free rate)!
 #'   
-#' @param prices Optional: a named numeric vector for which each name is the
-#'   identifier of an asset and each element is the current price of that asset
-#'   for which a market portfolio is to be calculated on a shares basis. See the
-#'   "Returns" section for more info.
-#'   
-#' @param portfolio_aum Optional: numeric, length 1, giving the total amount of
-#'   assets under management for which a market portfolio is to be calculated.
-#'   In other words, \emph{portfolio_aum} = "total cash at risk".
-#'   
 #' @section The Cost of Shorting:
 #'  You would only short an asset if the return you expect for buying that asset
 #'  is negative. You may think that the expected return for shorting an asset is
@@ -62,8 +53,6 @@
 #'      shorting, and varies from asset to asset and through time. Usually the
 #'      fee is calculated on each trading day and debited from the trading
 #'      account on at the beginning of each month.
-#'      \emph{\link{calculate_historical_returns}}() takes this into account
-#'      when the \emph{short_fees} parameter is specified.
 #'    }
 #'    \item{Taxes}{
 #'      Capital gains taxes on your short sales can often be taxed at a higher
@@ -107,33 +96,18 @@
 #'   other asset B so as to create a portfolio having a better Sharpe, the
 #'   Market Portfolio has been reached and the function returns the value.
 #'   
-#'   \strong{Weights} mode:
-#'   If either \emph{prices} or \emph{portfolio_aum} is unspecified in the call
-#'   to \emph{calculate_market_portfolio}(), then the function operates in
-#'   "\emph{Weights Mode}" and will attempt to answer the question: "What is the
-#'   the optimum fractional, real-valued weight of each asset in the
-#'   Sharpe-optimal MP?" Because the Sharpe ratio and the optimum weights are
-#'   real numbers, this operation can be computed with arbitrary precision, to
-#'   infinte decimal places. \emph{calculate_market_portfolio}() was written to
-#'   be clearly understood and run reasonably fast, and testing indicates that
-#'   the weights are reliable to within +/- 1% (i.e., "0.18" to "0.20" for a
-#'   reported weight of "0.19") of the optimal value. As such, weights reported
-#'   by \emph{weights mode} should be considered somewhat approximate.
-#' 
-#'   \strong{Shares} mode: 
-#'   A much different situation arises when we ask the question: "Given $5MM in
-#'   capital, what's the optimum portfolio that can be built from a set of
-#'   assets trading at given prices?" Note that the formulation of this question
-#'   requires both \emph{prices} and \emph{portfolio_aum} to be provided.
-#'   Because shares can only be bought in integer values, and because the sum of
-#'   the capital allocated to each asset (including "cash") must equal
-#'   \emph{portfolio_aum}, the number of values available for the \emph{shares}
-#'   vector is countably finite and it is possible to find an exact solution.
+#'   This function answers the question: "What is the the optimum fractional,
+#'   real-valued weight of each asset in the Sharpe-optimal MP?" Because the
+#'   Sharpe ratio and the optimum weights are real numbers, this operation can
+#'   be computed with arbitrary precision, to infinte decimal places.
+#'   \emph{calculate_market_portfolio}() was written to be clearly understood
+#'   and run reasonably fast, and testing indicates that the weights are
+#'   reliable to within +/- 1% (i.e., "0.18" to "0.20" for a reported weight of
+#'   "0.19") of the optimal value. As such, weights reported by \emph{weights
+#'   mode} should be considered somewhat approximate.
 #' 
 #' @return 
-#'   If \strong{weights basis} (\emph{prices} and \emph{portfolio_aum} 
-#'   not specified): #'   A list describing the market portfolio (MP). Contains
-#'   the following four elements:
+#'   A list describing the market portfolio (MP) having four elements:
 #'   
 #'   \describe{
 #'     \item{\code{sharpe}, numeric:}{Sharpe Ratio of MP}
@@ -146,62 +120,17 @@
 #'     predicted/forecast) for the MP over the next time interval.}
 #'   }
 #'   
-#'   If \strong{shares basis} (\emph{prices} and \emph{portfolio_aum}
-#'   specified): \emph{calculate_market_portfolio}() will optimize the portfolio
-#'   assuming that  \emph{portfolio_aum} is available for investing and that the
-#'   price of each asset is given by \emph{prices}. Returns a list describing
-#'   the market portfolio (MP) which contains the for elements described above,
-#'   plus three more:
-#'   
-#'   \describe{
-#'     \item{shares:}{Named numeric vector giving the number of shares of each
-#'     asset calculated for the market portfolio}
-#'     \item{prices:}{Named umeric vector giving the prices used by 
-#'     calculate_market_portfolio() to determine the MP.}
-#'     \item{cash:}{Numeric, length 1. Leftover cash not invested in assets.}
-#'   }
-#'   
 #' @example inst/examples/calculate_market_portfolio_ex.R
 #' 
 #' @export
 #' 
 calculate_market_portfolio <- function(
-  exp_rtn,
-  exp_vol,
-  exp_cor,
-  rfr                = 0.000027397,
-  prices             = NULL,
-  portfolio_aum      = NULL
-  # ,
-  # shortable_shares   = NULL,
-  # initial_margin     = NULL,
-  # maintenance_margin = NULL
+  exp_rtn, exp_vol, exp_cor, rfr = 0.000027397
 ){
   
   # Make sure names & elements are in order to avoid disaster
   exp_vol      <- exp_vol[names(exp_rtn)]
   exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
-  
-  # # Boolean flag if shorting
-  # allow_shorts <- any(grepl("^s_", names(exp_rtn))) 
-  
-  # Boolean flag if shares mode
-  shares_mode <- !is.null(prices) && !is.null(portfolio_aum)
-  
-  # if(allow_shorts){
-  #   exp_rtn <- c(exp_rtn, "cash" = 0)
-  #   exp_vol <- c(exp_vol, "cash" = 0)
-  #   exp_cor <- rbind(
-  #     cbind(
-  #       exp_cor,
-  #       magrittr::set_colnames(exp_cor * -1, paste0("s_", colnames(exp_cor)))
-  #     ),
-  #     cbind(
-  #       magrittr::set_rownames(exp_cor * -1, paste0("s_", colnames(exp_cor))),
-  #       exp_cor
-  #     )
-  #   )
-  # }
   
   # create covariance matrix of returns
   exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
@@ -211,14 +140,8 @@ calculate_market_portfolio <- function(
   best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) %>%
     # Step 2: Refine the rough portfolio found in step 1.
     refine_weights(exp_rtn, exp_vol, exp_cov, rfr) %>% {
-      if(shares_mode){
-        refine_shares_no_shorts(
-          ., exp_rtn, exp_vol, exp_cov, rfr, prices, portfolio_aum
-        )
-      } else {
-        .$weights <- .$weights[which(.$weights > 0)]
-        .
-      }
+      .$weights <- .$weights[which(.$weights > 0)]
+      .
     } 
   # %>% {
   #     # Step 3: Apply short parameters

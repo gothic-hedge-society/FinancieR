@@ -68,21 +68,3 @@ log(
 #      This return was realized on 2014-06-09, so it should appear at that date
 #      index in the results returned by calculate_historical_returns():
 aapl_att_returns["2014-06-09", "AAPL"]
-
-# 4) Shorts
-#   a) Get returns for General Dynamics (GD), Chubb Ltd. (CB), and iShares' Core
-#        S&P 500 index (IVV), including shorts, assuming the following short 
-#        fees for each of these assets:
-gd_cb_ivv_returns_w_shorts <- calculate_historical_returns(
-  assets         = stock_data[c("GD", "CB", "IVV")],
-  date_range_xts = "2020-08-05/2020-08-14",
-  short_fees     = c("CB" = 0.004, "GD" = 0.0025, "IVV" = 0.0025) 
-)
-gd_cb_ivv_returns_w_shorts
-#   b) Now assume that the short fee for each stock is the same (0.25%):
-gd_cb_ivv_returns_w_shorts <- calculate_historical_returns(
-  assets         = stock_data[c("GD", "CB", "IVV")],
-  date_range_xts = "2020-08-05/2020-08-14",
-  short_fees     = 0.0025
-)
-gd_cb_ivv_returns_w_shorts

@@ -5,9 +5,7 @@ parameter_j <- function(){
     stock_data %>%
       lapply(
         function(stock){
-          structure(stock, class = "list") %>% {
-            .[setdiff(names(.), "MnA")]
-          } %>%
+          structure(stock, class = "list") %>%
             lapply(
               function(stock_component){
                 colnames(stock_component)
@@ -23,9 +21,9 @@ parameter_j <- function(){
 }
 #' Using `[` on Objects of Class "stock"
 #'
-#' You can quickly retrieve price, dividend, split, and MnA data useing the `[`
-#' operator on an object of class \emph{stock}, much like subsetting a matrix
-#' or list in base R.
+#' You can quickly retrieve price, dividend, and split data useing the `[`
+#' operator on an object of class \emph{stock}, much like subsetting a matrix or
+#' list in base R.
 #'
 #' @param x an object of class "\emph{stock}".
 #'
@@ -53,14 +51,7 @@ parameter_j <- function(){
 #'    shares AFTER the split and "\strong{Numerator}" number of shares BEFORE
 #'    the split; for example, a 2-to-1 split would have "\strong{Denominator}"
 #'    = 2 and "\strong{Numerator}" = 1.
-#'  \item If an M&A event took place during the specified time range resulting
-#'    in a change in the stock's ticker symbol, then the columns
-#'    "\strong{symbol}" and "\strong{multiple}" will always be included in the
-#'    output. "\strong{symbol}" is the ticker symbol that the company traded
-#'    under through time, and "\strong{multiple}" gives the ratio
-#'    \emph{number of shares held prior to MnA} /
-#'    \emph{number of shares held after the MnA}.
-#' }
+#'    }
 #'
 #' @return an xts object, or NULL if no data is available for the specified
 #'   asset within the specified date range.
@@ -93,123 +84,7 @@ parameter_j <- function(){
               "."
             )
           )
-<<<<<<< HEAD
-          if(any(names(x) == "MnA")){
-            for(mna_row in 1:nrow(x$MnA)){
-              usethis::ui_info(
-                paste0(
-                  crayon::bold(x$MnA$type[mna_row]), " event found for ",
-                  crayon::bold(attr(x, "Symbol")),   " on ",
-                  zoo::index(x$MnA[mna_row,]),       "."
-                )
-              )
-            }
-            return(NULL)
-          }
         }
-      }
-
-      if(isTRUE(any(names(x$MnA) == "acquired_by"))){
-        # Stock was acquired or merged into another one, so add the new
-        # company's data if needed.
-
-        needed_dates <- trading_dates() %>% {
-          setdiff(
-            as.character(
-              zoo::index(xts::xts(rep("", length(.)), order.by = as.Date(.))[i])
-            ),
-            as.character(zoo::index(stock_block))
-          )
-        }
-
-        if(length(needed_dates) > 0){
-=======
-          for(mna_row in 1:nrow(x$MnA)){
-            usethis::ui_info(
-              paste0(
-                crayon::bold(x$MnA$type[mna_row]), " event found for ",
-                crayon::bold(attr(x, "Symbol")),   " on ",
-                zoo::index(x$MnA[mna_row,]),       "."
-              )
-            )
-          }
-          return(NULL)
-        }
-      }
-
-      if(any(names(x) == "MnA")){
-
-        needed_dates <- trading_dates() %>% {
-          zoo::index(xts::xts(rep("", length(.)), order.by = as.Date(.))[i])
-        }
-
-        # CASE: Stock was ACQUIRED.
-        if(
-          all(
-            zoo::index(xts::last(stock_block)) < as.Date(
-              setdiff(needed_dates, zoo::index(stock_block)),
-              origin = "1970-01-01"
-            )
-          )
-        ){
->>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
-
-          stock_block_2 <- stock_blockify(
-            x = stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
-            i = paste0(
-<<<<<<< HEAD
-              needed_dates[1],
-              "/",
-              needed_dates[length(needed_dates)]
-            ),
-            j = j,
-            force_divs_col = any(colnames(stock_block) == "DividendAmount")
-          )
-
-          if(!is.null(stock_block_2)){
-
-=======
-              zoo::index(xts::first(stock_block)),
-              "/",
-              needed_dates[length(needed_dates)]
-            ),
-            j = j
-          )
-
-          if(!is.null(stock_block_2)){
->>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
-            storage.mode(stock_block) <- "character"
-            stock_block$symbol        <- as.character(x$MnA$company)
-            stock_block$multiplier    <- as.character(1)
-
-            storage.mode(stock_block_2) <- "character"
-<<<<<<< HEAD
-            stock_block_2$symbol        <- attr(
-=======
-            stock_block_2$symbol <- attr(
->>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
-              stock_data[[as.character(utils::tail(x$MnA$acquired_by, 1))]],
-              "Symbol"
-            )
-            stock_block_2$multiplier    <- as.character(1)
-
-            stock_block <- xts::rbind.xts(stock_block, stock_block_2) %>% {
-              .[!duplicated(zoo::index(.), fromLast = TRUE),]
-            }
-
-            stock_block[
-              zoo::index(xts::last(x$MnA)), "multiplier"
-            ] <- as.character(xts::last(x$MnA)$multiple)
-
-          }
-
-<<<<<<< HEAD
-=======
-          stock_block
-
->>>>>>> a9dcbe33c9bf8cfac6f4d22ed054420c11d3036e
-        }
-
       }
 
       stock_block
