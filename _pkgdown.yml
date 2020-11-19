@@ -17,6 +17,10 @@ reference:
   - calculate_market_portfolio
   - extract_stock
   - xts_merge_align_next
+  
+- title: Objects
+  contents:
+  - blotter
 
 - title: Sample Data
   desc: For examples, testing, and development
