@@ -143,15 +143,5 @@ calculate_market_portfolio <- function(
       .$weights <- .$weights[which(.$weights > 0)]
       .
     } 
-  # %>% {
-  #     # Step 3: Apply short parameters
-  #     if(allow_shorts){
-  #       refine_shorts(
-  #         ., exp_rtn, exp_vol, exp_cov, rfr, initial_margin, shortable_shares
-  #       )
-  #     } else {
-  #       .
-  #     }
-  #   }
   
 }
