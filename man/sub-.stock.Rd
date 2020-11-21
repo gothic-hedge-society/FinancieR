@@ -19,7 +19,7 @@ data for the selected stock will be returned.}
 
 \item{j}{Character vector specifying column names to be included in the output. Available column names are:
 
-"DividendAmount", "RecordDate", "DeclaredDate", "Type", "PaymentFrequency", "Open", "High", "Low", "Close", "TWAP", "VWAP", "Volume", "PreviousCloseDate", "PreviousClose", "Denominator", "Numerator", "ExDate", "company", "acquired_by", "multiple", "type", "acquired"}
+"DividendAmount", "RecordDate", "DeclaredDate", "Type", "PaymentFrequency", "Open", "High", "Low", "Close", "TWAP", "VWAP", "Volume", "PreviousCloseDate", "PreviousClose", "Denominator", "Numerator"}
 
 \item{silent}{Boolean. If FALSE (Default), messages will be displayed for
 special cases that might produce unexpected behavior; e.g., if no data
@@ -68,9 +68,4 @@ stock_data$AAPL["2014-06-05/2014-06-11", c("Open", "Close")]
 # Not specifying which columns you want can quickly lead to a lot of data, as in
 # the below subset of IVV for the month of June 2019:
 stock_data$IVV["2019-06"]
-
-###### M&A Events: Mergers, Acquisitions, Spinoffs, Breakups, etc.
-# Consider the M&A event that took place on 31 Oct 2018 in which Praxair (PX)
-# merged with Linde AG (not included in dataset) to form Linde PLC, a new
-# company traded under the symbol LIN.
 }
