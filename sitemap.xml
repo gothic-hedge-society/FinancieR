@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/404.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/CODE_OF_CONDUCT.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/CONTRIBUTING.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/ISSUE_TEMPLATE.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/SUPPORT.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/articles/FinancieR.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/authors.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/index.html</loc>
   </url>
   <url>
@@ -25,6 +52,9 @@
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/gmrr.html</loc>
   </url>
   <url>
+    <loc>https://github.com/gothic-hedge-society/FinancieR/reference/index.html</loc>
+  </url>
+  <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/pipe.html</loc>
   </url>
   <url>
@@ -47,8 +77,5 @@
   </url>
   <url>
     <loc>https://github.com/gothic-hedge-society/FinancieR/reference/xts_merge_align_next.html</loc>
-  </url>
-  <url>
-    <loc>https://github.com/gothic-hedge-society/FinancieR/articles/FinancieR.html</loc>
   </url>
 </urlset>
