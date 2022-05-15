@@ -137,12 +137,21 @@ calculate_market_portfolio <- function(
   
   # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
   # created by selecting from the assets provided.
-  best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) %>%
+  mp <- best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) %>%
     # Step 2: Refine the rough portfolio found in step 1.
     refine_weights(exp_rtn, exp_vol, exp_cov, rfr) %>% {
       .$weights <- .$weights[which(.$weights > 0)]
       .
     } 
+  mp$universe   <- names(exp_rtn)
+  mp$target_rtn <- exp_rtn[names(mp$weights)]
+  mp$target_vol <- exp_vol[names(mp$weights)]
+  mp <- mp[
+    c(
+      "universe", "target_rtn", "target_vol", "weights", "exp_rtn", "exp_vol", 
+      "sharpe"
+    )
+  ]
   # %>% {
   #     # Step 3: Apply short parameters
   #     if(allow_shorts){
@@ -153,5 +162,5 @@ calculate_market_portfolio <- function(
   #       .
   #     }
   #   }
-  
+  mp
 }
