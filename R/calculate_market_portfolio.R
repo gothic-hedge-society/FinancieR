@@ -124,9 +124,7 @@
 #' 
 #' @export
 #' 
-calculate_market_portfolio <- function(
-  exp_rtn, exp_vol, exp_cor, rfr = 0.000027397
-){
+calculate_market_portfolio <- function(exp_rtn, exp_vol, exp_cor, rfr = 0){
   
   # Make sure names & elements are in order to avoid disaster
   exp_vol      <- exp_vol[names(exp_rtn)]
@@ -137,12 +135,33 @@ calculate_market_portfolio <- function(
   
   # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
   # created by selecting from the assets provided.
-  mp <- best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) %>%
-    # Step 2: Refine the rough portfolio found in step 1.
-    refine_weights(exp_rtn, exp_vol, exp_cov, rfr) %>% {
-      .$weights <- .$weights[which(.$weights > 0)]
-      .
-    } 
+  start_time <- Sys.time()
+  usethis::ui_todo(
+    paste0("Starting BEWP calculation: ", crayon::bold(start_time))
+  )
+  bewp <- best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) 
+  end_time <- Sys.time()
+  usethis::ui_done(crayon::bold("BEWP calculation complete."))
+  (end_time - start_time) %>% 
+    round(3) %>% 
+    paste0(crayon::bold("Run time: "), ., " ", attr(., "units")) %>%
+    usethis::ui_info()
+  
+  # Step 2: Refine the rough portfolio found in step 1.
+  start_time <- Sys.time()
+  usethis::ui_todo(
+    paste0("Starting MP calculation: ", crayon::bold(start_time))
+  )
+  mp <- refine_weights(bewp, exp_rtn, exp_vol, exp_cov, rfr) 
+  end_time <- Sys.time()
+  usethis::ui_done(crayon::bold("MP calculation complete."))
+  (end_time - start_time) %>% 
+    round(3) %>% 
+    paste0(crayon::bold("Run time: "), ., " ", attr(., "units")) %>%
+    usethis::ui_info()
+  
+  # Step 3: Clean up mp object
+  mp$weights    <- mp$weights[which(mp$weights > 0)]
   mp$universe   <- names(exp_rtn)
   mp$target_rtn <- exp_rtn[names(mp$weights)]
   mp$target_vol <- exp_vol[names(mp$weights)]
@@ -152,15 +171,6 @@ calculate_market_portfolio <- function(
       "sharpe"
     )
   ]
-  # %>% {
-  #     # Step 3: Apply short parameters
-  #     if(allow_shorts){
-  #       refine_shorts(
-  #         ., exp_rtn, exp_vol, exp_cov, rfr, initial_margin, shortable_shares
-  #       )
-  #     } else {
-  #       .
-  #     }
-  #   }
+  
   mp
 }

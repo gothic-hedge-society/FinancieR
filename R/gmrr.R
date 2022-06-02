@@ -15,9 +15,9 @@
 #' @export
 gmrr <- function(returns_xts){
   apply(
-    X = returns_xts + 1, 
+    X      = returns_xts + 1, 
     MARGIN = 2, 
-    FUN = prod,
-    na.rm = TRUE
+    FUN    = prod,
+    na.rm  = TRUE
   )^(1/nrow(returns_xts)) - 1
 }
