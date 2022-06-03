@@ -184,7 +184,7 @@ calculate_market_portfolio <- function(
   #   we'll be adding/subtracting (otherwise they'll get negative weights)
   
   # Initialize loop vars
-  stp    <- min(mp$weights[mp$weights != 0]) / 10
+  stp    <- min(mp$weights[mp$weights != 0]) / 5
   counts <- 0
   
   while(TRUE){
