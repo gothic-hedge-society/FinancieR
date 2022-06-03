@@ -132,8 +132,6 @@ refine_weights <- function(mkt_p, rtn, vol, cov_mtx, rfr){
         )
       )
       
-      print("wadup")
-      
     } else {
       # drop `stp` by a factor of 10, but only do this `count` number of times.
       stp    <- min(mkt_p$weights[mkt_p$weights != 0]) / 10
