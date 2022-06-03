@@ -208,8 +208,8 @@ calculate_market_portfolio <- function(
                 
                 wts[add_to_asset] <- wts[add_to_asset] + stp
                 
-                as.numeric(rtn %*% as.matrix(wts) - rfr) / sqrt(
-                  as.numeric((wts %*% cov_mtx) %*% as.matrix(wts))
+                as.numeric(exp_rtn %*% as.matrix(wts) - rfr) / sqrt(
+                  as.numeric((wts %*% exp_cov) %*% as.matrix(wts))
                 )
                 
               },
@@ -235,10 +235,10 @@ calculate_market_portfolio <- function(
       mp$weights[add_to_asset]    <- mp$weights[add_to_asset] + stp
       mp$weights[take_from_asset] <- mp$weights[take_from_asset] - stp
       mp$sharpe <- (
-        as.numeric(rtn %*% as.matrix(mp$weights)) - rfr
+        as.numeric(exp_rtn %*% as.matrix(mp$weights)) - rfr
       ) / sqrt(
         as.numeric(
-          (mp$weights %*% cov_mtx) %*% as.matrix(mp$weights)
+          (mp$weights %*% exp_cov) %*% as.matrix(mp$weights)
         )
       )
       
@@ -261,7 +261,7 @@ calculate_market_portfolio <- function(
   mp$exp_rtn <- round(as.numeric(rtn %*% as.matrix(mp$weights)), 8)
   mp$exp_vol <- round(
     sqrt(
-      as.numeric((mp$weights %*% cov_mtx) %*% as.matrix(mp$weights))
+      as.numeric((mp$weights %*% exp_cov) %*% as.matrix(mp$weights))
     ),
     8
   )
