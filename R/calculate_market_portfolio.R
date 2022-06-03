@@ -125,7 +125,8 @@
 #' @export
 #' 
 calculate_market_portfolio <- function(
-    exp_rtn, exp_vol, exp_cor, rfr = 0, startoff = NULL
+    exp_rtn, exp_vol, exp_cor, rfr = 0, 
+    startoff = NULL, silent = FALSE, parallel = FALSE
 ){
   
   # Make sure names & elements are in order to avoid disaster
@@ -188,8 +189,21 @@ calculate_market_portfolio <- function(
   
   while(TRUE){
     
+    if(parallel){
+      if(Sys.info()[['sysname']] == "Windows") {
+        future::plan(future::multisession)  
+      } else {
+        future::plan(future::multicore)  
+      }
+      vapply_fun <- future.apply::future_vapply
+    } else {
+      vapply_fun <- vapply 
+    }
+    
+    start_time_2 <- Sys.time()
+    
     buy_sell_matrix <- names(mp$weights[mp$weights >= stp]) %>%
-      vapply(
+      vapply_fun(
         function(take_from_asset){
           
           # initialize `weights` to the higher-scoped `mp$weights`
@@ -221,6 +235,8 @@ calculate_market_portfolio <- function(
         FUN.VALUE = numeric(length(mp$weights))
       )
     
+    calc_time <- signif(Sys.time() - start_time_2, 3) 
+    
     # If we got a better Sharpe ratio in `buy_sell_matrix`, keep it & update!
     if(max(buy_sell_matrix) > mp$sharpe){
       
@@ -242,16 +258,32 @@ calculate_market_portfolio <- function(
         )
       )
       
-      print("yolo")
-      usethis::ui_info("wat")
-      usethis::ui_info(paste0("New Sharpe: ", crayon::bold(mp$sharpe)))
+      
+      if(!silent){
+        usethis::ui_info(
+          paste0(
+            "New Sharpe: ", 
+            crayon::bold(signif(mp$sharpe, 7)),
+            "; calc time: ",
+            paste0(
+              crayon::bold("Run time: "), 
+              calc_time, 
+              " ", 
+              attr(calc_time, "units")
+            ) 
+          )
+        )  
+      }
+      
       
     } else {
       # drop `stp` by a factor of 10, but only do this `count` number of times.
       stp    <- min(mp$weights[mp$weights != 0]) / 10
       counts <- counts + 1
       
-      usethis::ui_info(paste0("New step: ", crayon::bold(stp)))
+      if(!silent){
+        usethis::ui_info(paste0("New step: ", crayon::bold(stp)))  
+      }
       
       if(counts >= 10){
         break()
