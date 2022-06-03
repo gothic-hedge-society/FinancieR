@@ -186,7 +186,7 @@ calculate_market_portfolio <- function(
   #   we'll be adding/subtracting (otherwise they'll get negative weights)
   
   # Initialize loop vars
-  stp    <- min(mp$weights[mp$weights != 0]) # / 10
+  stp    <- 0.1
   counts <- 0
   
   doParallel::registerDoParallel(cl <- parallel::makeCluster(
@@ -270,7 +270,7 @@ calculate_market_portfolio <- function(
       
     } else {
       # drop `stp` by a factor of 10, but only do this `count` number of times.
-      stp    <- stp / 2
+      stp    <- stp / 10
       counts <- counts + 1
       
       if(!silent){
