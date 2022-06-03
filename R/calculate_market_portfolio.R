@@ -166,7 +166,108 @@ calculate_market_portfolio <- function(
   usethis::ui_todo(
     paste0("Starting MP calculation: ", crayon::bold(start_time))
   )
-  mp <- refine_weights(startoff, exp_rtn, exp_vol, exp_cov, rfr) 
+  
+  mp <- startoff
+  rm(startoff)
+  
+  # make `buy_sell_matrix`: a matrix whose row names are all the assets that
+  #   appear in the inputs, and whose column names are all the assets whose 
+  #   `mp$weights` are >= `stp`. The values of `buy_sell_matrix` are 
+  #   the Sharpe ratios that result if you start with `mp$weights` and 
+  #   SELL `stp` worth of the asset given buy the column index, and BUY 
+  #   `stp` worth of the asset in the row index.
+  # Obviously buying and selling the same asset is not useful -- these cells 
+  #   are given the value -999 in `buy_sell_matrix`.
+  
+  # Step through the assets whose portfolio weights are >= to the amount
+  #   we'll be adding/subtracting (otherwise they'll get negative weights)
+  
+  # Initialize loop vars
+  stp    <- min(mp$weights[mp$weights != 0]) / 10
+  counts <- 0
+  
+  while(TRUE){
+    
+    buy_sell_matrix <- names(mp$weights[mp$weights >= stp]) %>%
+      vapply(
+        function(take_from_asset){
+          
+          # initialize `weights` to the higher-scoped `mp$weights`
+          weights <- mp$weights
+          
+          # take weight `stp` FROM an asset.
+          weights[take_from_asset] <- weights[take_from_asset] - stp
+          
+          # create the column for `buy_sell_matrix`, and make sure it's ordered
+          #   in the same order as `mp$weights`.
+          c(
+            stats::setNames(-999, take_from_asset),
+            vapply(
+              setdiff(names(mp$weights), take_from_asset),
+              function(add_to_asset, wts = weights){
+                
+                wts[add_to_asset] <- wts[add_to_asset] + stp
+                
+                as.numeric(rtn %*% as.matrix(wts) - rfr) / sqrt(
+                  as.numeric((wts %*% cov_mtx) %*% as.matrix(wts))
+                )
+                
+              },
+              FUN.VALUE = numeric(1)
+            )
+          )[names(mp$weights)]
+          
+        },
+        FUN.VALUE = numeric(length(mp$weights))
+      )
+    
+    # If we got a better Sharpe ratio in `buy_sell_matrix`, keep it & update!
+    if(max(buy_sell_matrix) > mp$sharpe){
+      
+      add_to_asset    <- rownames(buy_sell_matrix)[
+        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[1]
+      ]
+      
+      take_from_asset <- colnames(buy_sell_matrix)[
+        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[2]
+      ]
+      
+      mp$weights[add_to_asset]    <- mp$weights[add_to_asset] + stp
+      mp$weights[take_from_asset] <- mp$weights[take_from_asset] - stp
+      mp$sharpe <- (
+        as.numeric(rtn %*% as.matrix(mp$weights)) - rfr
+      ) / sqrt(
+        as.numeric(
+          (mp$weights %*% cov_mtx) %*% as.matrix(mp$weights)
+        )
+      )
+      
+      print("yolo")
+      usethis::ui_info("wat")
+      
+    } else {
+      # drop `stp` by a factor of 10, but only do this `count` number of times.
+      stp    <- min(mp$weights[mp$weights != 0]) / 10
+      counts <- counts + 1
+      
+      if(counts >= 10){
+        break()
+      }
+      
+    }
+    
+  }
+  
+  mp$exp_rtn <- round(as.numeric(rtn %*% as.matrix(mp$weights)), 8)
+  mp$exp_vol <- round(
+    sqrt(
+      as.numeric((mp$weights %*% cov_mtx) %*% as.matrix(mp$weights))
+    ),
+    8
+  )
+  mp$weights <- round(mp$weights, 8)
+  mp$sharpe  <- round(mp$sharpe, 8)
+  
   end_time <- Sys.time()
   usethis::ui_done(crayon::bold("MP calculation complete."))
   (end_time - start_time) %>% 
