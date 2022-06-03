@@ -124,7 +124,9 @@
 #' 
 #' @export
 #' 
-calculate_market_portfolio <- function(exp_rtn, exp_vol, exp_cor, rfr = 0){
+calculate_market_portfolio <- function(
+    exp_rtn, exp_vol, exp_cor, rfr = 0, startoff = NULL
+){
   
   # Make sure names & elements are in order to avoid disaster
   exp_vol      <- exp_vol[names(exp_rtn)]
@@ -133,26 +135,38 @@ calculate_market_portfolio <- function(exp_rtn, exp_vol, exp_cor, rfr = 0){
   # create covariance matrix of returns
   exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
   
-  # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
-  # created by selecting from the assets provided.
-  start_time <- Sys.time()
-  usethis::ui_todo(
-    paste0("Starting BEWP calculation: ", crayon::bold(start_time))
-  )
-  bewp <- best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) 
-  end_time <- Sys.time()
-  usethis::ui_done(crayon::bold("BEWP calculation complete."))
-  (end_time - start_time) %>% 
-    round(3) %>% 
-    paste0(crayon::bold("Run time: "), ., " ", attr(., "units")) %>%
-    usethis::ui_info()
+  if(is.null(startoff)){
+    # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
+    # created by selecting from the assets provided.
+    start_time <- Sys.time()
+    usethis::ui_todo(
+      paste0("Starting BEWP calculation: ", crayon::bold(start_time))
+    )
+    bewp <- best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) 
+    end_time <- Sys.time()
+    usethis::ui_done(crayon::bold("BEWP calculation complete."))
+    (end_time - start_time) %>% 
+      round(3) %>% 
+      paste0(crayon::bold("Run time: "), ., " ", attr(., "units")) %>%
+      usethis::ui_info()
+    
+    startoff <- bewp
+  } else {
+    startoff$weights <- names(exp_rtn) %>%
+      setdiff(names(startoff$weights)) %>% {
+        stats::setNames(rep(0, length(.)), .)
+      } %>% 
+      c(startoff$weights) %>% {
+        .[names(exp_rtn)]
+      }
+  }
   
   # Step 2: Refine the rough portfolio found in step 1.
   start_time <- Sys.time()
   usethis::ui_todo(
     paste0("Starting MP calculation: ", crayon::bold(start_time))
   )
-  mp <- refine_weights(bewp, exp_rtn, exp_vol, exp_cov, rfr) 
+  mp <- refine_weights(startoff, exp_rtn, exp_vol, exp_cov, rfr) 
   end_time <- Sys.time()
   usethis::ui_done(crayon::bold("MP calculation complete."))
   (end_time - start_time) %>% 
