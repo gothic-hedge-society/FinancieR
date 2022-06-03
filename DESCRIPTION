@@ -1,6 +1,6 @@
 Package: FinancieR
 Title: Tools for Financial Data Analysis and Manipulation
-Version: 0.1.9
+Version: 0.1.10
 Authors@R: 
     person(given = "Jake",
            family = "Vestal",
