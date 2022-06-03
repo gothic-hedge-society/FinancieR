@@ -184,7 +184,7 @@ calculate_market_portfolio <- function(
   #   we'll be adding/subtracting (otherwise they'll get negative weights)
   
   # Initialize loop vars
-  stp    <- min(mp$weights[mp$weights != 0]) / 5
+  stp    <- min(mp$weights[mp$weights != 0]) / 2
   counts <- 0
   
   while(TRUE){
@@ -265,12 +265,9 @@ calculate_market_portfolio <- function(
             "New Sharpe: ", 
             crayon::bold(signif(mp$sharpe, 7)),
             "; calc time: ",
-            paste0(
-              crayon::bold("Run time: "), 
-              calc_time, 
-              " ", 
-              attr(calc_time, "units")
-            ) 
+            calc_time, 
+            " ", 
+            attr(calc_time, "units")
           )
         )  
       }
