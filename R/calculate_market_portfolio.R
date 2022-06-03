@@ -125,9 +125,11 @@
 #' @export
 #' 
 calculate_market_portfolio <- function(
-    exp_rtn, exp_vol, exp_cor, rfr = 0, 
-    startoff = NULL, silent = FALSE, parallel = FALSE
+    exp_rtn, exp_vol, exp_cor, rfr = 0, startoff = NULL, silent = FALSE
 ){
+  
+  library('foreach')
+  on.exit(parallel::stopCluster(cl))
   
   # Make sure names & elements are in order to avoid disaster
   exp_vol      <- exp_vol[names(exp_rtn)]
@@ -187,89 +189,71 @@ calculate_market_portfolio <- function(
   stp    <- min(mp$weights[mp$weights != 0]) # / 10
   counts <- 0
   
+  doParallel::registerDoParallel(cl <- parallel::makeCluster(
+    parallel::detectCores() - 1)
+  )
+  
   while(TRUE){
     
-    if(parallel){
-      if(Sys.info()[['sysname']] == "Windows") {
-        future::plan(future::multisession)  
-      } else {
-        future::plan(future::multicore)  
-      }
-      vapply_fun <- future.apply::future_vapply
-    } else {
-      vapply_fun <- vapply 
+    buy_sell_matrix <- matrix(
+      nrow     = length(mp$weights),
+      ncol     = length(mp$weights),
+      dimnames = list(
+        "take_from" = names(mp$weights), 
+        "add_to" = names(mp$weights)
+      )
+    ) %>%
+      bigstatsr::as_FBM()
+    
+    wts <- as.numeric(mp$weights)
+    
+    calc_sharpe <- function(wt_vec){
+      as.numeric(
+        exp_rtn %*% as.matrix(wt_vec) - rfr
+      ) / sqrt(
+        as.numeric((wt_vec %*% exp_cov) %*% as.matrix(wt_vec))
+      ) %>%
+        signif(7)
     }
     
     start_time_2 <- Sys.time()
     
-    buy_sell_matrix <- names(mp$weights[mp$weights >= stp]) %>%
-      vapply_fun(
-        function(take_from_asset){
-          
-          # initialize `weights` to the higher-scoped `mp$weights`
-          weights <- mp$weights
-          
-          # take weight `stp` FROM an asset.
-          weights[take_from_asset] <- weights[take_from_asset] - stp
-          
-          # create the column for `buy_sell_matrix`, and make sure it's ordered
-          #   in the same order as `mp$weights`.
-          c(
-            stats::setNames(-999, take_from_asset),
-            vapply(
-              setdiff(names(mp$weights), take_from_asset),
-              function(add_to_asset, wts = weights){
-                
-                wts[add_to_asset] <- wts[add_to_asset] + stp
-                
-                as.numeric(exp_rtn %*% as.matrix(wts) - rfr) / sqrt(
-                  as.numeric((wts %*% exp_cov) %*% as.matrix(wts))
-                )
-                
-              },
-              FUN.VALUE = numeric(1)
-            )
-          )[names(mp$weights)]
-          
+    res <- foreach(take_from = which(mp$weights >= stp)) %dopar% {
+      wts <- mp$weights
+      wts[take_from] <- wts[take_from] - stp
+      vapply(
+        names(wts),
+        function(add_to){
+          wts[add_to]    <- wts[add_to] + stp
+          calc_sharpe(wts)      
         },
-        FUN.VALUE = numeric(length(mp$weights))
+        numeric(1)
       )
+    } %>%
+      purrr::reduce(rbind) %>%
+      magrittr::set_rownames(names(mp$weights[which(mp$weights >= stp)]))
     
     calc_time <- signif(Sys.time() - start_time_2, 3) 
     
+    buy_sell_matrix <- res
+    
+    best_sharpe <- max(buy_sell_matrix) 
+    
     # If we got a better Sharpe ratio in `buy_sell_matrix`, keep it & update!
-    if(max(buy_sell_matrix) > mp$sharpe){
+    if(best_sharpe > mp$sharpe){
       
-      add_to_asset    <- rownames(buy_sell_matrix)[
-        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[1]
+      take_from_asset <- rownames(buy_sell_matrix)[
+        which(buy_sell_matrix == best_sharpe, arr.ind = TRUE)[1]
       ]
       
-      take_from_asset <- colnames(buy_sell_matrix)[
-        which(buy_sell_matrix == max(buy_sell_matrix), arr.ind = TRUE)[2]
+      add_to_asset    <- colnames(buy_sell_matrix)[
+        which(buy_sell_matrix == best_sharpe, arr.ind = TRUE)[2]
       ]
       
       mp$weights[add_to_asset]    <- mp$weights[add_to_asset] + stp
       mp$weights[take_from_asset] <- mp$weights[take_from_asset] - stp
-      new_sharpe_from_buy_sell_mtx <- max(buy_sell_matrix)
-      new_sharpe_from_calcs <- (
-        as.numeric(exp_rtn %*% as.matrix(mp$weights)) - rfr
-      ) / sqrt(
-        as.numeric(
-          (mp$weights %*% exp_cov) %*% as.matrix(mp$weights)
-        )
-      )
-      print(
-        paste0("new sharpe from buy_sell mtx: ", new_sharpe_from_buy_sell_mtx)
-      )
-      print(paste0("new sharpe from calcs: ", new_sharpe_from_calcs))
-      mp$sharpe <- (
-        as.numeric(exp_rtn %*% as.matrix(mp$weights)) - rfr
-      ) / sqrt(
-        as.numeric(
-          (mp$weights %*% exp_cov) %*% as.matrix(mp$weights)
-        )
-      )
       
+      mp$sharpe <- calc_sharpe(mp$weights)
       
       if(!silent){
         usethis::ui_info(
@@ -284,10 +268,9 @@ calculate_market_portfolio <- function(
         )  
       }
       
-      
     } else {
       # drop `stp` by a factor of 10, but only do this `count` number of times.
-      stp    <- min(mp$weights[mp$weights != 0]) / 10
+      stp    <- stp / 2
       counts <- counts + 1
       
       if(!silent){
