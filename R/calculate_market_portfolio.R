@@ -244,11 +244,14 @@ calculate_market_portfolio <- function(
       
       print("yolo")
       usethis::ui_info("wat")
+      usethis::ui_info(paste0("New Sharpe: ", crayon::bold(mp$sharpe)))
       
     } else {
       # drop `stp` by a factor of 10, but only do this `count` number of times.
       stp    <- min(mp$weights[mp$weights != 0]) / 10
       counts <- counts + 1
+      
+      usethis::ui_info(paste0("New step: ", crayon::bold(stp)))
       
       if(counts >= 10){
         break()
@@ -258,7 +261,7 @@ calculate_market_portfolio <- function(
     
   }
   
-  mp$exp_rtn <- round(as.numeric(rtn %*% as.matrix(mp$weights)), 8)
+  mp$exp_rtn <- round(as.numeric(exp_rtn %*% as.matrix(mp$weights)), 8)
   mp$exp_vol <- round(
     sqrt(
       as.numeric((mp$weights %*% exp_cov) %*% as.matrix(mp$weights))
