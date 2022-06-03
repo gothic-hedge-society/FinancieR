@@ -184,7 +184,7 @@ calculate_market_portfolio <- function(
   #   we'll be adding/subtracting (otherwise they'll get negative weights)
   
   # Initialize loop vars
-  stp    <- min(mp$weights[mp$weights != 0]) / 2
+  stp    <- min(mp$weights[mp$weights != 0]) # / 10
   counts <- 0
   
   while(TRUE){
@@ -250,6 +250,18 @@ calculate_market_portfolio <- function(
       
       mp$weights[add_to_asset]    <- mp$weights[add_to_asset] + stp
       mp$weights[take_from_asset] <- mp$weights[take_from_asset] - stp
+      new_sharpe_from_buy_sell_mtx <- max(buy_sell_matrix)
+      new_sharpe_from_calcs <- (
+        as.numeric(exp_rtn %*% as.matrix(mp$weights)) - rfr
+      ) / sqrt(
+        as.numeric(
+          (mp$weights %*% exp_cov) %*% as.matrix(mp$weights)
+        )
+      )
+      print(
+        paste0("new sharpe from buy_sell mtx: ", new_sharpe_from_buy_sell_mtx)
+      )
+      print(paste0("new sharpe from calcs: ", new_sharpe_from_calcs))
       mp$sharpe <- (
         as.numeric(exp_rtn %*% as.matrix(mp$weights)) - rfr
       ) / sqrt(
