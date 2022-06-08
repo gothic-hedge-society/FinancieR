@@ -402,7 +402,15 @@ calculate_market_portfolio <- function(
     . * sum(.) / sum(.)
   } %>% 
     round(precision)
-  mp$sharpe     <- round(mp$sharpe, precision)
+  mp$sharpe     <- names(exp_rtn) %>%
+    setdiff(names(mp$weights)) %>% {
+      stats::setNames(rep(0, length(.)), .)
+    } %>% 
+    c(mp$weights) %>% {
+      .[names(exp_rtn)]
+    } %>%
+    calc_sharpe() %>%
+    round(precision)
   mp$universe   <- names(exp_rtn)
   mp$target_rtn <- exp_rtn[names(mp$weights)]
   mp$target_vol <- exp_vol[names(mp$weights)]
