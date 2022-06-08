@@ -125,50 +125,135 @@
 #' @export
 #' 
 calculate_market_portfolio <- function(
-    exp_rtn, exp_vol, exp_cor, rfr = 0, startoff = NULL, silent = FALSE
+    from_data    = FinancieR::historical_data, 
+    n_days       = 365, 
+    balance_date = as.Date(
+      unlist(historical_data[1,1], use.names = FALSE),
+      origin = "1970-01-01"
+    ), 
+    exp_rtn   = NULL, 
+    exp_vol   = NULL, 
+    exp_cor   = NULL, 
+    rfr       = 0, 
+    startoff  = NULL, 
+    silent    = FALSE,
+    precision = 7
 ){
   
-  library('foreach')
+  library('doParallel')
   on.exit(parallel::stopCluster(cl))
   
-  # Make sure names & elements are in order to avoid disaster
-  exp_vol      <- exp_vol[names(exp_rtn)]
-  exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
+  if(any(is.null(c(exp_rtn, exp_vol, exp_cor)))){
+    # create exp_ vars from from_data, balance_date and n_days.
+    balance_date <- as.Date(balance_date)
+    historical_rtn_subset <- from_data %>%
+      dplyr::filter(date >= balance_date - n_days & date < balance_date) %>% {
+        .[,-unique(which(is.na(.), arr.ind = TRUE)[,"col"])]
+      } %>% {
+        .[
+          ,
+          c(
+            "date",
+            (.[1, grep("_close", colnames(.))] < 750) %>% {
+              gsub("_close", "_rtn", colnames(.)[which(.)])
+            } 
+          )
+        ]
+      } %>% {
+        colnames(.) <- gsub("_rtn", "", colnames(.))
+        .
+      }
+    
+    exp_rtn <- historical_rtn_subset %>%
+      dplyr::select(-date) %>%
+      FinancieR::gmrr()
+    
+    exp_vol <- historical_rtn_subset %>%
+      dplyr::select(-date) %>%
+      dplyr::summarize(
+        dplyr::across(dplyr::everything(), sd, na.rm = TRUE)
+      ) %>%
+      purrr::as_vector()
+    
+    exp_cor <- historical_rtn_subset %>%
+      dplyr::select(-date) %>%
+      stats::cor(use = "pairwise.complete.obs")
+    
+    rm(historical_rtn_subset)
+    
+  } else {
+    # then exp_vol, exp_cor, and exp_cov must be provided.
+    # Make sure names & elements are in order to avoid disaster
+    exp_vol      <- exp_vol[names(exp_rtn)]
+    exp_cor      <- exp_cor[names(exp_rtn), names(exp_rtn)]
+  } 
   
   # create covariance matrix of returns
-  exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)
+  exp_cov <- exp_cor * (as.matrix(exp_vol) %*% exp_vol)  
+  
+  calc_sharpe <- function(wt_vec){
+    as.numeric(
+      exp_rtn %*% as.matrix(wt_vec) - rfr
+    ) / sqrt(
+      as.numeric((wt_vec %*% exp_cov) %*% as.matrix(wt_vec))
+    )
+  }
   
   if(is.null(startoff)){
     # Step 1: Find the highest-Sharpe, EQUALLY-WEIGHTED portfolio that can be 
     # created by selecting from the assets provided.
-    start_time <- Sys.time()
-    usethis::ui_todo(
-      paste0("Starting BEWP calculation: ", crayon::bold(start_time))
-    )
+    
+    if(!silent){
+      start_time <- Sys.time()
+      usethis::ui_todo(
+        paste0("Starting BEWP calculation: ", crayon::bold(start_time))
+      )      
+    }
+    
     bewp <- best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) 
-    end_time <- Sys.time()
-    usethis::ui_done(crayon::bold("BEWP calculation complete."))
-    (end_time - start_time) %>% 
-      round(3) %>% 
-      paste0(crayon::bold("Run time: "), ., " ", attr(., "units")) %>%
-      usethis::ui_info()
+    
+    if(!silent){
+      start_time <- Sys.time()
+      usethis::ui_todo(
+        paste0("Starting BEWP calculation: ", crayon::bold(start_time))
+      )      
+      end_time <- Sys.time()
+      usethis::ui_done(crayon::bold("BEWP calculation complete."))
+      (end_time - start_time) %>% 
+        round(3) %>% 
+        paste0(crayon::bold("Run time: "), ., " ", attr(., "units")) %>%
+        usethis::ui_info()
+    }
     
     startoff <- bewp
+    
   } else {
+    # Make sure startoff names & elements are in order to avoid disaster
+    if(!any(names(startoff) == "weights")){
+      startoff <- list(
+        "weights" = startoff, 
+        "sharpe" = calc_sharpe(startoff)
+      )
+    }
+    
     startoff$weights <- names(exp_rtn) %>%
       setdiff(names(startoff$weights)) %>% {
         stats::setNames(rep(0, length(.)), .)
       } %>% 
       c(startoff$weights) %>% {
         .[names(exp_rtn)]
-      }
+      } %>%
+      round(precision + 1)
   }
   
   # Step 2: Refine the rough portfolio found in step 1.
-  start_time <- Sys.time()
-  usethis::ui_todo(
-    paste0("Starting MP calculation: ", crayon::bold(start_time))
-  )
+  
+  if(!silent){
+    start_time <- Sys.time()
+    usethis::ui_todo(
+      paste0("Starting MP calculation: ", crayon::bold(start_time))
+    )
+  }
   
   mp <- startoff
   rm(startoff)
@@ -183,17 +268,18 @@ calculate_market_portfolio <- function(
   #   are given the value -999 in `buy_sell_matrix`.
   
   # Step through the assets whose portfolio weights are >= to the amount
-  #   we'll be adding/subtracting (otherwise they'll get negative weights)
+  #   we'll be adding/subtracting (otherwise they'll get 5negative weights)
   
   # Initialize loop vars
-  stp    <- max(mp$weights)
-  counts <- 0
+  
+  steps    <- 1/10^(1:(precision + 1))
+  stp_flag <- TRUE
+  stp      <- steps[which((max(mp$weights) / steps) > 1)[1]]
   
   usethis::ui_info(paste0("starting step: ", crayon::bold(stp)))
   
-  doParallel::registerDoParallel(cl <- parallel::makeCluster(
-    parallel::detectCores() - 1)
-  )
+  cl <- makeCluster(detectCores() - 1)
+  registerDoParallel(cl)
   
   while(TRUE){
     
@@ -206,17 +292,6 @@ calculate_market_portfolio <- function(
       )
     ) %>%
       bigstatsr::as_FBM()
-    
-    wts <- as.numeric(mp$weights)
-    
-    calc_sharpe <- function(wt_vec){
-      as.numeric(
-        exp_rtn %*% as.matrix(wt_vec) - rfr
-      ) / sqrt(
-        as.numeric((wt_vec %*% exp_cov) %*% as.matrix(wt_vec))
-      ) %>%
-        signif(7)
-    }
     
     start_time_2 <- Sys.time()
     
@@ -239,10 +314,10 @@ calculate_market_portfolio <- function(
     
     buy_sell_matrix <- res
     
-    best_sharpe <- max(buy_sell_matrix) 
+    best_sharpe <- max(buy_sell_matrix)
     
     # If we got a better Sharpe ratio in `buy_sell_matrix`, keep it & update!
-    if(best_sharpe > mp$sharpe){
+    if((best_sharpe - mp$sharpe) > steps[length(steps)]){
       
       take_from_asset <- rownames(buy_sell_matrix)[
         which(buy_sell_matrix == best_sharpe, arr.ind = TRUE)[1]
@@ -252,7 +327,7 @@ calculate_market_portfolio <- function(
         which(buy_sell_matrix == best_sharpe, arr.ind = TRUE)[2]
       ]
       
-      mp$weights[add_to_asset]    <- mp$weights[add_to_asset] + stp
+      mp$weights[add_to_asset]    <- mp$weights[add_to_asset]    + stp
       mp$weights[take_from_asset] <- mp$weights[take_from_asset] - stp
       
       mp$sharpe <- calc_sharpe(mp$weights)
@@ -261,7 +336,7 @@ calculate_market_portfolio <- function(
         usethis::ui_info(
           paste0(
             "New Sharpe: ", 
-            crayon::bold(signif(mp$sharpe, 7)),
+            crayon::bold(mp$sharpe),
             "; calc time: ",
             calc_time, 
             " ", 
@@ -271,31 +346,47 @@ calculate_market_portfolio <- function(
       }
       
     } else {
-      # drop `stp` by a factor of 10, but only do this `count` number of times.
-      stp    <- stp / 2
-      counts <- counts + 1
+      
+      # new_step <- steps[which((max(mp$weights) / steps) > 1)[1]]
+      # 
+      # if(new_step > stp & stp_flag){
+      #   stp      <- new_step
+      #   stp_flag <- FALSE
+      # } else {
+      #   stp <- stp / 2
+      # }
+      
+      stp <- stp / 2
       
       if(!silent){
+        usethis::ui_line()
+        cli::cli_rule()
+        usethis::ui_info(
+          paste0(
+            crayon::bold("No better Sharpe"), 
+            "; best Sharpe: ",
+            best_sharpe
+          )
+        )
+        usethis::ui_info(
+          paste0(
+            "Tried ", 
+            crayon::bold(nrow(buy_sell_matrix)*ncol(buy_sell_matrix)), 
+            " combinations."
+          )
+        )
         usethis::ui_info(paste0("New step: ", crayon::bold(stp)))  
+        cli::cli_rule()
+        usethis::ui_line()
       }
       
-      if(counts >= 10){
+      if(stp <= steps[length(steps)]){
         break()
       }
       
     }
     
   }
-  
-  mp$exp_rtn <- round(as.numeric(exp_rtn %*% as.matrix(mp$weights)), 8)
-  mp$exp_vol <- round(
-    sqrt(
-      as.numeric((mp$weights %*% exp_cov) %*% as.matrix(mp$weights))
-    ),
-    8
-  )
-  mp$weights <- round(mp$weights, 8)
-  mp$sharpe  <- round(mp$sharpe, 8)
   
   end_time <- Sys.time()
   usethis::ui_done(crayon::bold("MP calculation complete."))
@@ -305,10 +396,18 @@ calculate_market_portfolio <- function(
     usethis::ui_info()
   
   # Step 3: Clean up mp object
-  mp$weights    <- mp$weights[which(mp$weights > 0)]
+  mp$weights    <- mp$weights %>% {
+    .[which(round(-log(., 10)) < (precision - 1))]
+  } %>% {
+    . * sum(.) / sum(.)
+  } %>% 
+    round(precision)
+  mp$sharpe     <- round(mp$sharpe, precision)
   mp$universe   <- names(exp_rtn)
   mp$target_rtn <- exp_rtn[names(mp$weights)]
   mp$target_vol <- exp_vol[names(mp$weights)]
+  mp$exp_rtn    <- exp_rtn
+  mp$exp_vol    <- exp_vol
   mp <- mp[
     c(
       "universe", "target_rtn", "target_vol", "weights", "exp_rtn", "exp_vol", 

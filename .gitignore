@@ -4,3 +4,11 @@
 .Ruserdata
 docs
 docs/
+inst/doc
+calculate_portfolio_lively.R
+historical_dividends
+historical_prices
+historical_splits
+historical_universe.csv
+idk.csv
+lively.csv
