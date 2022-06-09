@@ -84,12 +84,3 @@ test_that(
     expect_true(abs(mp_yahoo_from_random_startoff$sharpe - 0.0741772) <= 0.0001)
   }
 )
-
-
-# ##### Using historical_data ####################################################
-# mp_from_bewp_2022_05_28 <- FinancieR::calculate_market_portfolio(
-#   balance_date = "2022-05-28"
-# )
-
-
-

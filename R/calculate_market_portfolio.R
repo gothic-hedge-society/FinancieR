@@ -213,10 +213,6 @@ calculate_market_portfolio <- function(
     bewp <- best_equal_weighted_portfolio(exp_rtn, exp_cov, rfr) 
     
     if(!silent){
-      start_time <- Sys.time()
-      usethis::ui_todo(
-        paste0("Starting BEWP calculation: ", crayon::bold(start_time))
-      )      
       end_time <- Sys.time()
       usethis::ui_done(crayon::bold("BEWP calculation complete."))
       (end_time - start_time) %>% 
