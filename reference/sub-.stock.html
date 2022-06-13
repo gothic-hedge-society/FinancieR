@@ -65,6 +65,8 @@ list in base R.</p>
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>an object of class "<em>stock</em>".</p></dd>
+
+
 <dt>i</dt>
 <dd><p>an <code><a href="https://rdrr.io/pkg/xts/man/xts.html" class="external-link">xts</a></code> subsetting string following the same rules
 as for an <code><a href="https://rdrr.io/pkg/xts/man/xts.html" class="external-link">xts</a></code> object: "<strong>2015</strong>" will return data
@@ -72,18 +74,25 @@ for all of 2015, "<strong>2018-04</strong>" will return data for March of 2018
 only, "<strong>2016-09-19/2016-12-31</strong>" will return data from 19 Sep 2016 to
 the end of the year, etc. If NULL, then the full time range of available
 data for the selected stock will be returned.</p></dd>
+
+
 <dt>j</dt>
 <dd><p>Character vector specifying column names to be included in the output. Available column names are:</p>
 <p>"DividendAmount", "RecordDate", "DeclaredDate", "Type", "PaymentFrequency", "Open", "High", "Low", "Close", "TWAP", "VWAP", "Volume", "PreviousCloseDate", "PreviousClose", "Denominator", "Numerator", "ExDate", "company", "acquired_by", "multiple", "type", "acquired"</p></dd>
+
+
 <dt>silent</dt>
 <dd><p>Boolean. If FALSE (Default), messages will be displayed for
 special cases that might produce unexpected behavior; e.g., if no data
 is available for the date range specified. If TRUE, these messages will
 not be displayed.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>an xts object, or NULL if no data is available for the specified
+    
+
+<p>an xts object, or NULL if no data is available for the specified
 asset within the specified date range.</p>
     </div>
     <div id="details">
@@ -218,7 +227,7 @@ the split; for example, a 2-to-1 split would have "<strong>Denominator</strong>"
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

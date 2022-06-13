@@ -65,12 +65,18 @@ each asset.</p>
     <dl><dt>exp_rtn</dt>
 <dd><p>Named numeric vector for which each element is the return
 expected for the next period for the asset specified by the element's name.</p></dd>
+
+
 <dt>exp_vol</dt>
 <dd><p>Named numeric vector for which each element is the volatility
 expected for the asset specified by the element's name.</p></dd>
+
+
 <dt>exp_cor</dt>
 <dd><p>Named numeric matrix specifying the expected covariance of
 returns for each asset pair.</p></dd>
+
+
 <dt>rfr</dt>
 <dd><p>The risk-free rate (in decimal form; i.e., to specify a rate of
 "3%" use "0.03", <em>not</em> "3") that <strong>YOU</strong> can earn on cash with
@@ -86,10 +92,16 @@ Ratio</a>. Defaults to <strong>0.0027397</strong>% daily return (about 1% annual
 If you specify a different value for <em>rfr</em>, <strong>make sure its time
 basis matches the one used for you other inputs</strong>, (i.e., if <em>exp_rtn</em>
 contains monthly returns, use monthly risk-free rate)!</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list describing the market portfolio (MP) having four elements:</p><dl><dt><code>sharpe</code>, numeric:</dt>
+    
+
+<p>A list describing the market portfolio (MP) having four elements:</p>
+
+
+<dl><dt><code>sharpe</code>, numeric:</dt>
 <dd><p>Sharpe Ratio of MP</p></dd>
 
 <dt><code>weights</code>, named numeric vector:</dt>
@@ -240,7 +252,7 @@ the <em>exp_rtn</em> parameter as passed to
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

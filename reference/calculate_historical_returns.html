@@ -78,19 +78,27 @@ take taxes or transaction fees into account.</p>
 asset, for example, "AAPL". Each sublist contains split, dividend, and
 aggregated prices data as xts objects. An example of an object that may be
 passed as <em>asset_data</em> is <a href="stock_data.html">stock_data</a>.</p></dd>
+
+
 <dt>date_range_xts</dt>
 <dd><p>A string that specifies the date range for which
 <em>calculate_daily_returns</em>() will calculate returns. Use xts subsetting
 notation to specify the date range; see examples in <a href="https://rdrr.io/pkg/xts/man/xts.html" class="external-link">xts</a>. If
 missing or NULL, then the full date range of OHLCV prices is used.</p></dd>
+
+
 <dt>buy_at</dt>
 <dd><p>Character: Specifies the 'initial price' to be used for
 calculating returns. Must be one of "open", "high", "low", "close", or
 "price", defaults to "Close". Not case sensitive.</p></dd>
+
+
 <dt>sell_at</dt>
 <dd><p>Character: Specifies the 'final price' to be used for
 calculating returns. Must be One of "open", "high", "low", "close", or
 "price", defaults to "Close". Not case sensitive.</p></dd>
+
+
 <dt>returns_method</dt>
 <dd><p>Character vector specifying how the returns should be
 calculated, defaults to <strong><em>"ln</em></strong>. Choices are:</p><ul><li><p><strong>"ln"</strong>: Log return; <em>ln(sell_price / buy_price)</em> where
@@ -103,15 +111,20 @@ where <em>log()</em> denotes the logarithm to base <em>10</em>.</p></li>
 <em>(sell_price - buy_price)/buy_price</em>. NOT multiplied by 100.</p></li>
 <li><p><strong>"multiple"</strong>: Price multiple; <em>sell_price / buy_price</em>.</p></li>
 </ul></dd>
+
+
 <dt>silent</dt>
 <dd><p>Boolean. If FALSE (Default), messages will be displayed for
 special cases that might produce unexpected behavior; e.g., if no data
 is available for the date range specified. If TRUE, these messages will
 not be displayed.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An xts object. Each element is the return observed on the date given
+    
+
+<p>An xts object. Each element is the return observed on the date given
 by the xts's index with respect to the previous period, taking into account
 any splits or dividends that may have occurred in between, for the asset
 specified by the element's column name.</p>
@@ -242,7 +255,7 @@ specified by the element's column name.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>
