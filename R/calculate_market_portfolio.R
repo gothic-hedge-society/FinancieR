@@ -150,16 +150,6 @@ calculate_market_portfolio <- function(
       dplyr::filter(date >= balance_date - n_days & date < balance_date) %>% {
         .[,-unique(which(is.na(.), arr.ind = TRUE)[,"col"])]
       } %>% {
-        .[
-          ,
-          c(
-            "date",
-            (.[1, grep("_close", colnames(.))] < 750) %>% {
-              gsub("_close", "_rtn", colnames(.)[which(.)])
-            } 
-          )
-        ]
-      } %>% {
         colnames(.) <- gsub("_rtn", "", colnames(.))
         .
       }
